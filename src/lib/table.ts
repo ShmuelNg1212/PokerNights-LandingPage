@@ -15,6 +15,32 @@ interface Seat {
   buyIns: number[];
   /** Share of the money on the table each player ends the night with (synthetic). */
   share: number;
+  /** Minutes after the start when each buy-in after the first was logged. */
+  laterAt?: number[];
+}
+
+/** The night starts at 19:30; entry times are minutes after that. */
+const START_MINUTE = 19 * 60 + 30;
+/** A rebuy tapped on the page lands this many minutes after the last entry. */
+const REBUY_GAP = 6;
+
+export type EntryKind = 'buy-in' | 'rebuy';
+
+export interface EntryView {
+  /** Minutes after the start of the night. */
+  at: number;
+  /** The clock on the night, "21:12". */
+  time: string;
+  player: string;
+  name: string;
+  initials: string;
+  colour: number;
+  kind: EntryKind;
+  amount: number;
+}
+
+export interface TransferView extends Transfer {
+  paid: boolean;
 }
 
 export interface PlayerView {
@@ -40,25 +66,50 @@ export interface TableSnapshot {
   cashedOut: number;
   pot: number;
   results: ResultView[];
-  transfers: Transfer[];
+  transfers: TransferView[];
+  entries: EntryView[];
   lastRebuy: string | null;
 }
+
+export const clock = (at: number) => {
+  const m = (START_MINUTE + at) % (24 * 60);
+  return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+};
 
 /** Synthetic demonstration players, as in the app's own showcase. */
 function seats(): Seat[] {
   return [
     { id: 'miguel', name: 'Miguel', initials: 'M', colour: 1, buyIns: [1_000_00], share: 0.21 },
-    { id: 'carlo', name: 'Carlo', initials: 'C', colour: 2, buyIns: [1_000_00, 1_000_00], share: 0.08 },
+    { id: 'carlo', name: 'Carlo', initials: 'C', colour: 2, buyIns: [1_000_00, 1_000_00], share: 0.08, laterAt: [82] },
     { id: 'trina', name: 'Trina', initials: 'T', colour: 3, buyIns: [2_000_00], share: 0.22 },
     { id: 'paolo', name: 'Paolo', initials: 'P', colour: 4, buyIns: [1_000_00], share: 0.06 },
-    { id: 'jerome', name: 'Jerome', initials: 'J', colour: 5, buyIns: [1_500_00, 1_500_00], share: 0.18 },
+    { id: 'jerome', name: 'Jerome', initials: 'J', colour: 5, buyIns: [1_500_00, 1_500_00], share: 0.18, laterAt: [108] },
     { id: 'bea', name: 'Bea', initials: 'BE', colour: 6, buyIns: [1_500_00], share: 0.25 },
   ];
 }
 
 const total = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
 
-function view(table: Seat[], lastRebuy: string | null): TableSnapshot {
+interface Logged {
+  at: number;
+  seat: Seat;
+  kind: EntryKind;
+  amount: number;
+}
+
+/** The opening log: first buy-ins two minutes apart, then the seats' later buy-ins. */
+function openingLog(table: Seat[]): Logged[] {
+  const log: Logged[] = [];
+  table.forEach((seat, i) => {
+    seat.buyIns.forEach((amount, n) => {
+      const at = n === 0 ? i * 2 : seat.laterAt?.[n - 1] ?? 60 + i * 5 + n;
+      log.push({ at, seat, kind: n === 0 ? 'buy-in' : 'rebuy', amount });
+    });
+  });
+  return log.sort((a, b) => a.at - b.at);
+}
+
+function view(table: Seat[], log: Logged[], paid: Set<number>, lastRebuy: string | null): TableSnapshot {
   const players = table.map((s) => ({
     id: s.id,
     name: s.name,
@@ -80,15 +131,31 @@ function view(table: Seat[], lastRebuy: string | null): TableSnapshot {
     return { id: s.id, name: s.name, boughtIn: mine, cashOut, result: cashOut - mine };
   });
 
-  const transfers = settle(results);
+  const transfers = settle(results).map((t, i) => ({ ...t, paid: paid.has(i) }));
+  const entries = log.map((e) => ({
+    at: e.at,
+    time: clock(e.at),
+    player: e.seat.id,
+    name: e.seat.name,
+    initials: e.seat.initials,
+    colour: e.seat.colour,
+    kind: e.kind,
+    amount: e.amount,
+  }));
 
-  return { players, boughtIn, cashedOut, pot: boughtIn - cashedOut, results, transfers, lastRebuy };
+  return { players, boughtIn, cashedOut, pot: boughtIn - cashedOut, results, transfers, entries, lastRebuy };
 }
 
 export function createTable() {
   const table = seats();
+  const log = openingLog(table);
+  const paid = new Set<number>();
   const listeners = new Set<(s: TableSnapshot) => void>();
-  let current = view(table, null);
+  let current = view(table, log, paid, null);
+  const publish = () => {
+    for (const fn of listeners) fn(current);
+    return current;
+  };
 
   return {
     snapshot: () => current,
@@ -96,9 +163,19 @@ export function createTable() {
       const seat = table.find((s) => s.id === id);
       if (!seat) return current;
       seat.buyIns.push(USUAL_BUY_IN);
-      current = view(table, id);
-      for (const fn of listeners) fn(current);
-      return current;
+      log.push({ at: log.at(-1)!.at + REBUY_GAP, seat, kind: 'rebuy', amount: USUAL_BUY_IN });
+      // New buy-ins change who pays whom, so earlier paid marks no longer apply.
+      paid.clear();
+      current = view(table, log, paid, id);
+      return publish();
+    },
+    /** Toggles the paid mark on one transfer, as the host's Mark paid does. */
+    markPaid(index: number): TableSnapshot {
+      if (!current.transfers[index]) return current;
+      if (paid.has(index)) paid.delete(index);
+      else paid.add(index);
+      current = view(table, log, paid, current.lastRebuy);
+      return publish();
     },
     subscribe(fn: (s: TableSnapshot) => void) {
       listeners.add(fn);

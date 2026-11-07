@@ -37,7 +37,7 @@ Object count: the app window shows whole in #1 and #2 only (limit: hero + 2). Ca
 
 ### Technical
 
-- [ ] **T1. Table state for the app window.** `tests: first`
+- [x] **T1. Table state for the app window.** `tests: first`
   - `src/lib/table.ts` gains the night's entry log (time, player, kind, amount) and a paid flag per transfer. The app window and the hero card read the same store.
   - Tests: the log has one entry per buy-in and rebuy, in time order; a rebuy adds one log row; marking a transfer paid does not change the amounts; the existing tests still pass.
   - Acceptance: the new tests fail first, then pass. `npm test` passes.

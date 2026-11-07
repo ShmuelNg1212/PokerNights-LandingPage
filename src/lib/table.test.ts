@@ -60,3 +60,54 @@ describe('the Friday table', () => {
     expect(table.rebuy('nobody')).toEqual(before);
   });
 });
+
+describe('the night log and paid marks', () => {
+  it('logs one entry per buy-in and rebuy, in time order', () => {
+    const t = createTable().snapshot();
+    const count = sum(t.players.map((p) => p.buyIns.length));
+    expect(t.entries).toHaveLength(count);
+    const times = t.entries.map((e) => e.at);
+    expect(times).toEqual([...times].sort((a, b) => a - b));
+    expect(t.entries[0]!.kind).toBe('buy-in');
+    expect(t.entries.filter((e) => e.kind === 'rebuy').length).toBe(count - t.players.length);
+    expect(sum(t.entries.map((e) => e.amount))).toBe(t.boughtIn);
+  });
+
+  it('adds one rebuy row, last, on a rebuy', () => {
+    const table = createTable();
+    const before = table.snapshot().entries;
+    const after = table.rebuy('carlo').entries;
+    expect(after).toHaveLength(before.length + 1);
+    const last = after.at(-1)!;
+    expect(last).toMatchObject({ player: 'carlo', kind: 'rebuy', amount: USUAL_BUY_IN });
+    expect(last.at).toBeGreaterThan(before.at(-1)!.at);
+  });
+
+  it('formats an entry time as a clock on the night', () => {
+    const t = createTable().snapshot();
+    expect(t.entries[0]!.time).toMatch(/^\d{2}:\d{2}$/);
+  });
+
+  it('marks a transfer paid without changing any amount', () => {
+    const table = createTable();
+    const before = table.snapshot();
+    expect(before.transfers.every((x) => !x.paid)).toBe(true);
+    const after = table.markPaid(0);
+    expect(after.transfers[0]!.paid).toBe(true);
+    expect(after.transfers.map((x) => x.amount)).toEqual(before.transfers.map((x) => x.amount));
+    expect(after.boughtIn).toBe(before.boughtIn);
+    expect(table.markPaid(0).transfers[0]!.paid).toBe(false);
+  });
+
+  it('clears paid marks when a rebuy changes who pays whom', () => {
+    const table = createTable();
+    table.markPaid(0);
+    expect(table.rebuy('paolo').transfers.every((x) => !x.paid)).toBe(true);
+  });
+
+  it('ignores a transfer that does not exist', () => {
+    const table = createTable();
+    const before = table.snapshot();
+    expect(table.markPaid(99)).toEqual(before);
+  });
+});
