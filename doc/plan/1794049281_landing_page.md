@@ -39,7 +39,7 @@ Skills: `tdd` (T2), `design-taste-frontend` with `lint.mjs` and `inspect.mjs` (D
   - Tests: a rebuy raises the pot and "bought in" by ₱1,000; the transfers update; the pot equals bought in minus cashed out.
   - Done when: committed as `feat:`.
 
-- [ ] **T4. Record the app's own media.** `tests: alongside`
+- [x] **T4. Record the app's own media.** `tests: alongside`
   - In a scratch folder: a temporary database, migrate, seed the fixtures named in `web/tests/browser/README.md`, start the app on `127.0.0.1:8765`.
   - Scripted Playwright runs at 390 × 844, dark, recorded: (a) the seat-draw overture, (b) a rebuy and the rolling pot, (c) the count-up chip rack, (d) settle-up and the share card. 6–10 s each.
   - Encode with ffmpeg: H.264 MP4 and VP9 WebM, no audio, under 1.5 MB each; a poster JPEG/AVIF per clip; four or more cropped stills.
