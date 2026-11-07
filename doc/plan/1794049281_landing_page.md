@@ -34,7 +34,7 @@ Skills: `tdd` (T2), `design-taste-frontend` with `lint.mjs` and `inspect.mjs` (D
   - Acceptance: the tests are written first and fail, then pass.
   - Done when: committed as `feat:`.
 
-- [ ] **T3. Live table state.** `tests: first`
+- [x] **T3. Live table state.** `tests: first`
   - `src/lib/table.ts`: the Friday table (six players, usual buy-in ₱1,000, fixed cash-outs). `rebuy(player)` adds ₱1,000 and returns the new totals, the pot and the transfers from T2. One shared store for the hero, the showcase row and field 4.
   - Tests: a rebuy raises the pot and "bought in" by ₱1,000; the transfers update; the pot equals bought in minus cashed out.
   - Done when: committed as `feat:`.
