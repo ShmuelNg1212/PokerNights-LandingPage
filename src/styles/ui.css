@@ -112,3 +112,14 @@
   .ui-btn, .ui-segment span { transition: none; }
   .ui-btn:active { transform: none; }
 }
+
+/* Narrow fragments: sized to the fragment, not the window. As in the app, the money action
+   moves under the name when the row is too narrow to hold it beside the figure. */
+.live-set, .state-copy { container-type: inline-size; }
+.display-amount { font-size: clamp(2.25rem, 14cqi, 3.5rem); }
+.pot-side strong { font-size: clamp(1.125rem, 6cqi, 1.5rem); }
+@container (max-width: 340px) {
+  .player-row { grid-template-columns: 44px minmax(0, 1fr) auto; row-gap: 6px; }
+  .player-row > .ui-btn { grid-column: 2 / -1; justify-self: start; min-height: 40px; }
+  .player-row > span:last-child:empty { display: none; }
+}
