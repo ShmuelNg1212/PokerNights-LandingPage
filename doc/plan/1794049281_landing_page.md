@@ -6,16 +6,14 @@ Mode: mixed. Technical first (scaffold, settle-up logic, fragments), then the de
 
 Skills: `tdd` (T2), `design-taste-frontend` with `lint.mjs` and `inspect.mjs` (D1–D4), `mobile-native` (D4), `animate` and the `motion` skill with `search-motion-docs` (M1–M2), `code-review`, `break-ui`, `review-animations` (R1).
 
-## OPEN QUESTIONS
+## Answers (2026-11-07, approved)
 
-Answer these before approval. The default applies if you do not answer.
-
-1. **Host and domain.** Vercel (same account as the app) or Netlify? A domain of its own, or `*.vercel.app` for now? Default: Vercel, `*.vercel.app`, no custom domain.
-2. **New hosts.** A superuser must add the first host of a group. What does the page tell a person who wants to host? Default: "Ask the person who runs PokerNights" with a `mailto:` to an address you give. With no address, the FAQ answer says a host of an existing group cannot create one, and the line is left out.
-3. **Found pictures.** Allow one or two credited real photographs of a home table at night from open collections? Default: no. Only the app's own captures and HTML fragments, because the brand rules out casino imagery.
-4. **Name.** Default: the brand spelling `PokerNights` everywhere.
-5. **Privacy link.** No privacy page exists. Default: leave it out of the footer.
-6. **Recording.** Default: yes. Run the app locally from `~/PokerNights` on a temporary SQLite database with its synthetic seed fixtures, record with Playwright, and copy only the encoded media into this repo. Production is not touched. The app repo gets no commits.
+1. **Host:** Netlify. No custom domain yet; use the `*.netlify.app` address.
+2. **New hosts:** send a person who wants to host, and has no invite, to a contact page (`/contact/`). The page uses a Netlify Form, so no email address is published. Submissions arrive in the Netlify dashboard; email notification is set up there by the human.
+3. **Found pictures:** none. Only the app's own captures and HTML fragments.
+4. **Name:** `PokerNights` everywhere.
+5. **Privacy link:** left out.
+6. **Recording:** approved, on a temporary local database with synthetic fixtures.
 
 ## Tasks
 
@@ -68,7 +66,8 @@ Build with the motion off first. The sheet's blueprints give the geometry; the b
   - Comparison "Next to a notebook" as a lineless grid; the PokerNights column is one bone block, reversed. On a phone it turns into one block per row.
   - FAQ "Before you play": `<details name="faq">` tiles, sticky heading on desktop, the open tile in brass.
   - CTA: full-bleed felt field, "Deal everyone / in tonight.", the `data-ui` "Open PokerNights" dialog. "I have an invite" accepts only `https://pokernights-five.vercel.app/join/…` or `/claim/…` links and opens them; "I have an account" opens `/accounts/login/`. Any other text is refused in words under the field.
-  - Footer: one quiet line, as in the copy deck.
+  - Footer: one quiet line, as in the copy deck, plus "Want to host?" → `/contact/`.
+  - FAQ 3 ("I want to host") answers: a new group is set up by the person who runs PokerNights; send a message from the contact page. The CTA dialog has a quiet line under it: "No invite and want to host? Get in touch." → `/contact/`.
   - Acceptance: a pasted `https://example.com/join/x` is refused; a valid-looking invite link opens on the app's address; Log in opens the app's log in.
 
 - [ ] **D4. Gate and look.** `tests: alongside`
@@ -76,6 +75,11 @@ Build with the motion off first. The sheet's blueprints give the geometry; the b
   - Up to three critique rounds with `references/critique.md` on the 1440, 768 and 390 screenshots; fix the top three problems each round.
   - `mobile-native`: no tap flash, no hover stuck on touch, `svh` units, safe-area insets, inputs at 16 px or more.
   - Done when: the last critique's scores are recorded here; committed as `feat:`.
+
+- [ ] **D5. Contact page.** `tests: alongside`
+  - `/contact/`: same tokens and type, the mark, one short heading ("Host a group"), one sentence on what happens next, and a Netlify Form (`name="host-request"`, `data-netlify="true"`, honeypot field) with name, contact (email or Messenger), group size, and a message. A thank-you page at `/contact/thanks/`.
+  - Acceptance: the built HTML has the form with `data-netlify` and the hidden `form-name` input, so Netlify detects it at deploy. Labels, 16 px inputs, 48 px targets, visible focus.
+  - Done when: committed as `feat:`.
 
 ### Motion pass
 
@@ -111,8 +115,8 @@ Build with the motion off first. The sheet's blueprints give the geometry; the b
 
 ### Release (after "ship")
 
-- [ ] **S1. First deploy.** Needs the remote (no remote yet) and the answer to open question 1.
-  - Link the repo to the host. Write the build, deploy and rollback commands to `doc/wiki/setup.md`.
+- [ ] **S1. First deploy.** Needs the remote (no remote yet).
+  - `netlify.toml`: build `npm run build`, publish `dist`, Node version pinned. Link the repo to Netlify. Turn on form notifications for `host-request`. Write the build, deploy and rollback commands to `doc/wiki/setup.md`.
   - Run `npm test` and `npm run build` under the host's build environment. Record the previous commit. Push.
   - Done when: the live page's `<meta name="build">` shows the new commit.
 
