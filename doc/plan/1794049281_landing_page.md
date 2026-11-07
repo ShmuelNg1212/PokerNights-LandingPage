@@ -122,7 +122,7 @@ Build with the motion off first. The sheet's blueprints give the geometry; the b
 
 ### Sync docs
 
-- [ ] **W1.** Start `doc/wiki/spec.md` (what the page shows and where each link goes) and `doc/wiki/setup.md` (commands, media recording). Add an ADR for the choice of direction and the brand exceptions.
+- [x] **W1.** Start `doc/wiki/spec.md` (what the page shows and where each link goes) and `doc/wiki/setup.md` (commands, media recording). Add an ADR for the choice of direction and the brand exceptions.
 
 ## Checks record
 
