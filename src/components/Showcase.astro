@@ -1,0 +1,74 @@
+---
+import PlayerRow from './ui/PlayerRow.astro';
+import Video from './Video.astro';
+import { createTable } from '../lib/table';
+import { peso, signedPeso } from '../lib/money';
+
+const t = createTable().snapshot();
+const carlo = t.players.find((p) => p.id === 'carlo')!;
+const result = t.results.find((r) => r.id === 'carlo')!;
+---
+<section class="showcase wrap" aria-labelledby="showcase-title">
+  <h2 class="h-l showcase-title" id="showcase-title" data-reveal>One row per player</h2>
+  <div class="showcase-grid">
+    <div class="states">
+      <div class="state" data-reveal>
+        <p class="state-word">Sits down</p>
+        <ul class="state-copy" data-ui>
+          <PlayerRow id="carlo" name="Carlo" initials="C" colour={2} buyIns={1} boughtIn={1_000_00} />
+        </ul>
+      </div>
+      <div class="state" data-reveal>
+        <p class="state-word">Rebuys</p>
+        <ul class="state-copy is-pointed" data-ui>
+          <PlayerRow id="carlo" name="Carlo" initials="C" colour={2} buyIns={carlo.buyIns.length} boughtIn={carlo.boughtIn} live />
+        </ul>
+      </div>
+      <div class="state" data-reveal>
+        <p class="state-word">Cashes out</p>
+        <ul class="state-copy" data-ui>
+          <li class="player-row">
+            <span class="chip k2" aria-hidden="true">C</span>
+            <span class="player-identity">
+              <span class="player-name">Carlo</span>
+              <span class="player-meta"><span data-result-label>{peso(carlo.boughtIn)} bought in</span></span>
+            </span>
+            <span class="player-figure">
+              <span class="down" data-result-value>{signedPeso(result.result)}</span>
+              <small data-result-cashout>{peso(result.cashOut)} cashed out</small>
+            </span>
+            <span class="ui-badge is-quiet">Counted</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <figure class="showcase-clip" data-reveal>
+      <Video name="deal" label="The PokerNights app on a phone: a ₱1,000 rebuy is confirmed for Carlo and the pot rises from ₱6,000 to ₱7,000." />
+      <figcaption>The same row in the app, recorded on demo players.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .showcase { padding-block: var(--section-gap) 0; }
+  .showcase-title { margin-left: calc(25% + 0px); margin-bottom: 96px; }
+  .showcase-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: start; }
+  .states { grid-column: 1 / span 9; display: grid; gap: 56px; }
+  .state { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); column-gap: 24px; align-items: center; }
+  .state-word { grid-column: 1 / span 3; text-align: right; color: var(--muted); font-size: var(--t-m); font-weight: 600; }
+  .state-copy { grid-column: 4 / span 6; max-width: 640px; margin: 0; padding: 4px 18px; list-style: none; background: var(--ground); border-radius: var(--r-surface); }
+  .state-copy :global(.player-row) { border-bottom: 0; }
+  .state-copy.is-pointed { background: var(--rail-2); }
+  .showcase-clip { grid-column: 10 / span 3; margin: -40px 0 0; }
+  .showcase-clip figcaption { margin-top: 14px; color: var(--muted); font-size: var(--t-s); }
+
+  @media (max-width: 1100px) {
+    .showcase-title { margin-left: 0; margin-bottom: 56px; }
+    .states { grid-column: 1 / -1; }
+    .state { grid-template-columns: 1fr; gap: 10px; }
+    .state-word { order: 2; text-align: left; font-size: var(--t-body); }
+    .state-copy { grid-column: auto; max-width: 640px; }
+    .states { gap: 48px; }
+    .showcase-clip { grid-column: 1 / -1; width: min(360px, 100%); margin: 72px 0 0; }
+  }
+</style>

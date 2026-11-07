@@ -1,0 +1,82 @@
+---
+import LiveSet from './ui/LiveSet.astro';
+import { APP, LOGIN } from '../lib/links';
+---
+<header class="hero" id="top">
+  <a class="hero-mark" href="#top">
+    <img src="/brand/logo-horizontal.svg" alt="PokerNights" width="170" height="32" />
+  </a>
+  <div class="hero-copy">
+    <div class="hero-words">
+      <h1 class="h-l lines">
+        <span class="line"><span data-line style="--i:0">Who pays whom,</span></span>
+        <span class="line"><span data-line style="--i:1">worked out.</span></span>
+      </h1>
+      <p class="hero-sentence" data-hero-after>
+        PokerNights keeps the bank for your home poker game: buy-ins, rebuys, cash-outs and the settle-up. It never moves money.
+      </p>
+      <p class="hero-actions" data-hero-after>
+        <a class="pill" href={APP}>Open PokerNights</a>
+        <a class="text-link hero-how" href="#first-night">How to start</a>
+      </p>
+    </div>
+  </div>
+  <div class="hero-stage">
+    <a class="hero-login text-link" href={LOGIN}>Log in</a>
+    <div class="hero-fragment" data-hero-fragment>
+      <LiveSet />
+    </div>
+    <p class="hero-hint">Tap Rebuy. The pot is live.</p>
+  </div>
+</header>
+
+<style>
+  .hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: max(100svh, 760px);
+  }
+  .hero-copy {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 120px 40px 40px;
+    background: var(--ground);
+  }
+  .hero-mark { position: absolute; z-index: 2; top: 36px; left: 40px; display: inline-flex; }
+  .hero-mark img { height: 32px; width: auto; }
+  .hero-words { max-width: 36rem; padding-bottom: 8px; }
+  .hero-words h1 { margin-bottom: 22px; }
+  .hero-sentence { max-width: 44ch; color: var(--text); font-size: var(--t-body); }
+  .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 26px; margin-top: 30px; }
+  .hero-how { font-weight: 650; }
+
+  .hero-stage {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow: hidden;
+    padding: 120px 40px 0;
+    background: var(--rail);
+  }
+  .hero-login { position: absolute; top: 40px; right: 40px; font-size: var(--t-s); font-weight: 650; }
+  .hero-fragment { width: min(440px, 100%); }
+  .hero-hint {
+    position: absolute; left: 40px; top: 40px;
+    color: var(--muted); font-size: var(--t-s);
+  }
+
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; height: auto; }
+    .hero-stage { order: -1; height: 66svh; min-height: 520px; padding: 76px 16px 0; }
+    .hero-login { top: 22px; right: 20px; }
+    .hero-hint { display: none; }
+    .hero-copy { padding: 36px 20px 56px; }
+    .hero-mark { top: 20px; left: 20px; }
+    .hero-mark img { height: 28px; }
+    .hero-words h1 { font-size: clamp(2.25rem, 10.4vw, 3.25rem); }
+  }
+</style>

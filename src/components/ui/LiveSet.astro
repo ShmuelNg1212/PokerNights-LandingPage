@@ -1,0 +1,49 @@
+---
+import Icon from '../Icon.astro';
+import PlayerRow from './PlayerRow.astro';
+import { createTable } from '../../lib/table';
+import { peso } from '../../lib/money';
+
+const t = createTable().snapshot();
+---
+<div class="live-set" data-ui data-live-set aria-label="A working copy of the PokerNights set page. Tap Rebuy to record one.">
+  <div class="ui-bar">
+    <span class="ui-back"><Icon name="back" />Session: Friday table</span>
+    <span class="live-status">Live · <time data-clock>21:40</time></span>
+  </div>
+  <div class="felt">
+    <div class="felt-head">
+      <h3>Friday table <small>Set 1</small></h3>
+      <span class="ui-badge">In play</span>
+    </div>
+    <div class="pot">
+      <div>
+        <span class="pot-label">Still in play</span>
+        <strong class="display-amount" data-pot aria-live="polite">{peso(t.pot)}</strong>
+      </div>
+      <div class="pot-side">
+        <div><span>Set timer</span><strong data-timer>under 1 min</strong></div>
+        <div><span>Blinds</span><strong>₱10 / ₱20</strong></div>
+      </div>
+    </div>
+    <p class="set-totals"><span data-total>{peso(t.boughtIn)}</span> bought in · {peso(t.cashedOut)} cashed out</p>
+  </div>
+  <div class="ui-section-head">
+    <h4>Players <small>6 · 2 seats free</small></h4>
+  </div>
+  <ul class="player-list">
+    {t.players.map((p) => (
+      <PlayerRow id={p.id} name={p.name} initials={p.initials} colour={p.colour} buyIns={p.buyIns.length} boughtIn={p.boughtIn} live />
+    ))}
+  </ul>
+</div>
+
+<style>
+  .live-set {
+    width: 100%;
+    max-width: 440px;
+    overflow: hidden;
+    background: var(--ground);
+    border-radius: 28px 28px 0 0;
+  }
+</style>

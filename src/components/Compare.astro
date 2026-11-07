@@ -1,0 +1,66 @@
+---
+const columns = ['PokerNights', 'A notebook', 'A group-chat tally'];
+const rows: Array<[string, string, string, string]> = [
+  ['Buy-ins and rebuys', 'One tap, with the time', 'Written by hand', 'Typed by whoever remembers'],
+  ['Do the books balance?', 'Checked at count-up, the gap named', 'Add it all up yourself', 'Scroll up and add'],
+  ['A wrong entry', 'Reversed with a reason, kept in the log', 'Crossed out', 'Edited, the old one gone'],
+  ['Who pays whom', 'Worked out, fewest transfers', 'Sums at two in the morning', 'Argued in the thread'],
+  ['Pesos or chips', 'Either one, never mixed', 'Whatever was written', 'Whatever was typed'],
+  ['Counting a stack', 'Tap each chip colour, it adds them', 'Count it twice', 'Count it twice'],
+  ['Seats and the dealer', 'Drawn, shown on every phone', 'Cut the deck', 'Cut the deck'],
+  ['Rake', 'Taken per buy-in, kept apart', 'Hard to keep track of', 'Hard to keep track of'],
+  ['Last month’s games', 'Every closed session, per player', 'Somewhere in the drawer', 'Buried under memes'],
+];
+---
+<section class="compare wrap" aria-labelledby="compare-title">
+  <h2 class="h-l compare-title" id="compare-title" data-reveal>Next to a notebook</h2>
+  <div class="compare-table" data-reveal>
+    <table>
+      <caption class="visually-hidden">PokerNights compared with a notebook and a group-chat tally</caption>
+      <thead>
+        <tr>
+          <td></td>
+          {columns.map((c, i) => <th scope="col" class:list={[i === 0 && 'is-ours']}>{c}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map(([name, ...answers]) => (
+          <tr>
+            <th scope="row">{name}</th>
+            {answers.map((a, i) => <td class:list={[i === 0 && 'is-ours']} data-col={columns[i]}>{a}</td>)}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<style>
+  .compare { padding-top: var(--section-gap); }
+  .compare-title { margin-bottom: 48px; }
+  table { width: 100%; border-collapse: collapse; border-spacing: 0; table-layout: fixed; }
+  thead th { padding: 30px 22px 14px; text-align: left; font-size: var(--t-body); font-weight: 750; vertical-align: bottom; }
+  thead td { width: 34%; }
+  tbody th { padding: 0 22px 0 0; text-align: left; font-size: var(--t-m); font-weight: 600; letter-spacing: -0.01em; }
+  tbody td { padding: 16px 22px; font-size: var(--t-body); color: var(--muted); }
+  tbody tr { height: 72px; }
+  tbody tr:nth-child(odd) { background: var(--rail); }
+  tbody tr:nth-child(odd) th { padding-left: 22px; }
+  tbody tr:nth-child(even) th { padding-left: 22px; }
+  .is-ours { background: var(--bone); color: var(--ink) !important; font-weight: 650; }
+  thead .is-ours { border-radius: 16px 16px 0 0; }
+  tbody tr:last-child .is-ours { border-radius: 0 0 16px 16px; }
+
+  @media (max-width: 760px) {
+    table, thead, tbody, tr, th, td { display: block; width: auto; }
+    thead { display: none; }
+    tbody tr { height: auto; padding: 18px 16px 16px; }
+    tbody tr:nth-child(odd) { background: var(--rail); }
+    tbody tr:nth-child(even) { background: var(--bg); }
+    tbody th, tbody tr:nth-child(odd) th, tbody tr:nth-child(even) th { padding: 0 0 10px; font-size: var(--t-m); font-weight: 700; }
+    tbody td { padding: 8px 0; }
+    tbody td::before { content: attr(data-col) ': '; color: var(--text); font-weight: 650; }
+    tbody td.is-ours { margin: 2px -16px; padding: 10px 16px; border-radius: 0 !important; }
+    tbody td.is-ours::before { color: var(--ink); }
+  }
+</style>

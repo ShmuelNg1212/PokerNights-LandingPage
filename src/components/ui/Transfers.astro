@@ -1,0 +1,49 @@
+---
+import { createTable } from '../../lib/table';
+import { peso } from '../../lib/money';
+
+const t = createTable().snapshot();
+const colour = new Map(t.players.map((p) => [p.id, p]));
+---
+<div class="ui-card transfers" data-ui>
+  <div class="transfers-head">
+    <h3>Who pays whom</h3>
+    <span class="ui-badge is-brass">Unsettled</span>
+  </div>
+  <p class="ui-muted">Friday table · <span data-transfer-count>{t.transfers.length} transfers</span></p>
+  <ul class="ui-rows" data-transfers aria-live="polite">
+    {t.transfers.map((x) => {
+      const from = colour.get(x.from)!;
+      const to = colour.get(x.to)!;
+      return (
+        <li>
+          <span class={`chip is-small k${from.colour}`} aria-hidden="true">{from.initials}</span>
+          <span>{from.name}</span>
+          <span class="arrow" aria-label="pays">→</span>
+          <span class={`chip is-small k${to.colour}`} aria-hidden="true">{to.initials}</span>
+          <span>{to.name}</span>
+          <span class="amt">{peso(x.amount)}</span>
+        </li>
+      );
+    })}
+  </ul>
+  <p class="transfers-foot">The app records payments. It does not move money.</p>
+</div>
+
+<template data-transfer-row>
+  <li>
+    <span class="chip is-small" aria-hidden="true" data-from-chip></span>
+    <span data-from></span>
+    <span class="arrow" aria-label="pays">→</span>
+    <span class="chip is-small" aria-hidden="true" data-to-chip></span>
+    <span data-to></span>
+    <span class="amt" data-amount></span>
+  </li>
+</template>
+
+<style>
+  .transfers { padding: 18px 16px 14px; }
+  .transfers-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+  .transfers .ui-rows li { gap: 6px; font-size: .875rem; }
+  .transfers-foot { margin: 10px 0 0; padding-top: 10px; border-top: 1px solid var(--rule); color: var(--bone-dim); font-size: .8125rem; } /* taste-skill-ignore: data-ui fragment */
+</style>

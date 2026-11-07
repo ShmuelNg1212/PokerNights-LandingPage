@@ -50,4 +50,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 @media (hover: hover) { .text-link:hover { text-decoration-color: currentColor; } }
 
+.lines .line { display: block; overflow: hidden; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+.lines [data-line] { display: inline-block; }
+
 .wrap { width: 100%; max-width: var(--max); margin-inline: auto; padding-inline: var(--gutter); }

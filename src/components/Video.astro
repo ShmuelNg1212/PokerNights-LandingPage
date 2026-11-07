@@ -1,0 +1,23 @@
+---
+/** A muted loop of the real app over its poster. Plays only in view (see scripts/media.ts). */
+interface Props {
+  name: 'seat-draw' | 'deal' | 'recap';
+  label: string;
+  class?: string;
+}
+const { name, label, class: extra } = Astro.props;
+---
+<div class:list={['app-clip', extra]}>
+  <img class="clip-poster" src={`/media/${name}-poster.jpg`} alt={label} width="720" height="1558" loading="lazy" decoding="async" />
+  <video data-loop muted playsinline loop preload="none" width="720" height="1558" aria-hidden="true" tabindex="-1">
+    <source src={`/media/${name}.webm`} type="video/webm" />
+    <source src={`/media/${name}.mp4`} type="video/mp4" />
+  </video>
+</div>
+
+<style>
+  .app-clip { position: relative; overflow: hidden; border-radius: 26px; background: var(--ground); aspect-ratio: 720 / 1300; }
+  .app-clip :is(img, video) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+  .app-clip video { opacity: 0; transition: opacity 300ms var(--ease-out); }
+  .app-clip video.is-playing { opacity: 1; }
+</style>

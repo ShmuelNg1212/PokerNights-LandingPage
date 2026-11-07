@@ -1,0 +1,71 @@
+---
+import { LOGIN, CONTACT } from '../lib/links';
+---
+<section class="cta" id="open" aria-labelledby="cta-title">
+  <div class="cta-words">
+    <h2 class="h-xl lines" id="cta-title">
+      <span class="line"><span data-line style="--i:0">Deal everyone</span></span>
+      <span class="line"><span data-line style="--i:1">in tonight.</span></span>
+    </h2>
+    <p data-reveal>Paste the invite link your host sent, or log in if you already play.</p>
+  </div>
+
+  <form class="open-dialog" data-ui data-open action={LOGIN} method="get" novalidate data-reveal>
+    <h3>Open PokerNights</h3>
+    <fieldset class="ui-segment">
+      <legend class="visually-hidden">How you are joining</legend>
+      <label><input type="radio" name="how" value="invite" checked /><span>I have an invite</span></label>
+      <label><input type="radio" name="how" value="account" /><span>I have an account</span></label>
+    </fieldset>
+    <div class="open-field" data-invite-field>
+      <label for="invite-link">Invite link</label>
+      <input id="invite-link" name="link" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false"
+        placeholder="pokernights-five.vercel.app/join/…" aria-describedby="invite-error invite-help" />
+      <p class="ui-muted" id="invite-help">It is in the chat, from your host. It works for 7 days.</p>
+      <p class="ui-error" id="invite-error" role="alert" data-invite-error></p>
+    </div>
+    <p class="open-account ui-muted" data-account-note hidden>You will log in on PokerNights. On a phone, the app on your home screen works too.</p>
+    <button type="submit" class="ui-btn is-primary is-block" data-open-button>Join the group</button>
+    <p class="open-host">No invite and want to host? <a class="text-link" href={CONTACT}>Get in touch</a></p>
+  </form>
+</section>
+
+<style>
+  .cta {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 24px;
+    min-height: max(90svh, 720px);
+    margin-top: var(--section-gap);
+    padding: 40px var(--gutter);
+    background: var(--felt);
+    --muted: var(--felt-ink);
+  }
+  .cta-words { grid-column: 1 / span 8; align-self: end; padding-bottom: 8px; }
+  .cta-words h2 { margin-bottom: 24px; }
+  .cta-words p { max-width: 40ch; color: var(--text); font-size: var(--t-body); }
+  .open-dialog {
+    grid-column: 9 / span 4;
+    align-self: center;
+    justify-self: end;
+    display: grid;
+    gap: 16px;
+    width: min(440px, 100%);
+    padding: 22px 20px 20px;
+    border-radius: var(--r-sheet);
+    background: var(--rail);
+    box-shadow: 0 24px 60px oklch(0.12 0.06 265 / .55); /* taste-skill-ignore: data-ui dialog, open above the page */
+  }
+  .open-dialog h3 { font-size: 1.375rem; font-weight: 750; font-stretch: 88%; }
+  .open-dialog fieldset { margin: 0; min-width: 0; }
+  .open-field .ui-muted { margin-top: 8px; }
+  .open-host { color: var(--bone-dim); font-size: .9375rem; text-align: center; }
+  .open-host a { color: var(--bone); font-weight: 650; }
+
+  @media (max-width: 900px) {
+    .cta { display: flex; flex-direction: column; justify-content: space-between; gap: 48px; padding: 56px 16px 32px; min-height: 84svh; }
+    .cta-words { align-self: auto; }
+    .open-dialog { justify-self: auto; width: 100%; max-width: 480px; }
+    .open-dialog .ui-btn { min-height: 52px; }
+  }
+</style>

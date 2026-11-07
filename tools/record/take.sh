@@ -1,6 +1,7 @@
 #!/bin/zsh
 # One take: fresh DB, seed, serve, record, stop.
 set -e
+setopt nullglob
 R=${R:-/private/tmp/pn-landing-rec}; mkdir -p $R; cp "${0:A:h}"/seed_landing.py "${0:A:h}"/record.mjs $R/
 cd ~/PokerNights
 export DEBUG=True DATABASE_URL=sqlite:///$R/landing.sqlite3 PLAYWRIGHT_BROWSERS_PATH=/private/tmp/pn-browser-binaries

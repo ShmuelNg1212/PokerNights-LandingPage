@@ -1,0 +1,55 @@
+---
+import Icon from '../Icon.astro';
+import { peso } from '../../lib/money';
+import { buyInLabel } from '../../lib/labels';
+
+interface Props {
+  id: string;
+  name: string;
+  initials: string;
+  colour: number;
+  buyIns: number;
+  boughtIn: number;
+  /** Renders a working Rebuy button bound to the shared table. */
+  live?: boolean;
+  /** For the showcase's still copies. */
+  figure?: { value: string; label: string; tone?: 'up' | 'down' };
+  mark?: string;
+  action?: 'rebuy' | 'none';
+  extraClass?: string;
+}
+const { id, name, initials, colour, buyIns, boughtIn, live = false, figure, mark, action = 'rebuy', extraClass = '' } = Astro.props;
+const stack = Math.min(buyIns, 6);
+---
+<li class:list={['player-row', extraClass, mark && 'is-marked']} data-player={live ? id : undefined}>
+  <span class={`chip k${colour}`} aria-hidden="true">{initials}</span>
+  <span class="player-identity">
+    <span class="player-name">{name}</span>
+    <span class="player-meta">
+      <span class="buy-stack" data-stack aria-hidden="true">{Array.from({ length: stack }, () => <i />)}</span>
+      <span data-label>{buyInLabel(buyIns)}</span>
+    </span>
+  </span>
+  <span class="player-figure">
+    {figure ? (
+      <>
+        <span class:list={[figure.tone]}>{figure.value}</span>
+        <small>{figure.label}</small>
+      </>
+    ) : (
+      <>
+        <span data-bought>{peso(boughtIn)}</span>
+        <small>bought in</small>
+      </>
+    )}
+    {mark && <span class="row-mark">{mark}</span>}
+    {live && <span class="row-mark" data-mark hidden>Rebuy added</span>}
+  </span>
+  {action === 'rebuy' && live && (
+    <button type="button" class="ui-btn" data-rebuy={id} aria-label={`Rebuy for ${name}`}>
+      <Icon name="plus" />Rebuy
+    </button>
+  )}
+  {action === 'rebuy' && !live && <span class="ui-btn" aria-hidden="true"><Icon name="plus" />Rebuy</span>}
+  {action === 'none' && <span />}
+</li>

@@ -1,6 +1,38 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import Showcase from '../components/Showcase.astro';
+import QuickStart from '../components/QuickStart.astro';
+import Compare from '../components/Compare.astro';
+import Faq from '../components/Faq.astro';
+import Cta from '../components/Cta.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/ui.css';
 ---
-<Layout title="PokerNights" description="PokerNights keeps the bank for your home poker game.">
-  <main id="main"><h1 class="h-l wrap">PokerNights</h1></main>
+<Layout
+  title="PokerNights · The bank for your home poker game"
+  description="PokerNights keeps the bank for your home poker game: buy-ins, rebuys, cash-outs and who pays whom at the end. It never moves money."
+>
+  <Hero />
+  <main id="main">
+    <Showcase />
+    <QuickStart />
+    <Compare />
+    <Faq />
+    <Cta />
+  </main>
+  <Footer />
 </Layout>
+
+<script>
+  import { initLive } from '../scripts/live';
+  import { initOpen } from '../scripts/open';
+  import { initMedia } from '../scripts/media';
+  initLive();
+  initOpen();
+  initMedia();
+</script>
+
+<style is:global>
+  html:not(.js) [data-rebuy], html:not(.js) .hero-hint { display: none; }
+</style>
