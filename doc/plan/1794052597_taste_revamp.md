@@ -4,19 +4,17 @@ Study: [doc/study/1794052562_taste_revamp.md](../study/1794052562_taste_revamp.m
 
 Line 1 (kind): **software** (page type `software`, site-kind `software`).
 
-Line 2 (deal): hero `collage` · palette see Q1 · type see Q2 · radius `round` · buttons `arrow` · nav `nav-centre` (dealt `nav-mega`; one page has no 6 to 12 feature pages; `nav-cards` needs photographs) · footer `footer-columns` · close `close-type` · rhythm `dark-band` · lit ground `sand` · effect `fluted-glass` in the hero frame · moment `line-carries-colour` on `#features` · hero moment none (dealt `cursor-spotlight`; dropped because the hero holds the effect) · scene none · mark: the client's logo.
+Line 2 (deal): hero `collage` · palette: brand (Rack) · type `instrument` · radius `round` · buttons `arrow` · nav `nav-centre` (dealt `nav-mega`; one page has no 6 to 12 feature pages; `nav-cards` needs photographs) · footer `footer-columns` · close `close-type` · rhythm `dark-band` · lit ground `sand` · effect `fluted-glass` in the hero frame · moment `line-carries-colour` on `#features` · hero moment none (dealt `cursor-spotlight`; dropped because the hero holds the effect) · scene none · mark: the client's logo.
 
 Mode: design. Skills: `design-taste-frontend` (all D tasks), `mobile-native` (D7), `animate` and the `motion` skill with `search-motion-docs` (M tasks), `tdd` (T1), then `code-review`, `break-ui`, `review-animations` and a MotionScore audit at rendezvous.
 
-## OPEN QUESTIONS
+## Answers (2026-11-07, approved)
 
-Answer these before execute starts. My recommendation is first.
-
-1. **Palette.** (a) The brand's Rack values through `start.mjs brand` (ground, bone ink, brass accent). (b) The dealt `warm-black-gold` as printed.
-2. **Type.** (a) Keep Archivo, self-hosted. (b) A dealt pairing: `instrument`, `schibsted` or `manrope`. Fragments inside the app window keep Archivo in both cases.
-3. **Main action.** (a) "Join your group": the close holds the invite field and the big button; "Request a group" (`/contact/`) is the hero's second button. (b) "Request a group" is the main action; joining is a secondary link.
-4. **Photographs.** (a) None, as ADR 0001 says. (b) Two or three credited photographs of a home card table at night.
-5. **ADR.** Write ADR 0002 at sync docs. It supersedes ADR 0001's direction and keeps its media rules.
+1. **Palette:** the brand's colours. Printed with `start.mjs brand --page software --bg "#130e0a" --ink "#f0e7d6" --accent "#ebbd57" --surface "#1e1813" --muted "#b4a997" --type instrument --radius round`. The inverse ground is bone (`#f0e7d6`).
+2. **Type:** the agent chose the dealt `instrument` pairing (Instrument Sans, display 500). Reason: precise and calm, open figures for money. The app's fragments keep Archivo inside `.ui`. DM Mono is not loaded (no code on the page).
+3. **Main action:** the agent chose "Join your group" (the close's invite field). "Request a group" (`/contact/`) is the hero's second button.
+4. **Photographs:** none.
+5. **ADR:** write ADR 0002 at sync docs.
 
 ## Screens
 
