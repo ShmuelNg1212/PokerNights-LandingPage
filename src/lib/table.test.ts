@@ -111,3 +111,17 @@ describe('the night log and paid marks', () => {
     expect(table.markPaid(99)).toEqual(before);
   });
 });
+
+describe('the cash-outs at count-up', () => {
+  it('lists one cash-out per player, after the last buy-in, summing to what was bought in', async () => {
+    const { cashOuts } = await import('./table');
+    const table = createTable();
+    table.rebuy('bea');
+    const t = table.snapshot();
+    const rows = cashOuts(t);
+    expect(rows).toHaveLength(t.players.length);
+    expect(rows.every((r) => r.kind === 'cash-out')).toBe(true);
+    expect(rows[0]!.at).toBeGreaterThan(t.entries.at(-1)!.at);
+    expect(sum(rows.map((r) => r.amount))).toBe(t.boughtIn);
+  });
+});

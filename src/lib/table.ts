@@ -24,7 +24,7 @@ const START_MINUTE = 19 * 60 + 30;
 /** A rebuy tapped on the page lands this many minutes after the last entry. */
 const REBUY_GAP = 6;
 
-export type EntryKind = 'buy-in' | 'rebuy';
+export type EntryKind = 'buy-in' | 'rebuy' | 'cash-out';
 
 export interface EntryView {
   /** Minutes after the start of the night. */
@@ -182,4 +182,17 @@ export function createTable() {
       return () => void listeners.delete(fn);
     },
   };
+}
+
+/** Minutes between the last buy-in and the first count at the end of the night. */
+const COUNT_GAP = 40;
+
+/** The count-up: each player's cash-out, two minutes apart after the last buy-in. */
+export function cashOuts(s: TableSnapshot): EntryView[] {
+  const last = s.entries.at(-1)?.at ?? 0;
+  return s.results.map((r, i) => {
+    const p = s.players.find((x) => x.id === r.id)!;
+    const at = last + COUNT_GAP + i * 2;
+    return { at, time: clock(at), player: p.id, name: p.name, initials: p.initials, colour: p.colour, kind: 'cash-out' as const, amount: r.cashOut };
+  });
 }
