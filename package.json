@@ -1,0 +1,23 @@
+{
+  "name": "pokernights-landing",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "test": "astro check && vitest run"
+  },
+  "dependencies": {
+    "astro": "^7.4.7",
+    "motion": "^14.10.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@types/node": "^26.6.6",
+    "typescript": "^6.0.3",
+    "vitest": "^5.1.0"
+  }
+}

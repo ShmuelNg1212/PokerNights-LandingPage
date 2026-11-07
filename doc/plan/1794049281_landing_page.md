@@ -19,7 +19,7 @@ Skills: `tdd` (T2), `design-taste-frontend` with `lint.mjs` and `inspect.mjs` (D
 
 ### Technical
 
-- [ ] **T1. Scaffold Astro.** `tests: alongside`
+- [x] **T1. Scaffold Astro.** `tests: alongside`
   - Astro (latest stable), static output, TypeScript strict. Vitest. `npm test` runs `astro check` and `vitest run`. `npm run build` writes `dist/`.
   - Self-host `archivo.woff2` (OFL; copy `OFL.txt`). Copy `logo-mark.svg`, `logo-horizontal.svg` and the app icons for the favicon.
   - `src/styles/tokens.css`: every colour, radius and type step from the app's `DESIGN.md` frontmatter. Downstream CSS uses tokens only.
