@@ -5,3 +5,5 @@ dist/
 .env.*
 .DS_Store
 graphify-out/
+.taste-skill/*
+!.taste-skill/direction.json
