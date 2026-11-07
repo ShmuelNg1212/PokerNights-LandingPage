@@ -1,6 +1,6 @@
 import { createTable, type TableSnapshot } from '../lib/table';
 import { peso, signedPeso } from '../lib/money';
-import { buyInLabel, timerLabel } from '../lib/labels';
+import { buyInLabel, chipClass, MAX_STACK, timerLabel, transferCount } from '../lib/labels';
 
 /** Hooks a pot figure can use to animate its change (set by motion.ts). */
 export interface LiveHooks {
@@ -9,20 +9,19 @@ export interface LiveHooks {
 }
 
 const table = createTable();
-export const liveTable = table;
 const hooks: LiveHooks = {};
 export function setLiveHooks(next: LiveHooks) {
   Object.assign(hooks, next);
 }
 
-const $$ = <T extends Element = HTMLElement>(sel: string, root: ParentNode = document) => [...root.querySelectorAll<T>(sel)];
+const all = <T extends Element = HTMLElement>(sel: string, root: ParentNode = document) => [...root.querySelectorAll<T>(sel)];
 
 function renderPlayers(s: TableSnapshot) {
   for (const p of s.players) {
-    for (const row of $$(`[data-player="${p.id}"]`)) {
+    for (const row of all(`[data-player="${p.id}"]`)) {
       const stack = row.querySelector<HTMLElement>('[data-stack]');
       if (stack) {
-        const want = Math.min(p.buyIns.length, 6);
+        const want = Math.min(p.buyIns.length, MAX_STACK);
         while (stack.children.length < want) stack.appendChild(document.createElement('i'));
       }
       const label = row.querySelector('[data-label]');
@@ -34,56 +33,64 @@ function renderPlayers(s: TableSnapshot) {
 }
 
 function renderPot(s: TableSnapshot) {
-  for (const el of $$('[data-pot]')) {
+  for (const el of all('[data-pot]')) {
     const from = el.textContent ?? '';
     const to = peso(s.pot);
     if (from === to) continue;
     if (hooks.onPot) hooks.onPot(el, from, to);
     else el.textContent = to;
   }
-  for (const el of $$('[data-total]')) el.textContent = peso(s.boughtIn);
+  for (const el of all('[data-total]')) el.textContent = peso(s.boughtIn);
 }
 
-function renderCarlo(s: TableSnapshot) {
-  const p = s.players.find((x) => x.id === 'carlo');
-  const r = s.results.find((x) => x.id === 'carlo');
-  if (!p || !r) return;
-  for (const el of $$('[data-result-label]')) el.textContent = `${peso(p.boughtIn)} bought in`;
-  for (const el of $$('[data-result-value]')) {
-    el.textContent = signedPeso(r.result);
-    el.classList.toggle('up', r.result > 0);
-    el.classList.toggle('down', r.result < 0);
+/** Rows that show a player's end-of-night result: [data-result-of="<id>"]. */
+function renderResults(s: TableSnapshot) {
+  for (const row of all('[data-result-of]')) {
+    const id = row.dataset.resultOf;
+    const p = s.players.find((x) => x.id === id);
+    const r = s.results.find((x) => x.id === id);
+    if (!p || !r) continue;
+    const label = row.querySelector('[data-result-label]');
+    if (label) label.textContent = `${peso(p.boughtIn)} bought in`;
+    const value = row.querySelector('[data-result-value]');
+    if (value) {
+      value.textContent = signedPeso(r.result);
+      value.classList.toggle('up', r.result > 0);
+      value.classList.toggle('down', r.result < 0);
+    }
+    const cash = row.querySelector('[data-result-cashout]');
+    if (cash) cash.textContent = `${peso(r.cashOut)} cashed out`;
   }
-  for (const el of $$('[data-result-cashout]')) el.textContent = `${peso(r.cashOut)} cashed out`;
 }
 
 function renderTransfers(s: TableSnapshot) {
   const list = document.querySelector<HTMLElement>('[data-transfers]');
-  const tpl = document.querySelector<HTMLTemplateElement>('template[data-transfer-row]');
-  if (!list || !tpl) return;
+  // The server-rendered first row is the shape every new row is cloned from.
+  const shape = list?.querySelector('li');
+  if (!list || !shape) return;
   const people = new Map(s.players.map((p) => [p.id, p]));
+  const chip = (el: Element, colour: number, initials: string) => {
+    el.className = `chip is-small ${chipClass(colour)}`;
+    el.textContent = initials;
+  };
   const rows = s.transfers.map((t) => {
-    const li = tpl.content.firstElementChild!.cloneNode(true) as HTMLElement;
+    const li = shape.cloneNode(true) as HTMLElement;
     const from = people.get(t.from)!;
     const to = people.get(t.to)!;
-    const fromChip = li.querySelector('[data-from-chip]')!;
-    fromChip.classList.add(`k${from.colour}`);
-    fromChip.textContent = from.initials;
-    const toChip = li.querySelector('[data-to-chip]')!;
-    toChip.classList.add(`k${to.colour}`);
-    toChip.textContent = to.initials;
+    chip(li.querySelector('[data-from-chip]')!, from.colour, from.initials);
+    chip(li.querySelector('[data-to-chip]')!, to.colour, to.initials);
     li.querySelector('[data-from]')!.textContent = from.name;
     li.querySelector('[data-to]')!.textContent = to.name;
     li.querySelector('[data-amount]')!.textContent = peso(t.amount);
     return li;
   });
   list.replaceChildren(...rows);
-  for (const el of $$('[data-transfer-count]')) el.textContent = `${s.transfers.length} transfer${s.transfers.length === 1 ? '' : 's'}`;
+  for (const el of all('[data-transfer-count]')) el.textContent = transferCount(s.transfers.length);
 }
 
 const marks = new WeakMap<HTMLElement, number>();
 function mark(id: string) {
-  for (const row of $$(`[data-player="${id}"]`)) {
+  for (const row of all(`[data-player="${id}"]`)) {
     const tag = row.querySelector<HTMLElement>('[data-mark]');
     if (!tag) continue;
     row.classList.add('is-marked');
@@ -101,7 +108,7 @@ function mark(id: string) {
 function render(s: TableSnapshot) {
   renderPlayers(s);
   renderPot(s);
-  renderCarlo(s);
+  renderResults(s);
   renderTransfers(s);
   if (s.lastRebuy) mark(s.lastRebuy);
 }
@@ -109,8 +116,8 @@ function render(s: TableSnapshot) {
 /** The live badge reads the visitor's own clock; the set timer counts from arrival. */
 function startClock() {
   const arrived = Date.now();
-  const clock = $$('[data-clock]');
-  const timer = $$('[data-timer]');
+  const clock = all('[data-clock]');
+  const timer = all('[data-timer]');
   const fmt = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
   const tick = () => {
     const now = new Date();

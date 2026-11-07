@@ -40,7 +40,7 @@ export interface TableSnapshot {
   cashedOut: number;
   pot: number;
   results: ResultView[];
-  transfers: Array<Transfer & { fromName: string; toName: string }>;
+  transfers: Transfer[];
   lastRebuy: string | null;
 }
 
@@ -80,12 +80,7 @@ function view(table: Seat[], lastRebuy: string | null): TableSnapshot {
     return { id: s.id, name: s.name, boughtIn: mine, cashOut, result: cashOut - mine };
   });
 
-  const names = new Map(table.map((s) => [s.id, s.name]));
-  const transfers = settle(results).map((t) => ({
-    ...t,
-    fromName: names.get(t.from)!,
-    toName: names.get(t.to)!,
-  }));
+  const transfers = settle(results);
 
   return { players, boughtIn, cashedOut, pot: boughtIn - cashedOut, results, transfers, lastRebuy };
 }
@@ -111,5 +106,3 @@ export function createTable() {
     },
   };
 }
-
-export type Table = ReturnType<typeof createTable>;

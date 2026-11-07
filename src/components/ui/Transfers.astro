@@ -1,45 +1,32 @@
 ---
 import { createTable } from '../../lib/table';
 import { peso } from '../../lib/money';
+import { chipClass, transferCount } from '../../lib/labels';
 
 const t = createTable().snapshot();
-const colour = new Map(t.players.map((p) => [p.id, p]));
+const people = new Map(t.players.map((p) => [p.id, p]));
+const rows = t.transfers.map((x) => ({ from: people.get(x.from)!, to: people.get(x.to)!, amount: peso(x.amount) }));
 ---
 <div class="ui-card transfers" data-ui>
   <div class="transfers-head">
     <h3>Who pays whom</h3>
     <span class="ui-badge is-brass">Unsettled</span>
   </div>
-  <p class="ui-muted">Friday table · <span data-transfer-count>{t.transfers.length} transfers</span></p>
+  <p class="ui-muted">Friday table · <span data-transfer-count>{transferCount(rows.length)}</span></p>
   <ul class="ui-rows" data-transfers aria-live="polite">
-    {t.transfers.map((x) => {
-      const from = colour.get(x.from)!;
-      const to = colour.get(x.to)!;
-      return (
-        <li>
-          <span class={`chip is-small k${from.colour}`} aria-hidden="true">{from.initials}</span>
-          <span>{from.name}</span>
-          <span class="arrow" aria-label="pays">→</span>
-          <span class={`chip is-small k${to.colour}`} aria-hidden="true">{to.initials}</span>
-          <span>{to.name}</span>
-          <span class="amt">{peso(x.amount)}</span>
-        </li>
-      );
-    })}
+    {rows.map((r) => (
+      <li>
+        <span class={`chip is-small ${chipClass(r.from.colour)}`} aria-hidden="true" data-from-chip>{r.from.initials}</span>
+        <span data-from>{r.from.name}</span>
+        <span class="arrow" aria-hidden="true">→</span><span class="visually-hidden">pays</span>
+        <span class={`chip is-small ${chipClass(r.to.colour)}`} aria-hidden="true" data-to-chip>{r.to.initials}</span>
+        <span data-to>{r.to.name}</span>
+        <span class="amt" data-amount>{r.amount}</span>
+      </li>
+    ))}
   </ul>
   <p class="transfers-foot">The app records payments. It does not move money.</p>
 </div>
-
-<template data-transfer-row>
-  <li>
-    <span class="chip is-small" aria-hidden="true" data-from-chip></span>
-    <span data-from></span>
-    <span class="arrow" aria-label="pays">→</span>
-    <span class="chip is-small" aria-hidden="true" data-to-chip></span>
-    <span data-to></span>
-    <span class="amt" data-amount></span>
-  </li>
-</template>
 
 <style>
   .transfers { padding: 18px 16px 14px; }

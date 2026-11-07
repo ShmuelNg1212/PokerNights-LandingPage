@@ -13,3 +13,12 @@ export function timerLabel(elapsedMs: number): string {
   if (minutes < 60) return `${minutes} min`;
   return `${Math.floor(minutes / 60)} h ${String(minutes % 60).padStart(2, '0')} min`;
 }
+
+/** The app's chip colour class for a player token: k1–k10. */
+export const chipClass = (colour: number) => `k${colour}`;
+
+/** A buy-in stack shows at most this many bars. */
+export const MAX_STACK = 6;
+
+/** "1 transfer", "4 transfers". */
+export const transferCount = (n: number) => `${n} transfer${n === 1 ? '' : 's'}`;

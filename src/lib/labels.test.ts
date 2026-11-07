@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buyInLabel, timerLabel } from './labels';
+import { buyInLabel, chipClass, timerLabel, transferCount } from './labels';
 
 describe('buyInLabel', () => {
   it('words buy-ins and rebuys as the app does', () => {
@@ -18,5 +18,14 @@ describe('timerLabel', () => {
     expect(timerLabel(59 * 60_000)).toBe('59 min');
     expect(timerLabel(65 * 60_000)).toBe('1 h 05 min');
     expect(timerLabel(120 * 60_000)).toBe('2 h 00 min');
+  });
+});
+
+describe('chipClass and transferCount', () => {
+  it('names the chip colour class and counts transfers', () => {
+    expect(chipClass(4)).toBe('k4');
+    expect(transferCount(1)).toBe('1 transfer');
+    expect(transferCount(4)).toBe('4 transfers');
+    expect(transferCount(0)).toBe('0 transfers');
   });
 });

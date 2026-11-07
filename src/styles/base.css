@@ -41,8 +41,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 @media (hover: hover) { .pill:hover { background: oklch(0.99 0.01 85); } }
 .pill:active { transform: scale(0.97); }
-.pill-quiet { background: var(--surface-2); color: var(--text); }
-@media (hover: hover) { .pill-quiet:hover { background: oklch(0.31 0.017 60); } }
 .text-link {
   text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 0.22em;
   text-decoration-color: color-mix(in oklch, currentColor 45%, transparent);

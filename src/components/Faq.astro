@@ -5,7 +5,7 @@ import { CONTACT } from '../lib/links';
 const items: Array<{ q: string; a: string; html?: boolean }> = [
   { q: 'Does PokerNights move money?', a: 'No. It records who owes whom. You pay each other the way you always do, and the host marks each transfer paid.' },
   { q: 'How do I get in?', a: 'Ask your host for an invite link. It works for 7 days. Open it and make your account from it. If you already play, just log in.' },
-  { q: 'I want to host. How do I start a group?', a: `New groups are set up by hand for now. <a class="text-link" href="${CONTACT}">Send a message</a> with your group’s name and how many people play, and you will get a host account.`, html: true },
+  { q: 'I want to host. How do I start a group?', a: `New groups are set up by hand for now. <a class="text-link" href="${CONTACT}">Send a message</a> with how many people play, and the person who runs PokerNights sets up your group with you as its host.`, html: true },
   { q: 'Does it work in chips as well as pesos?', a: 'Yes. Each game counts in pesos or in chips, chosen by the host. The app never converts one into the other.' },
   { q: 'Can a friend without the app play?', a: 'Yes. The host adds them to the table by name, with no login, and records their buy-ins for them.' },
   { q: 'What if someone types a wrong amount?', a: 'The host reverses it with a reason, and the reversed entry stays in the log. If the count is still off, the host notes who takes the difference.' },
@@ -18,7 +18,7 @@ const items: Array<{ q: string; a: string; html?: boolean }> = [
     <h2 class="faq-title h-l" id="faq-title" data-reveal>Before you play</h2>
     <figure class="faq-clip" data-reveal>
       <Video name="recap" label="The PokerNights session recap on a phone: every player's result, then who pays whom." />
-      <figcaption>Every player gets the recap when the session closes.</figcaption>
+      <figcaption>The session recap: every player’s result, then who pays whom.</figcaption>
     </figure>
   </div>
   <div class="faq-list">
@@ -47,6 +47,13 @@ const items: Array<{ q: string; a: string; html?: boolean }> = [
   .sign::before, .sign::after { content: ''; position: absolute; left: 0; top: 6.5px; width: 16px; height: 3px; border-radius: 2px; background: currentColor; transition: transform 200ms var(--ease-out); }
   .sign::after { transform: rotate(90deg); }
   .tile[open] .sign::after { transform: rotate(0deg); }
+  @supports selector(::details-content) {
+    @media (prefers-reduced-motion: no-preference) {
+      .tile { interpolate-size: allow-keywords; }
+      .tile::details-content { height: 0; overflow: clip; transition: height 220ms var(--ease-out), content-visibility 220ms allow-discrete; }
+      .tile[open]::details-content { height: auto; }
+    }
+  }
   .tile p { max-width: 52ch; padding: 0 24px 24px; font-size: var(--t-body); }
   .tile[open] p :global(a) { color: var(--ink); }
 

@@ -3,6 +3,7 @@ import PlayerRow from './ui/PlayerRow.astro';
 import Video from './Video.astro';
 import { createTable } from '../lib/table';
 import { peso, signedPeso } from '../lib/money';
+import { chipClass } from '../lib/labels';
 
 const t = createTable().snapshot();
 const carlo = t.players.find((p) => p.id === 'carlo')!;
@@ -15,20 +16,20 @@ const result = t.results.find((r) => r.id === 'carlo')!;
       <div class="state" data-reveal>
         <p class="state-word">Sits down</p>
         <ul class="state-copy" data-ui>
-          <PlayerRow id="carlo" name="Carlo" initials="C" colour={2} buyIns={1} boughtIn={1_000_00} />
+          <PlayerRow id="carlo" name="Carlo" initials={carlo.initials} colour={carlo.colour} buyIns={1} boughtIn={carlo.buyIns[0]!} />
         </ul>
       </div>
       <div class="state" data-reveal>
         <p class="state-word">Rebuys</p>
         <ul class="state-copy is-pointed" data-ui>
-          <PlayerRow id="carlo" name="Carlo" initials="C" colour={2} buyIns={carlo.buyIns.length} boughtIn={carlo.boughtIn} live />
+          <PlayerRow id="carlo" name="Carlo" initials={carlo.initials} colour={carlo.colour} buyIns={carlo.buyIns.length} boughtIn={carlo.boughtIn} live />
         </ul>
       </div>
       <div class="state" data-reveal>
         <p class="state-word">Cashes out</p>
         <ul class="state-copy" data-ui>
-          <li class="player-row">
-            <span class="chip k2" aria-hidden="true">C</span>
+          <li class="player-row" data-result-of="carlo">
+            <span class={`chip ${chipClass(carlo.colour)}`} aria-hidden="true">{carlo.initials}</span>
             <span class="player-identity">
               <span class="player-name">Carlo</span>
               <span class="player-meta"><span data-result-label>{peso(carlo.boughtIn)} bought in</span></span>

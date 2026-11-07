@@ -45,8 +45,7 @@ const rows: Array<[string, string, string, string]> = [
   tbody td { padding: 16px 22px; font-size: var(--t-body); color: var(--muted); }
   tbody tr { height: 72px; }
   tbody tr:nth-child(odd) { background: var(--rail); }
-  tbody tr:nth-child(odd) th { padding-left: 22px; }
-  tbody tr:nth-child(even) th { padding-left: 22px; }
+  tbody th { padding-left: 22px; }
   .is-ours { background: var(--bone); color: var(--ink) !important; font-weight: 650; }
   thead .is-ours { border-radius: 16px 16px 0 0; }
   tbody tr:last-child .is-ours { border-radius: 0 0 16px 16px; }
@@ -57,7 +56,7 @@ const rows: Array<[string, string, string, string]> = [
     tbody tr { height: auto; padding: 18px 16px 16px; }
     tbody tr:nth-child(odd) { background: var(--rail); }
     tbody tr:nth-child(even) { background: var(--bg); }
-    tbody th, tbody tr:nth-child(odd) th, tbody tr:nth-child(even) th { padding: 0 0 10px; font-size: var(--t-m); font-weight: 700; }
+    tbody th { padding: 0 0 10px; font-size: var(--t-m); font-weight: 700; }
     tbody td { padding: 8px 0; }
     tbody td::before { content: attr(data-col) ': '; color: var(--text); font-weight: 650; }
     tbody td.is-ours { margin: 2px -16px; padding: 10px 16px; border-radius: 0 !important; }

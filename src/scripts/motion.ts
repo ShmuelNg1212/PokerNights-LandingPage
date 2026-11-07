@@ -9,8 +9,12 @@ function rollFigure(el: HTMLElement, from: string, to: string) {
   const a = from.padStart(pad, ' ');
   const b = to.padStart(pad, ' ');
   const up = to.length > from.length || b > a;
-  el.setAttribute('aria-label', to);
+  el.dataset.value = to;
+  const spoken = document.createElement('span');
+  spoken.className = 'visually-hidden';
+  spoken.textContent = to;
   el.replaceChildren(
+    spoken,
     ...[...b].map((ch, i) => {
       if (ch === ' ') return document.createTextNode('');
       const cell = document.createElement('span');
@@ -26,9 +30,9 @@ function rollFigure(el: HTMLElement, from: string, to: string) {
     }),
   );
   window.setTimeout(() => {
-    if (el.getAttribute('aria-label') === to) {
+    if (el.dataset.value === to) {
       el.textContent = to;
-      el.removeAttribute('aria-label');
+      delete el.dataset.value;
     }
   }, 900);
 }

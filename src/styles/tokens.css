@@ -28,7 +28,6 @@
   --bone-dim: oklch(0.74 0.028 80);
   --ink: oklch(0.19 0.02 60);
   --felt: oklch(0.34 0.095 265);
-  --felt-deep: oklch(0.25 0.08 265);
   --felt-ink: oklch(0.86 0.04 265);
   --brass: oklch(0.82 0.13 85);
   --up: oklch(0.82 0.13 160);
@@ -67,13 +66,10 @@
   --r-sheet: 26px;
   --r-bar: 4px;
 
-  /* Motion: the app's curves and springs */
+  /* Motion: the app's curves */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --t-press: 110ms;
   --t-fast: 180ms;
-  --spring-arrive: linear(0, 0.0651, 0.2139, 0.3929, 0.568, 0.72, 0.8406, 0.9288, 0.9879, 1.0232, 1.0408, 1.046, 1.0435, 1.0369, 1.0287, 1.0206, 1.0135, 1.0078, 1.0036, 1.0008, 0.999, 0.9982, 1);
-  --spring-shift: linear(0, 0.1316, 0.3585, 0.5628, 0.7162, 0.8217, 0.8906, 0.934, 0.9607, 0.9769, 0.9865, 0.9922, 0.9955, 0.9974, 0.9985, 0.9992, 1);
 
   color-scheme: dark;
 }

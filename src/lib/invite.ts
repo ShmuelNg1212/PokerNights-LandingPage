@@ -1,8 +1,7 @@
 import { APP_ORIGIN } from './links';
 
-export type InviteRead =
-  | { ok: true; url: string }
-  | { ok: false; reason: 'empty' | 'link' | 'site' | 'kind' };
+export type InviteRefusal = 'empty' | 'link' | 'site' | 'kind';
+export type InviteRead = { ok: true; url: string } | { ok: false; reason: InviteRefusal };
 
 const INVITE_PATH = /^\/(join|claim)\/([A-Za-z0-9_\-:.]+)\/?$/;
 
@@ -24,9 +23,9 @@ export function readInvite(text: string): InviteRead {
   return { ok: true, url: `${APP_ORIGIN}/${match[1]}/${match[2]}/` };
 }
 
-export const INVITE_REASONS: Record<'empty' | 'link' | 'site' | 'kind', string> = {
+export const INVITE_REASONS: Record<InviteRefusal, string> = {
   empty: 'Paste the invite link your host sent.',
   link: 'That is not a link. Paste the whole link from the chat.',
   site: 'That link is not a PokerNights link. Ask your host to send it again.',
-  kind: 'That is a PokerNights page, not an invite. Invite links contain /join/.',
+  kind: 'That is a PokerNights page, not an invite. Invite links contain /join/ or /claim/.',
 };
