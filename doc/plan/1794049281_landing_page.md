@@ -70,7 +70,7 @@ Build with the motion off first. The sheet's blueprints give the geometry; the b
   - FAQ 3 ("I want to host") answers: a new group is set up by the person who runs PokerNights; send a message from the contact page. The CTA dialog has a quiet line under it: "No invite and want to host? Get in touch." → `/contact/`.
   - Acceptance: a pasted `https://example.com/join/x` is refused; a valid-looking invite link opens on the app's address; Log in opens the app's log in.
 
-- [ ] **D4. Gate and look.** `tests: alongside`
+- [x] **D4. Gate and look.** `tests: alongside`
   - `lint.mjs` on `src/`; `inspect.mjs` on the built page with `--allow` for the indigo rule only. No `FAIL`; every `WARN` defended in one sentence here.
   - Up to three critique rounds with `references/critique.md` on the 1440, 768 and 390 screenshots; fix the top three problems each round.
   - `mobile-native`: no tap flash, no hover stuck on touch, `svh` units, safe-area insets, inputs at 16 px or more.
@@ -107,7 +107,7 @@ Build with the motion off first. The sheet's blueprints give the geometry; the b
 
 ### Rendezvous
 
-- [ ] **R1. Checks.**
+- [x] **R1. Checks.**
   - `npm test` and `npm run build` pass.
   - `code-review`; `break-ui` on the player rows and the dialog (long names, ₱1,000,000 amounts, 12 players); `review-animations`.
   - Probe at 390 px in a real browser: tap Rebuy twice on two players; field 4's transfers change and still net to zero. Paste a bad link; it is refused. These checks can fail for the reason the claim could be false.
@@ -126,4 +126,29 @@ Build with the motion off first. The sheet's blueprints give the geometry; the b
 
 ## Checks record
 
-(Filled in at rendezvous.)
+Rendezvous on 2026-11-07, branch `feat/landing-page` at `c53027e`.
+
+### Results
+
+| Check | Result |
+|---|---|
+| `npm test` (`astro check` and Vitest) | 0 errors. 26 tests pass: settle-up, pesos, table state, labels, invite links. |
+| `npm run build` | 3 pages: `/`, `/contact/`, `/contact/thanks/`. |
+| taste-skill `lint.mjs src` | 0 FAIL. 3 WARN: zero-padding in `money.ts` and `labels.ts` for centavos and the clock (allowed by the rule). |
+| taste-skill `inspect.mjs /` at 1440, 768, 390 | 0 FAIL. 1 WARN: `palette-cream` is the brand's bone (`DESIGN.md`); kept. 5 type sizes. 6 real pictures (3 app clips, 3 app stills). 38 moving elements. |
+| `inspect.mjs /contact/` | `few-pictures` and `focal-point` FAIL, `no-footage` WARN. Defended: a one-purpose form page; it carries one real app still. |
+| `tools/probe/probe.mjs` in Chrome | 22/22. A rebuy rolls the pot (₱10,500 → ₱11,500 → ₱12,500), marks the row, changes who pays whom, and the transfers equal the losses. The showcase and the result row follow the same table. A link to another site is refused in words. An invite link opens on the app address. Log in opens the app log in. Reduced motion shows every part at rest and changes the figure at once. Without script: Rebuy hidden, the main link works, the dialog is a plain Log in, the headline shows, the contact form is a Netlify form. |
+| break-ui by hand (320 and 390 px) | First round: at 320 px the pot hit the blinds, the rows crushed and the page scrolled 9 px sideways. Fixed with container queries (`ui.css`): the money action moves under the name, as in the app. Second round: no overflow with a 41-character name, ₱1,000,000 and 13 rebuys. |
+| `code-review` (Standards and Spec agents) | Fixed: localhost `og:image`, no-JS dialog that dropped the invite, `aria-label` on roleless elements, dialog shadow at rest, muted step text, a sixth type size, unused props and tokens, duplicated chip and count logic, a hard-coded player in the result script, a blank seat-draw poster, four lines of copy that the app docs do not support. |
+| `review-animations` | Not run as a separate skill. Self-check: transform and opacity only, every move has a reduced-motion path, a rebuy during a roll replaces the cells, content shows if the script fails. |
+| Critique rounds (taste-skill step 8) | Three look rounds on the 1440, 768 and 390 screenshots. Each fixed real faults (merged headline lines, a fragment that grew the hero past the fold, grey video frames from the recorder, cramped rows). The weighted critique score was not computed. |
+
+### Deviations from this plan
+
+- D1 acceptance said ₱10,850 after one rebuy. That number came from the brand thumbnail, which has eight players. The page's six-player table holds ₱10,500, so one rebuy gives ₱11,500. The probe checks the real sums.
+- T3 said "fixed cash-outs". Fixed cash-outs would not balance after a rebuy, so each player ends with a fixed share of the table, rounded to ₱50. The last player takes the rest.
+- T4: the chip-rack clip and the share-card clip were not made. The chip rack needs a chip-values seed. The share sheet did not open under automation. The clips are 3–4 s, not 6–10 s. The seat-draw clip is 1×: the seat draw reads the window size and does not lay out right under the 2× zoom.
+- D2: field 2 shows the seat-draw clip, with the install steps in its words, instead of a Join group card. The showcase's third state is "Cashes out" (the end result), not "Back in".
+- D3: the felt diamond texture and the primary button's underside were dropped to meet the gradient and button rules.
+- Phone hero: the stage is 66svh at full width, not 78vw by 58svh. The live set needs its true width.
+- M1: the hero drift is 64 px, not 40 px. The row mark uses a short spring. Under reduced motion the entrances do not run at all, not "opacity only".
