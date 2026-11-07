@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "instrument sans",
+        "createdAt": "2026-11-07T17:53:36.710Z",
+        "reason": "Agent choice: the human delegated the font ('u choose a font'); Instrument Sans is the pairing dealt by the project's fixed design tool (taste-skill start.mjs, history in .taste-skill/history.json) and is not on that tool's ban list. Recorded in doc/plan/1794052597_taste_revamp.md Answers #2."
+      }
+    ]
+  }
+}
