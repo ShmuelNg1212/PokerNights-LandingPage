@@ -43,7 +43,7 @@ const rackTotal = rack.reduce((a, r) => a + r.value * r.n, 0);
           <p>Tap a chip colour to add one, hold to take one off. The total fills in the cash-out.</p>
           <div class="panel">
             <div class="stage stage--fade-br">
-              <div class="at-corner rack-frag" style="--ax:40px;--ay:48px">
+              <div class="at-corner rack-frag">
                 <div class="ui ui-pn pn-card rack" data-app data-ly-steps="600" aria-hidden="true">
                   <div class="rack__head">
                     <span class="chip k1" aria-hidden="true" data-initials="M"></span>
@@ -81,7 +81,7 @@ const rackTotal = rack.reduce((a, r) => a + r.value * r.n, 0);
         <p>The host reverses it with a reason. The entry stays in the log, struck through.</p>
         <div class="panel">
           <div class="stage stage--fade-b">
-            <div class="at-rise fit" style="--fit-max:300px;--ax:max(20px, 50% - 150px);--ay:40px;--ay-sm:32px">
+            <div class="at-rise fit bento-frag">
               <div class="ui ui-pn pn-card mini-log" data-app aria-hidden="true">
                 <h3>Session log</h3>
                 <ul class="pn-rows">
@@ -99,7 +99,7 @@ const rackTotal = rack.reduce((a, r) => a + r.value * r.n, 0);
         <p>The host picks one for the game. The app never converts one into the other.</p>
         <div class="panel">
           <div class="stage stage--fade-b">
-            <div class="at-rise fit" style="--fit-max:300px;--ax:max(20px, 50% - 150px);--ay:40px;--ay-sm:32px">
+            <div class="at-rise fit bento-frag">
               <div class="ui ui-pn pn-card units" data-app aria-hidden="true">
                 <h3>Game settings</h3>
                 <p class="pn-muted">Friday table counts in</p>

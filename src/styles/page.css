@@ -1,31 +1,31 @@
 /* Page CSS: only what sits inside a visual and the kit lacks (tasteskill system.md), the app window's
-   recipe (sections-library.md, app-frame) and one --p-h per card group. The app's own fragments
-   are styled in ui.css. */
+   recipe (sections-library.md, app-frame), one --p-h per card group, and the cuts that keep each
+   section on its screens. The app's own fragments are styled in ui.css; inside them the sizes
+   follow the app (~/PokerNights/static/css/app.css), not the page's spacing scale. */
 
 :root { --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; }
-.skip-link { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.skip-link, .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .skip-link:focus { width: auto; height: auto; clip-path: none; z-index: 20; padding: var(--s-2) var(--s-4); background: var(--surface); }
-.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-.nav__logo img, .closing .nav__logo img { display: block; height: 28px; width: auto; }
+.nav__logo img { display: block; height: 28px; width: auto; }
 @media (max-width: 639px) { .nav__logo img { height: 24px; } }
+/* without script the live table is a fixed picture: no Rebuy or Mark paid that would do nothing */
+html:not(.js) :is([data-rebuy], [data-mark-paid]) { display: none; }
 
 /* ---------------------------------------------------------------- hero: the live set in the frame */
+.hero__proof { font-size: var(--t-small); color: var(--muted); }
+/* where text-box trim is missing, the h1's capitals still start on the frame's top line */
+@supports not (text-box: trim-start cap alphabetic) { .hero--collage .hero__text > h1:first-child { margin-top: -0.25em; } }
+.hero-window { --fade-h: 96px; }
 .hero-window .live-set { max-width: none; border-radius: var(--rk-r-sheet) var(--rk-r-sheet) 0 0; box-shadow: 0 24px 60px -30px rgb(0 0 0 / .55); }
 .hero-window .live-set > * { padding-right: var(--ly-cut-room); }
-.hero-window .live-set > .felt { margin-right: 0; }
 /* the small card sits over the window's lower left, inside the window it lies on */
 .hero__art > .ly-piece--note { left: calc(var(--s-8) + var(--s-4)); bottom: var(--s-6); width: 300px; z-index: 2; }
 .hero-card { padding: 14px 16px 10px; box-shadow: 0 18px 40px -16px rgb(0 0 0 / .6); }
 .hero-card__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .hero-card__head h3 { font-size: 1rem; }
 .hero-card .pn-rows li { gap: 6px; padding: 7px 0; font-size: .8125rem; }
-.hero__proof { font-size: var(--t-small); color: var(--muted); }
-/* where text-box trim is missing, the h1's capitals still start on the frame's top line */
-@supports not (text-box: trim-start cap alphabetic) { .hero--collage .hero__text > h1:first-child { margin-top: -0.25em; } }
-.hero-window { --fade-h: 96px; }
-@media (max-width: 1023px) { .hero__art > .ly-piece--note { display: none; } }
-/* up to 1279 the frame is short, so the window shows whole: as many player rows as the frame holds, its own
-   foot inside the frame (no cut, no fade) */
+/* up to 1279 the frame is short, so the window shows whole: as many player rows as the frame holds,
+   its own foot inside the frame (no cut, no fade) */
 @media (max-width: 1279px) {
   .hero__art { container: art / size; }
   .hero-window { -webkit-mask: none; mask: none; }
@@ -36,7 +36,17 @@
 @container art (max-height: 600px) { .hero-window .player-row:nth-child(n+4) { display: none; } .hero-window .player-row:nth-child(3) { border-bottom: 0; } }
 @container art (max-height: 520px) { .hero-window .player-row:nth-child(n+3) { display: none; } .hero-window .player-row:nth-child(2) { border-bottom: 0; } }
 @container art (max-height: 400px) { .hero-window .live-set > :is(.pn-section-head, .player-list) { display: none; } .hero-window .live-set { padding-bottom: 0; } }
-@media (max-width: 639px) { .hero-window .set-totals { display: none; } .hero-window .felt { padding-bottom: 12px; } }
+/* below 1024 the frame is too short for the card beside the window (it covered the felt) */
+@media (max-width: 1023px) { .hero__art > .ly-piece--note { display: none; } }
+/* a phone: no top bar, the felt, and one player's row, so the visitor can still tap Rebuy */
+@media (max-width: 639px) {
+  .hero-window .set-totals, .hero-window .pn-bar, .hero-window .pn-section-head { display: none; }
+  .hero-window .felt { padding-bottom: 12px; }
+  .hero-window .live-set > .player-list { display: block; }
+  .hero-window .player-row { display: none; }
+  .hero-window .player-row[data-player="carlo"] { display: grid; border-bottom: 0; }
+  .hero-window .player-row .player-meta { display: none; }
+}
 
 /* ---------------------------------------------------------------- the app window (#table) */
 .app.ui {
@@ -62,12 +72,12 @@
   .app > .app__pane + .app__pane { border-top: 0; }
 }
 .app-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; padding: 0 20px; border-bottom: 1px solid var(--rk-rule); } /* taste-skill-ignore: data-app fragment */
-.app-head--sub { margin-top: 8px; background: none; border-bottom: 0; min-height: 44px; }
+.app-head--sub { margin-top: 8px; border-bottom: 0; min-height: 44px; }
 .app-head__title { font-size: .9375rem; font-weight: 700; }
 .log { padding: 4px 20px; }
 .log-row { display: grid; grid-template-columns: 44px 30px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--rk-rule); } /* taste-skill-ignore: data-app fragment */
 .log-time { color: var(--rk-bone-dim); font-size: .8125rem; font-variant-numeric: tabular-nums; }
-.log-who { display: flex; flex-direction: column; min-width: 0; }
+.log-who, .pay-who { display: flex; flex-direction: column; min-width: 0; }
 .log-who strong { font-size: .9375rem; font-weight: 650; }
 .log-who small { color: var(--rk-bone-dim); font-size: .8125rem; }
 .log-amt { font-size: .9375rem; font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -75,7 +85,6 @@
 .log-row.is-cash-out .log-amt { color: var(--rk-bone-dim); }
 .pay-list { padding: 4px 20px 0; }
 .pay-row { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto auto; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--rk-rule); } /* taste-skill-ignore: data-app fragment */
-.pay-who { display: flex; flex-direction: column; min-width: 0; }
 .pay-who strong { font-size: 1rem; font-weight: 650; }
 .pay-who small { color: var(--rk-bone-dim); font-size: .875rem; }
 .pay-amt { font-size: 1.25rem; font-weight: 800; font-stretch: 70%; font-variant-numeric: tabular-nums; }
@@ -93,15 +102,16 @@
 .standing__res.down { color: var(--rk-down); }
 .pay-foot { margin: 12px 20px 80px; color: var(--rk-bone-dim); font-size: .8125rem; }
 
-/* The open pane's one loop: Mark paid is pressed on the first transfer, the state turns Paid, then it rests.
-   The kit's motion layer runs it on --m-cycle and pauses it; --m-still is the finished frame. */
-.pay-row[data-m-loop] { --m-still: 0.7; padding-bottom: 10px; }
-@media (prefers-reduced-motion: no-preference) and (min-width: 640px) {
-  html.js .pay-row[data-m-loop]:not(.is-paid) .pay-btn { animation: pn-press 3.2s var(--m-ease, cubic-bezier(.2,.8,.2,1)) infinite; }
-  html.js .pay-row[data-m-loop]:not(.is-paid) .pay-btn__idle { animation: pn-idle 3.2s steps(1, end) infinite; }
-  html.js .pay-row[data-m-loop]:not(.is-paid) .pay-btn__done { display: inline; position: absolute; animation: pn-done 3.2s steps(1, end) infinite; }
-}
+/* The open pane's one loop: Mark paid is pressed on the first transfer, the state turns Paid, then it
+   rests. Every keyframe runs on the kit's --m-cycle; the motion layer pauses it; --m-still is the
+   finished frame. A visitor's own tap ends it (live.ts removes data-m-loop). */
+.pay-row[data-m-loop] { --m-still: 0.7; }
 .pay-row[data-m-loop] .pay-btn { position: relative; }
+@media (prefers-reduced-motion: no-preference) and (min-width: 640px) {
+  html.js .pay-row[data-m-loop]:not(.is-paid) .pay-btn { animation: pn-press var(--m-cycle) var(--m-ease, cubic-bezier(.2,.8,.2,1)) infinite; }
+  html.js .pay-row[data-m-loop]:not(.is-paid) .pay-btn__idle { animation: pn-idle var(--m-cycle) steps(1, end) infinite; }
+  html.js .pay-row[data-m-loop]:not(.is-paid) .pay-btn__done { display: inline; position: absolute; animation: pn-done var(--m-cycle) steps(1, end) infinite; }
+}
 @keyframes pn-press {
   0%, 30% { transform: none; box-shadow: none; background: var(--rk-rail-2); color: var(--rk-bone); border-color: var(--rk-line); }
   36% { transform: scale(.96); box-shadow: 0 0 0 6px color-mix(in oklch, var(--rk-brass) 35%, transparent); }
@@ -111,63 +121,62 @@
 @keyframes pn-idle { 0% { opacity: 1; } 40% { opacity: 0; } 94% { opacity: 1; } }
 @keyframes pn-done { 0% { opacity: 0; } 40% { opacity: 1; } 94% { opacity: 0; } }
 
-/* ---------------------------------------------------------------- steps */
+/* ---------------------------------------------------------------- card groups (#steps, #features) */
 #steps .panel, #features .panel { --p-h: 336px; }
-/* 1024-1279: steps and the bento keep their desktop columns (the fragments narrow to fit), so each
-   section stays on its screens; the panels are shorter there */
+.step-frag, .bento-frag { --fit-max: 300px; --ax: max(20px, 50% - 150px); }
+.step-frag { --ay: 32px; --ay-sm: 24px; }
+.bento-frag { --ay: 40px; --ay-sm: 32px; }
+.rack-frag { --ax: 40px; --ay: 48px; }
+.step-frag .pn-card { box-shadow: 0 18px 40px -18px rgb(0 0 0 / .55); }
+.panel--clip .app-clip { position: absolute; inset: 24px 24px auto; aspect-ratio: auto; height: calc(var(--p-h) + 40px); border-radius: var(--rk-r-sheet) var(--rk-r-sheet) 0 0; box-shadow: 0 18px 40px -18px rgb(0 0 0 / .55); }
+@media (min-width: 640px) { .panel--clip .app-clip { left: 50%; right: auto; width: min(240px, 100% - 48px); translate: -50% 0; } }
+#features .dg { position: absolute; inset: 0; }
+/* the settle-up diagram's captions in the ink, so they hold 4.5:1 on the lit panel */
+#features .dg .dg-cap { color: var(--dg-ink); }
+
+/* 1024-1279: steps keep three across against the kit's two-up rule (the fragments narrow to fit), so the
+   section stays one screen; the band goes one card a row and shows three of its five cards */
 @media (min-width: 1024px) and (max-width: 1279px) {
   #steps .grid > .card.span-4:has(> .panel) { grid-column: auto / span 4; }
   #steps .panel { --p-h: 220px; }
+  #features.g2 > .wrap { display: flex; flex-direction: column; row-gap: var(--s-4); }
+  #features .wrap > .bento > .card:nth-child(-n+2) { display: none; }
 }
-/* the tablet (and the band up to 1279): text beside a short panel, one card a row; the band shows
-   three of its five cards there, so it holds its two screens (layout-v4.md: cut, never shrink) */
+/* 640-1279: text beside a short panel, one card a row (the steps from 640 to 1023, the band to 1279) */
 @media (min-width: 640px) and (max-width: 1023px) {
   #steps .grid > .card { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-auto-rows: min-content; column-gap: var(--s-6); align-content: start; }
   #steps .grid > .card > :not(.panel) { grid-column: 1; }
-  #steps .grid > .card > .panel { grid-column: 2; grid-row: 1 / span 4; margin: 0; border-radius: var(--p-r); }
-  #steps .panel { --p-h: 160px; height: var(--p-h); }
-  #steps .step-frag { --ay: 16px !important; }
+  #steps .grid > .card > .panel { grid-column: 2; grid-row: 1 / span 3; margin: 0; border-radius: var(--p-r); }
   #steps .grid > .card > .step-num { display: none; }
-  #steps .grid > .card > .panel { grid-row: 1 / span 3; }
-  #questions .faq > .faq__item { padding-block: var(--s-4); }
+  #steps .panel { --p-h: 160px; }
+  #steps .step-frag { --ay: 16px; }
+  /* the band: five cards in two screen groups, the panels sized from the screen so both groups fill it */
+  #features .group .panel { --p-h: calc((100svh - 192px - 150px - 128px - 16px) / 2); }
+  #features .wrap > .bento .panel { --p-h: calc((100svh - 192px - 192px - 32px) / 3); }
 }
 @media (min-width: 640px) and (max-width: 1279px) {
   #features .grid > .card { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-auto-rows: min-content; column-gap: var(--s-6); align-content: start; }
   #features .grid > .card > :not(.panel) { grid-column: 1; }
   #features .grid > .card > .panel { grid-column: 2; grid-row: 1 / span 4; margin: 0; border-radius: var(--p-r); }
-  #features .panel { --p-h: 150px; height: var(--p-h); }
 }
-/* the tablet band: five cards in two screen groups of even height */
-@media (min-width: 640px) and (max-width: 1023px) {
-  /* panels sized from the screen: two cards fill screen one, three fill screen two */
-  #features .group .panel { --p-h: calc((100svh - 192px - 150px - 128px - 16px) / 2); }
-  #features .wrap > .bento .panel { --p-h: calc((100svh - 192px - 192px - 32px) / 3); }
-  #questions .faq-clip { width: 80px; }
-  #questions .faq-side { gap: var(--s-4); }
-  #questions .faq > .faq__item { border-bottom: 0; padding-block: var(--s-3); }
-}
-/* 1024-1279: three of the five cards, one column, so the band holds its two screens */
-@media (min-width: 1024px) and (max-width: 1279px) {
-  #features.g2 > .wrap { display: flex; flex-direction: column; row-gap: var(--s-4); }
-  #features .wrap > .bento > .card:nth-child(-n+2) { display: none; }
-}
-/* a phone: the chip count alone on the first screen; the units and the settle-up on the second (the seat draw plays only under a pointer) */
+@media (min-width: 1024px) and (max-width: 1279px) { #features .panel { --p-h: 150px; } }
+/* a phone: the chip count alone on the first screen; the units and the settle-up on the second (the
+   seat draw plays only under a pointer, so a phone shows its poster nowhere) */
 @media (max-width: 639px) {
+  #steps .panel { --p-h: 276px; }
+  #features .group .panel { --p-h: 260px; }
+  #features .wrap > .bento .panel { --p-h: 180px; }
   #features .group .bento > .card:nth-child(2), #features .wrap > .bento > .card:nth-child(1) { display: none; }
+  #features .rack { width: 100%; }
+  #features .rack__rows li { grid-template-columns: 30px minmax(0, 1fr) auto auto; }
 }
-.faq > .faq__item--phone { display: none; }
-@media (max-width: 639px) { .faq .faq__item--phone { display: grid; } }
-@media (max-width: 639px) {
-  #steps .panel { --p-h: 276px; } #features .group .panel { --p-h: 260px; } #features .wrap > .bento .panel { --p-h: 180px; }
-  #questions .faq > .faq__item { border-bottom: 0; }
-}
-/* short panels (under 1280) crop their fragment at the edge instead of fading it, so no line of it is half-erased */
+/* short panels (under 1280) have a fixed height, crop their fragment at the edge instead of fading it,
+   and each fragment keeps to what its panel holds, so no row is cropped half-way */
 @media (max-width: 1279px) {
   :is(#steps, #features) .stage { -webkit-mask: none; mask: none; }
   :is(#steps, #features) .panel { height: var(--p-h); container: panel / size; }
-  #features .rack-frag { --ax: 20px !important; --ay: 20px !important; }
+  #features .rack-frag { --ax: 20px; --ay: 20px; }
 }
-/* each fragment keeps to what its panel holds, so no row is cropped half-way */
 @container panel (max-height: 280px) {
   .invite > .invite__more { display: none; }
   .install > .pn-muted, .install-steps li:nth-child(n+2), .install > .pn-btn { display: none; }
@@ -183,49 +192,45 @@
   .mini-log .pn-rows li:nth-child(1) { display: none; }
 }
 @container panel (max-height: 160px) { .rack__rows, .rack__total { display: none; } }
-.step-frag .pn-card { box-shadow: 0 18px 40px -18px rgb(0 0 0 / .55); }
+
+/* ---------------------------------------------------------------- the step fragments */
 .invite { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; padding: 20px 18px; }
-.invite .pn-muted { overflow-wrap: anywhere; }
 .invite img { margin-bottom: 4px; }
-.invite .pn-muted { margin-bottom: 6px; }
+.invite .pn-muted { margin-bottom: 6px; overflow-wrap: anywhere; }
+.invite .pn-btn { margin-top: 4px; }
 .pn-field { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 46px; padding: 0 12px; border-radius: var(--rk-r-field); border: 1px solid var(--rk-line); background: var(--rk-ground); font-size: .9375rem; } /* taste-skill-ignore: data-app fragment */
 .pn-label { margin-top: 2px; color: var(--rk-bone-dim); font-size: .8125rem; font-weight: 600; }
-.invite .pn-btn { margin-top: 4px; }
 .install { display: grid; gap: 10px; padding: 20px 18px; }
-.install-steps { display: grid; gap: 10px; margin: 4px 0; padding: 0; list-style: none; counter-reset: s; }
+.install-steps { display: grid; gap: 10px; margin: 4px 0; padding: 0; list-style: none; }
 .install-steps li { display: grid; gap: 2px; padding: 10px 12px; border-radius: 12px; background: var(--rk-ground); font-size: .875rem; }
 .install-steps strong { font-weight: 700; }
 .install-steps span { color: var(--rk-bone-dim); }
-.panel--clip .app-clip { position: absolute; inset: 24px 24px auto; aspect-ratio: auto; height: calc(var(--p-h) + 40px); border-radius: var(--rk-r-sheet) var(--rk-r-sheet) 0 0; box-shadow: 0 18px 40px -18px rgb(0 0 0 / .55); }
-@media (min-width: 640px) { .panel--clip .app-clip { left: 50%; right: auto; width: min(240px, 100% - 48px); translate: -50% 0; } }
 
 /* ---------------------------------------------------------------- comparison */
 .cmp { margin-top: var(--s-7); }
 .cmp__row { align-items: center; min-height: 56px; padding-block: var(--s-3); }
-.cmp__head { min-height: 48px; border-bottom: 0; }
-.cmp__opt { font-size: var(--t-small); font-weight: 500; color: var(--muted); }
-.cmp__opt { display: flex; align-items: center; gap: var(--s-2); height: 24px; }
+.cmp__head { min-height: 48px; }
+.cmp__opt { display: flex; align-items: center; gap: var(--s-2); height: 24px; font-size: var(--t-small); font-weight: 500; color: var(--muted); }
 .cmp__opt img { flex: none; width: 24px; height: 24px; }
 .cmp__marks { display: inline-flex; gap: 4px; }
 .cmp__opt.is-ours { color: var(--action); }
-@media (max-width: 1023px) { .cmp__row--wide { display: none; } }
-@media (max-width: 639px) { .cmp__row--phone-cut { display: none; } }
 .cmp__name { font-weight: 500; }
 .cmp__cell { color: var(--muted); }
 .cmp__cell.is-ours { color: var(--ink); font-weight: 500; }
+/* below 1024: each row a block, one value a line; the Rake row is cut to hold the screen */
 @media (max-width: 1023px) {
-  .cmp__head { display: none; }
-  .cmp__row { gap: 4px; padding-block: var(--s-3); }
+  .cmp__head, .cmp__row--wide { display: none; }
+  .cmp__row { gap: 4px; }
   #compare .cmp__row > * { grid-column: 1 / -1; }
   .cmp__name { margin-bottom: 4px; }
   .cmp__cell { display: grid; grid-template-columns: 9.5em minmax(0, 1fr); gap: 12px; font-size: 15px; }
   .cmp__cell::before { content: attr(data-col); color: var(--muted); font-weight: 400; }
   .cmp__cell.is-ours::before { color: var(--action); }
 }
-/* a phone: PokerNights against the notebook; the group-chat column waits for a wider screen */
-@media (max-width: 639px) { .cmp__cell:last-child { display: none; } }
+/* a phone: PokerNights against the notebook; the group-chat column and one row wait for a wider screen */
+@media (max-width: 639px) { .cmp__cell:last-child, .cmp__row--phone-cut { display: none; } }
 
-/* ---------------------------------------------------------------- features (the bone band) */
+/* ---------------------------------------------------------------- the band's fragments */
 .rack { width: 520px; padding: 18px 20px; }
 .rack__head { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--rk-rule); } /* taste-skill-ignore: data-app fragment */
 .rack__head strong { display: block; font-size: 1.0625rem; }
@@ -246,15 +251,24 @@
 .units__facts div { display: flex; justify-content: space-between; padding: 9px 0; border-top: 1px solid var(--rk-rule); font-size: .9375rem; } /* taste-skill-ignore: data-app fragment */
 .units__facts dt { color: var(--rk-bone-dim); }
 .units__facts dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
-#features .dg { position: absolute; inset: 0; }
-/* the phone keeps three of the five cards, so the band stays two screens (layout-v4.md: cut, never shrink) */
 
+/* ---------------------------------------------------------------- questions */
 #questions .faq > .faq__item { padding-block: var(--s-4); }
 .faq-side { display: grid; gap: var(--s-7); align-content: start; }
 .faq-clip { width: 200px; }
 .faq-clip .app-clip { aspect-ratio: 720 / 900; }
-@media (min-width: 640px) and (max-width: 1023px) { .faq-side { grid-template-columns: minmax(0, 1fr) 140px; gap: var(--s-6); } .faq-clip { width: 140px; } }
-@media (max-width: 639px) { .faq-side { gap: var(--s-6); } .faq-clip { width: 280px; } }
+/* the tablet holds five questions on its one screen; the sixth shows on phones and from 1024 */
+@media (min-width: 640px) and (max-width: 1023px) {
+  #questions .faq > .faq__item--wide { display: none; }
+  .faq-side { grid-template-columns: minmax(0, 1fr) 140px; gap: var(--s-6); }
+  .faq-clip { width: 140px; }
+}
+/* below 1024 the list runs the full width, so its rows part by air, not by full-width rules */
+@media (max-width: 1023px) { #questions .faq > .faq__item { border-bottom: 0; } }
+@media (max-width: 639px) {
+  .faq-side { gap: var(--s-6); }
+  .faq-clip { width: 280px; }
+}
 
 /* ---------------------------------------------------------------- the close: the invite field */
 .join { display: grid; gap: var(--s-4); margin-top: var(--s-7); }
@@ -263,11 +277,3 @@
 .join__error:empty { display: none; }
 html.js .join__nojs { display: none; }
 html:not(.js) .join__field { display: none; }
-
-/* a phone: the chip rack takes the panel's width */
-@media (max-width: 639px) {
-  #features .rack { width: 100%; }
-  #features .rack__rows li { grid-template-columns: 30px minmax(0, 1fr) auto auto; }
-}
-/* the settle-up diagram's captions in the ink, so they hold 4.5:1 on the lit panel */
-#features .dg .dg-cap { color: var(--dg-ink); }

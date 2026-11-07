@@ -174,7 +174,8 @@ export function createTable() {
       if (!current.transfers[index]) return current;
       if (paid.has(index)) paid.delete(index);
       else paid.add(index);
-      current = view(table, log, paid, current.lastRebuy);
+      // A paid mark is not a rebuy: no player row is marked again.
+      current = view(table, log, paid, null);
       return publish();
     },
     subscribe(fn: (s: TableSnapshot) => void) {
@@ -196,3 +197,9 @@ export function cashOuts(s: TableSnapshot): EntryView[] {
     return { at, time: clock(at), player: p.id, name: p.name, initials: p.initials, colour: p.colour, kind: 'cash-out' as const, amount: r.cashOut };
   });
 }
+
+/** The whole night as the session log shows it: every buy-in and rebuy, then the count-up. */
+export const nightLog = (s: TableSnapshot): EntryView[] => [...s.entries, ...cashOuts(s)];
+
+/** The results from the biggest win to the biggest loss. */
+export const standings = (s: TableSnapshot): ResultView[] => [...s.results].sort((a, b) => b.result - a.result);

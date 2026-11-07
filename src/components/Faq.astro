@@ -1,12 +1,12 @@
 ---
 import Video from './Video.astro';
 import { CONTACT } from '../lib/links';
-const items: Array<{ q: string; a: string; phone?: boolean }> = [
+const items: Array<{ q: string; a: string; wide?: boolean }> = [
   { q: 'Does PokerNights move money?', a: 'No. It records who owes whom. You pay each other the way you always do, and the host marks each transfer paid.' },
   { q: 'How do I get into the app?', a: 'Ask your host for an invite link. It works for 7 days. Open it and make your account from it. If you already play, log in.' },
   { q: 'How do I start a group in the app?', a: 'New groups are set up by hand for now. Send a request with how many people play, and you become its host.' },
   { q: 'Does the app count chips as well as pesos?', a: 'Yes. Each game counts in pesos or in chips, chosen by the host. The app never converts one into the other.' },
-  { q: 'Can a friend without the app play?', a: 'Yes. The host adds them to the table by name, with no login, and records their buy-ins for them.', phone: true },
+  { q: 'Can a friend without the app play?', a: 'Yes. The host adds them to the table by name, with no login, and records their buy-ins for them.', wide: true },
   { q: 'Who sees my results in the app?', a: 'Only the people in your group. Anyone outside it gets “not found” for everything in it.' },
 ];
 ---
@@ -22,7 +22,7 @@ const items: Array<{ q: string; a: string; phone?: boolean }> = [
       </div>
       <div class="faq span-6 start-7">
         {items.map((item) => (
-          <div class:list={['faq__item', item.phone && 'faq__item--phone']}>
+          <div class:list={['faq__item', item.wide && 'faq__item--wide']}>
             <h3>{item.q}</h3>
             <p>{item.a}</p>
           </div>

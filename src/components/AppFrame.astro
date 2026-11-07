@@ -1,12 +1,11 @@
 ---
-import { createTable, cashOuts } from '../lib/table';
+import { createTable, nightLog, standings } from '../lib/table';
 import { peso, signedPeso } from '../lib/money';
-import { chipClass, transferCount } from '../lib/labels';
+import { chipClass, transferCount, ENTRY_LABEL, resultTone } from '../lib/labels';
 
 const t = createTable().snapshot();
 const people = new Map(t.players.map((p) => [p.id, p]));
-const log = [...t.entries, ...cashOuts(t)];
-const kindLabel = { 'buy-in': 'Buy-in', rebuy: 'Rebuy', 'cash-out': 'Cash-out' } as const;
+const log = nightLog(t);
 ---
 <section class="section" id="table" aria-labelledby="table-h">
   <div class="wrap">
@@ -25,7 +24,7 @@ const kindLabel = { 'buy-in': 'Buy-in', rebuy: 'Rebuy', 'cash-out': 'Cash-out' }
             <li class:list={['log-row', `is-${e.kind}`]}>
               <time class="log-time">{e.time}</time>
               <span class={`chip is-small ${chipClass(e.colour)}`} aria-hidden="true" data-log-chip data-initials={e.initials}></span>
-              <span class="log-who"><strong data-log-name>{e.name}</strong><small data-log-kind>{kindLabel[e.kind]}</small></span>
+              <span class="log-who"><strong data-log-name>{e.name}</strong><small data-log-kind>{ENTRY_LABEL[e.kind]}</small></span>
               <span class="log-amt" data-log-amt>{peso(e.amount)}</span>
             </li>
           ))}
@@ -54,14 +53,14 @@ const kindLabel = { 'buy-in': 'Buy-in', rebuy: 'Rebuy', 'cash-out': 'Cash-out' }
         </ul>
         <div class="app-head app-head--sub"><span class="app-head__title">Results</span><span class="pn-muted">after count-up</span></div>
         <ul class="standings" data-standings>
-          {[...t.results].sort((a, b) => b.result - a.result).map((r) => {
+          {standings(t).map((r) => {
             const p = people.get(r.id)!;
             return (
               <li class="standing" data-standing>
                 <span class={`chip is-small ${chipClass(p.colour)}`} aria-hidden="true" data-st-chip data-initials={p.initials}></span>
                 <span class="standing__name" data-st-name>{p.name}</span>
                 <span class="standing__in" data-st-in>{peso(r.boughtIn)} in</span>
-                <span class:list={['standing__res', r.result > 0 ? 'up' : r.result < 0 ? 'down' : '']} data-st-res>{signedPeso(r.result)}</span>
+                <span class:list={['standing__res', resultTone(r.result)]} data-st-res>{signedPeso(r.result)}</span>
               </li>
             );
           })}

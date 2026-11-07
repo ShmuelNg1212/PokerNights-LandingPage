@@ -10,7 +10,7 @@ const { base = '' } = Astro.props;
 ---
 <header class="nav nav--centre">
   <div class="wrap nav__bar">
-    <a class="skip-link" href={`${base}#top`}>Skip to content</a>
+    <a class="skip-link" href="#top">Skip to content</a>
     <a class="nav__logo" href={`${base}#top`}><img src="/brand/logo-horizontal.svg" alt="PokerNights" width="148" height="28" /></a>
     <nav class="nav__links" aria-label="Main">
       {NAV.map((n) => (

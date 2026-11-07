@@ -22,3 +22,9 @@ export const MAX_STACK = 6;
 
 /** "1 transfer", "4 transfers". */
 export const transferCount = (n: number) => `${n} transfer${n === 1 ? '' : 's'}`;
+
+/** The kind of a log entry, as the session log says it. */
+export const ENTRY_LABEL = { 'buy-in': 'Buy-in', rebuy: 'Rebuy', 'cash-out': 'Cash-out' } as const;
+
+/** The colour class of a signed result. */
+export const resultTone = (result: number) => (result > 0 ? 'up' : result < 0 ? 'down' : '');

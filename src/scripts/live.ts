@@ -1,8 +1,8 @@
-import { createTable, cashOuts, type TableSnapshot } from '../lib/table';
+import { createTable, nightLog, standings, type TableSnapshot } from '../lib/table';
 import { peso, signedPeso } from '../lib/money';
-import { buyInLabel, chipClass, MAX_STACK, timerLabel, transferCount } from '../lib/labels';
+import { buyInLabel, chipClass, ENTRY_LABEL, MAX_STACK, resultTone, timerLabel, transferCount } from '../lib/labels';
 
-/** Hooks a pot figure can use to animate its change (set by motion.ts). */
+/** Hooks a pot figure can use to animate its change (set by roll.ts). */
 export interface LiveHooks {
   onPot?: (el: HTMLElement, from: string, to: string) => void;
   onMark?: (row: HTMLElement) => void;
@@ -34,7 +34,8 @@ function renderPlayers(s: TableSnapshot) {
 
 function renderPot(s: TableSnapshot) {
   for (const el of all('[data-pot]')) {
-    const from = el.textContent ?? '';
+    // While a roll runs, the figure's text holds its digits twice; its target is in data-value.
+    const from = el.dataset.value ?? el.textContent ?? '';
     const to = peso(s.pot);
     if (from === to) continue;
     if (hooks.onPot) hooks.onPot(el, from, to);
@@ -43,37 +44,28 @@ function renderPot(s: TableSnapshot) {
   for (const el of all('[data-total]')) el.textContent = peso(s.boughtIn);
 }
 
-/** Rows that show a player's end-of-night result: [data-result-of="<id>"]. */
-function renderResults(s: TableSnapshot) {
-  for (const row of all('[data-result-of]')) {
-    const id = row.dataset.resultOf;
-    const p = s.players.find((x) => x.id === id);
-    const r = s.results.find((x) => x.id === id);
-    if (!p || !r) continue;
-    const label = row.querySelector('[data-result-label]');
-    if (label) label.textContent = `${peso(p.boughtIn)} bought in`;
-    const value = row.querySelector('[data-result-value]');
-    if (value) {
-      value.textContent = signedPeso(r.result);
-      value.classList.toggle('up', r.result > 0);
-      value.classList.toggle('down', r.result < 0);
-    }
-    const cash = row.querySelector('[data-result-cashout]');
-    if (cash) cash.textContent = `${peso(r.cashOut)} cashed out`;
-  }
-}
+/** Each list's first server-rendered row: the shape a new row is cloned from. */
+const shapes = new WeakMap<HTMLElement, Element>();
 
-/** Replaces a list's rows with one clone of its first row per item. */
+/**
+ * Brings a list to one row per item. Rows already on the page are updated in place (a loop that
+ * holds them, such as the hero card's, keeps working); missing rows are cloned from the list's
+ * first row; extra rows are removed.
+ */
 function fill<T>(list: HTMLElement, items: T[], apply: (row: HTMLElement, item: T, i: number) => void) {
-  const shape = list.firstElementChild;
+  if (!shapes.has(list) && list.firstElementChild) shapes.set(list, list.firstElementChild.cloneNode(true) as Element);
+  const shape = shapes.get(list);
   if (!shape) return;
-  list.replaceChildren(
-    ...items.map((item, i) => {
-      const row = shape.cloneNode(true) as HTMLElement;
-      apply(row, item, i);
-      return row;
-    }),
-  );
+  items.forEach((item, i) => {
+    let row = list.children[i] as HTMLElement | undefined;
+    if (!row) {
+      row = shape.cloneNode(true) as HTMLElement;
+      row.classList.remove('is-off');
+      list.appendChild(row);
+    }
+    apply(row, item, i);
+  });
+  while (list.children.length > items.length) list.lastElementChild!.remove();
 }
 
 const chip = (el: Element | null, colour: number, initials: string) => {
@@ -113,17 +105,15 @@ function renderTransfers(s: TableSnapshot) {
   for (const el of all('[data-transfer-count]')) el.textContent = transferCount(s.transfers.length);
 }
 
-const KIND = { 'buy-in': 'Buy-in', rebuy: 'Rebuy', 'cash-out': 'Cash-out' } as const;
-
 function renderLog(s: TableSnapshot) {
-  const rows = [...s.entries, ...cashOuts(s)];
+  const rows = nightLog(s);
   for (const list of all('[data-log]')) {
     fill(list, rows, (row, e) => {
       row.className = `log-row is-${e.kind}`;
       text(row, 'time', e.time);
       chip(row.querySelector('[data-log-chip]'), e.colour, e.initials);
       text(row, '[data-log-name]', e.name);
-      text(row, '[data-log-kind]', KIND[e.kind]);
+      text(row, '[data-log-kind]', ENTRY_LABEL[e.kind]);
       text(row, '[data-log-amt]', peso(e.amount));
     });
   }
@@ -132,7 +122,7 @@ function renderLog(s: TableSnapshot) {
 
 function renderStandings(s: TableSnapshot) {
   const people = new Map(s.players.map((p) => [p.id, p]));
-  const sorted = [...s.results].sort((a, b) => b.result - a.result);
+  const sorted = standings(s);
   for (const list of all('[data-standings]')) {
     fill(list, sorted, (row, r) => {
       const p = people.get(r.id)!;
@@ -142,8 +132,7 @@ function renderStandings(s: TableSnapshot) {
       const res = row.querySelector('[data-st-res]');
       if (res) {
         res.textContent = signedPeso(r.result);
-        res.classList.toggle('up', r.result > 0);
-        res.classList.toggle('down', r.result < 0);
+        res.className = `standing__res ${resultTone(r.result)}`.trim();
       }
     });
   }
@@ -169,7 +158,6 @@ function mark(id: string) {
 function render(s: TableSnapshot) {
   renderPlayers(s);
   renderPot(s);
-  renderResults(s);
   renderTransfers(s);
   renderLog(s);
   renderStandings(s);
