@@ -1,6 +1,6 @@
 # 0001: The landing page shows the app working
 
-Date: 2026-11-07. Status: accepted.
+Date: 2026-11-07. Status: accepted. Its direction is superseded by [0002](0002-tasteskill-revamp.md); its media rules stay.
 
 ## Context
 

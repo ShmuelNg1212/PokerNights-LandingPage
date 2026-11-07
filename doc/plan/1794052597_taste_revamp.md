@@ -132,7 +132,7 @@ Take the design as given. Add motion only. Every row has a reduced-motion state.
 - [x] **R1. Checks.** `npm test`; `npm run build`; on `dist/` with `--root dist`: `consistency.mjs` (widths 1440, 1024, 820, 768, 390; `--page software --category "bank app for home poker games" --primary "Join your group"`), `check.mjs` at the five sizes, `shoot.mjs` at five widths, `perf.mjs`. Every FAIL fixed or reported with its reason. Read every screenshot against the skill's checklist.
 - [x] **R2. Reviews.** `code-review`, `break-ui` (long player names, ₱99,999,999.50, ten players), `review-animations`, MotionScore.
 - [x] **R3. First user action.** In the built page at 390: tap Rebuy on Carlo; the pot, the hero card and the app window agree. Paste an invite link in the close; it opens the app's join address.
-- [ ] **R4. Merge** to main locally. Record the checks here. Do not push without "ship".
+- [x] **R4. Merge** to main locally. Record the checks here. Do not push without "ship".
 
 ## Deviations made at execute
 
@@ -169,4 +169,4 @@ The checks (`check.mjs`, `consistency.mjs`) decided these. Each keeps the approv
 
 ### Sync docs
 
-- [ ] **S1.** Update `doc/wiki/spec.md` (sections, nav, the close, motion). Write ADR 0002 (Q5).
+- [x] **S1.** Update `doc/wiki/spec.md` (sections, nav, the close, motion). Write ADR 0002 (Q5).

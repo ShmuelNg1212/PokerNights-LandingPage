@@ -27,14 +27,20 @@ PLAYWRIGHT_BROWSERS_PATH=/private/tmp/pn-browser-binaries node tools/probe/probe
 
 ## Design gate
 
-The taste-skill gate runs from the project root:
+The tasteskill 2.5 checks run on the build. Each serves `dist/` itself; use a profile folder outside the repo.
 
 ```sh
-node <taste-skill>/scripts/lint.mjs src
-node <taste-skill>/scripts/inspect.mjs http://127.0.0.1:4329/
+S=~/.claude/skills/design-taste-frontend
+node $S/assets/layout/check.mjs --url dist/index.html --root dist --profile <dir> --sizes 1440x900,1024x768,820x1180,768x1024,390x844
+node $S/scripts/consistency.mjs dist/index.html --root dist --widths 1440,1024,820,768,390 --rhythm-widths 1440,820,768,390 --profile <dir> --page software --category "bookkeeping app for home poker games" --primary "Join your group"
+node $S/scripts/perf.mjs dist/index.html --root dist --profile <dir>
 ```
 
-Screenshots land in `.taste-skill/inspect/` (not in git). The direction sheet is `.taste-skill/direction.json` (in git).
+`consistency.mjs` writes its crops to `dist/.taste-skill/consistency/`. The known remaining FAILs and their reasons are in the revamp plan's Checks section. The deal history is in `.taste-skill/` (only `direction.json` is in git).
+
+## Kit files
+
+`public/assets/` holds the tasteskill kit files the page loads (system, motion, ui, layout, backgrounds, effects, moments, diagrams, icons). Do not edit them. To refresh them, copy the same folders from `<skill>/assets/` again. Fetch a new icon with `node $S/scripts/icons.mjs scan dist/index.html --out public/assets/icons --colour`.
 
 ## Release (Netlify)
 

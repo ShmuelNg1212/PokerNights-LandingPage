@@ -1,49 +1,66 @@
 # Spec: PokerNights landing page
 
-The page tells a visitor what PokerNights does and how to start. It sends the visitor into the web app. Facts about the app come from `~/PokerNights` (`PRODUCT.md`, `doc/wiki/features.md`).
+The page tells a visitor what PokerNights does and how to start. It sends the visitor into the web app. Facts about the app come from `~/PokerNights` (`PRODUCT.md`, `doc/wiki/features.md`). The look follows tasteskill 2.5 ([ADR 0002](../adr/0002-tasteskill-revamp.md)).
 
 ## Pages
 
 | Address | Content |
 |---|---|
 | `/` | The landing page. |
-| `/contact/` | "Host a group": a Netlify Form named `host-request` for a person who wants to host and has no invite. |
+| `/contact/` | "Request a group": a Netlify Form named `host-request` for a person who wants to host and has no invite. |
 | `/contact/thanks/` | The page after the form is sent. |
+
+Every page has the same nav and the same closing footer.
 
 ## Where the links go
 
 All app addresses are in `src/lib/links.ts`.
 
-- "Open PokerNights" and "Open the app": `https://pokernights-five.vercel.app/`.
-- "Log in": `https://pokernights-five.vercel.app/accounts/login/`.
-- The open dialog, "I have an invite": opens a pasted link only if it is on the app address and its path is `/join/<token>/` or `/claim/<token>/` (`src/lib/invite.ts`). Any other text is refused in words.
-- The open dialog, "I have an account": opens Log in.
-- "Get in touch", "Host a group", the FAQ host answer: `/contact/`.
+- "Join your group" (the main action, in the nav, the hero and the close): goes to `#join`, the invite field in the close.
+- The invite field opens a pasted link only if it is on the app address and its path is `/join/<token>/` or `/claim/<token>/` (`src/lib/invite.ts`). Any other text is refused in words. The field works on every page.
+- "Log in" (nav, close, footer): `https://pokernights-five.vercel.app/accounts/login/`.
+- "Request a group" (hero, questions, footer): `/contact/`.
+- "Open the app" (footer): `https://pokernights-five.vercel.app/`.
 - The page never offers an open sign-up. The app makes accounts only from an invite link.
+
+## Nav
+
+The logo; the words Log, Steps, Compare, Count-up, Questions (each opens its section); "Log in"; the button "Join your group". Below 1024 px the words go into the menu sheet.
 
 ## Sections of `/`
 
-1. **Hero.** "Who pays whom, worked out." A working copy of the app's set page: six synthetic players, the pot, the set timer, Rebuy on each row. The live badge shows the visitor's own clock. The timer counts from arrival.
-2. **One row per player.** Carlo's row in three states: sits down, rebuys (works), cashes out (his end result). A clip of the real app records a rebuy.
-3. **Your first night.** Four steps: the host sends a link; put the app on the phone; the host keeps the bank; who pays whom. Step 4's transfers come from the hero's table.
-4. **Next to a notebook.** PokerNights against a notebook and a group-chat tally, in words.
-5. **Before you play.** Eight questions, one open at a time.
-6. **Deal everyone in tonight.** The open dialog.
-7. **Footer.** One line.
+Each section is exactly one or two screens tall.
+
+1. **Hero.** "Bookkeeping app for home poker games." A working copy of the app's set page in a lit frame: six synthetic players, the pot, the set timer, Rebuy on each row. A who-pays-whom card overlaps the window from 1024 px. On a phone the window shows the felt and Carlo's row.
+2. **Log (`#table`).** The app's session page at desktop: the night's log (buy-ins, rebuys, cash-outs) beside who pays whom, with Mark paid, and the results.
+3. **Steps (`#steps`).** Three steps: open the host's link, put the app on the phone, log every buy-in.
+4. **Compare (`#compare`).** PokerNights against a notebook and a group-chat tally, in words.
+5. **Count-up (`#features`).** On the bone band: the chip count, the seat draw, a reversed entry, pesos or chips, and the settle-up diagram. Narrow screens show three of the five cards.
+6. **Questions (`#questions`).** Six questions, every answer open (five on tablets).
+7. **Close and footer.** "Join your group tonight", the invite field, then the footer columns and the legal line.
 
 ## The live table
 
-- `src/lib/table.ts` holds one shared table. Six players, ₱10,500 bought in, usual buy-in ₱1,000.
-- A rebuy adds ₱1,000 to that player. The pot, the rows, Carlo's result and the transfers update together (`src/scripts/live.ts`).
-- At the end of the night each player keeps a fixed share of the table, rounded to ₱50. The last player takes the rest, so the books balance.
-- Who pays whom matches the largest loser with the largest winner (`src/lib/settle.ts`). The list has at most `players − 1` transfers. The app's own settle-up gives the same four transfers for the starting table.
+- `src/lib/table.ts` holds one shared table. Six players, ₱10,500 bought in, usual buy-in ₱1,000. It keeps the night's log (each buy-in and rebuy with its time) and a paid mark per transfer.
+- A rebuy adds ₱1,000 to that player and one row to the log. The pot, the player rows, the hero card, the log, the transfers and the results update together (`src/scripts/live.ts`). A rebuy clears the paid marks, because who pays whom changes.
+- Mark paid toggles a transfer's paid mark. It changes no amount.
+- At the end of the night each player keeps a fixed share of the table, rounded to ₱50. The last player takes the rest, so the books balance. The cash-outs are listed after the last buy-in.
+- Who pays whom matches the largest loser with the largest winner (`src/lib/settle.ts`). The list has at most `players − 1` transfers.
 - Money is integer centavos. Pesos show as ₱1,600 or ₱1,600.50.
+
+## Motion
+
+- The kit's hover layer: buttons step and press, links draw their underline, the focus ring settles.
+- One timed loop: the hero card's transfers arrive one by one. The first step card and the open pane's Mark paid also loop, each on its own screen. Every loop has a pause button and restarts under the pointer.
+- The pot's digits roll when a rebuy lands (700 ms).
+- The count-up band has the dealt scroll moment `line-carries-colour`.
+- The app clips play only while the pointer rests on their card.
 
 ## Without script and with reduced motion
 
-- Without script: the page shows a fixed, correct state. Rebuy buttons are hidden. The open dialog is a plain Log in, with a line to open the invite link from the chat.
-- With reduced motion: nothing travels. Clips show their poster. The pot figure changes at once.
+- Without script: the live parts show a fixed, correct state. Rebuy and Mark paid are hidden. The close's button opens Log in.
+- With reduced motion: every loop shows its finished picture. The pot figure changes at once. The moment shows the finished section.
 
 ## Media
 
-Every picture is the real app on synthetic players. See `public/media/README.md`. No found photographs are used.
+Every picture is the real app on synthetic players. See `public/media/README.md`. No photographs are used. The comparison shows the real Messenger and Viber marks.
