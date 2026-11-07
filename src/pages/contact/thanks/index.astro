@@ -1,0 +1,22 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { APP } from '../../../lib/links';
+---
+<Layout title="Message sent · PokerNights" description="Your request to host a PokerNights group was sent.">
+  <main id="main" class="thanks">
+    <a class="thanks-mark" href="/"><img src="/brand/logo-mark.svg" alt="PokerNights home" width="64" height="64" /></a>
+    <h1 class="h-l">Message sent</h1>
+    <p>You will hear back on the contact you gave. Until then, you can read how a first night works.</p>
+    <p class="thanks-actions">
+      <a class="pill" href="/#first-night">How a first night works</a>
+      <a class="text-link" href={APP}>Open PokerNights</a>
+    </p>
+  </main>
+</Layout>
+
+<style>
+  .thanks { display: grid; align-content: center; justify-items: start; gap: 22px; min-height: 100svh; max-width: 720px; padding: 40px var(--gutter); }
+  .thanks p { max-width: 44ch; font-size: var(--t-body); }
+  .thanks-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 26px; margin-top: 10px; }
+  .thanks-actions .text-link { font-weight: 650; }
+</style>

@@ -50,19 +50,19 @@ Skills: `tdd` (T2), `design-taste-frontend` with `lint.mjs` and `inspect.mjs` (D
 
 Build with the motion off first. The sheet's blueprints give the geometry; the brand gives colour and type.
 
-- [ ] **D1. Hero: the live set.** `tests: alongside`
+- [x] **D1. Hero: the live set.** `tests: alongside`
   - Two tone halves: `ground` left, `rail` right, meeting at 50%. Mark top-left. "Log in" top-right at 15 px. No nav bar.
   - Bottom-left: "Who pays whom, / worked out.", the sentence, the bone pill button "Open PokerNights".
   - Right: the `data-ui` live set fragment from the app's markup and tokens: felt panel with the diamond texture, "Still in play" pot, timer, blinds, six chip-token rows with working Rebuy. The live badge shows the visitor's local time; the timer counts from arrival.
   - Phone: the fragment first (78vw, lighter block, 58svh), then the headline, sentence and button.
   - Acceptance: tap Rebuy on Carlo at 390 px and the pot reads ₱10,850. Without JavaScript the fragment shows the fixed state and the button still works.
 
-- [ ] **D2. Showcase and quick start.** `tests: alongside`
+- [x] **D2. Showcase and quick start.** `tests: alongside`
   - Showcase "One row per player": Carlo's row three times (sits down, rebuys, back in); the middle row's Rebuy works and turns it into the third state. A real still or clip of the live set beside it, from T4.
   - Quick start "Your first night": four full-height fields, edge to edge, in four tone steps (ground, rail, rail-2, felt). One session card per field at true size, further along each time. Field 4's who-pays-whom reads from the T3 store. Clip (a) or (b) plays in field 3 as a muted loop with a poster.
   - Acceptance: a rebuy in the hero changes field 4's transfers. At 390 px each field stacks at 64svh and no card is shrunk.
 
-- [ ] **D3. Comparison, FAQ, CTA, footer.** `tests: alongside`
+- [x] **D3. Comparison, FAQ, CTA, footer.** `tests: alongside`
   - Comparison "Next to a notebook" as a lineless grid; the PokerNights column is one bone block, reversed. On a phone it turns into one block per row.
   - FAQ "Before you play": `<details name="faq">` tiles, sticky heading on desktop, the open tile in brass.
   - CTA: full-bleed felt field, "Deal everyone / in tonight.", the `data-ui` "Open PokerNights" dialog. "I have an invite" accepts only `https://pokernights-five.vercel.app/join/…` or `/claim/…` links and opens them; "I have an account" opens `/accounts/login/`. Any other text is refused in words under the field.
@@ -76,7 +76,7 @@ Build with the motion off first. The sheet's blueprints give the geometry; the b
   - `mobile-native`: no tap flash, no hover stuck on touch, `svh` units, safe-area insets, inputs at 16 px or more.
   - Done when: the last critique's scores are recorded here; committed as `feat:`.
 
-- [ ] **D5. Contact page.** `tests: alongside`
+- [x] **D5. Contact page.** `tests: alongside`
   - `/contact/`: same tokens and type, the mark, one short heading ("Host a group"), one sentence on what happens next, and a Netlify Form (`name="host-request"`, `data-netlify="true"`, honeypot field) with name, contact (email or Messenger), group size, and a message. A thank-you page at `/contact/thanks/`.
   - Acceptance: the built HTML has the form with `data-netlify` and the hidden `form-name` input, so Netlify detects it at deploy. Labels, 16 px inputs, 48 px targets, visible focus.
   - Done when: committed as `feat:`.
