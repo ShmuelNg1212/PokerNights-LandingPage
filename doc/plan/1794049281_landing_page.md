@@ -27,7 +27,7 @@ Skills: `tdd` (T2), `design-taste-frontend` with `lint.mjs` and `inspect.mjs` (D
   - Acceptance: `npm test` and `npm run build` pass on an empty page that loads Archivo and the tokens.
   - Done when: committed as `build:`.
 
-- [ ] **T2. Settle-up logic.** `tests: first`
+- [x] **T2. Settle-up logic.** `tests: first`
   - `src/lib/settle.ts`: integer centavos in, transfers out. Each player's result is cash-out minus bought in. Match the largest loser with the largest winner until all are zero.
   - Tests: totals that net to zero; a single winner; ties; a player at exactly zero is left out; transfers never exceed `players − 1`; the sum of the transfers equals the sum of the losses; a table that does not net to zero throws.
   - `src/lib/money.ts`: format `₱1,600` and `₱1,600.50`, signed results (`+₱600`, `−₱400`).
