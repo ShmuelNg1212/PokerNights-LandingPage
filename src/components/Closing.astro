@@ -1,0 +1,55 @@
+---
+import Arrow from './Arrow.astro';
+import { CONTACT, LOGIN, APP } from '../lib/links';
+
+interface Props {
+  /** '' on the home page; '/' on inner pages. */
+  base?: string;
+}
+const { base = '' } = Astro.props;
+const cols = [
+  { head: 'Log', links: [{ label: 'Session log', href: `${base}#table` }, { label: 'Next to a notebook', href: `${base}#compare` }] },
+  { head: 'Steps', links: [{ label: 'The first night', href: `${base}#steps` }, { label: 'Open the app', href: APP }] },
+  { head: 'Count-up', links: [{ label: 'Chip count', href: `${base}#features` }, { label: 'Log in', href: LOGIN }] },
+  { head: 'Questions', links: [{ label: 'All questions', href: `${base}#questions` }, { label: 'Request a group', href: CONTACT }] },
+];
+---
+<footer class="footer closing g2m" id="contact" aria-labelledby="close-h">
+  <div class="wrap">
+    <div class="closing__cta close--type" id="join">
+      <div class="section-head">
+        <h2 id="close-h">Join your group tonight</h2>
+        <p>Paste the invite link your host sent. It works for 7 days.</p>
+      </div>
+      <form class="join" data-open action={LOGIN} method="get" novalidate>
+        <div class="field join__field" data-invite-field>
+          <label for="invite-link">Invite link</label>
+          <input id="invite-link" name="link" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false"
+            placeholder="pokernights-five.vercel.app/join/…" aria-describedby="invite-error" />
+          <p class="join__error" id="invite-error" role="alert" data-invite-error></p>
+        </div>
+        <p class="join__nojs t-small muted">Open the invite link from the chat. This button opens Log in.</p>
+        <button type="submit" class="btn btn--primary btn--xl btn--wide">Join your group<Arrow /></button>
+        <p class="t-small muted">Already play? <a class="link" href={LOGIN}>Log in</a></p>
+      </form>
+    </div>
+    <div class="closing__links">
+      <div class="grid">
+        <div class="span-4 stack-4">
+          <a class="nav__logo" href={`${base}#top`}><img loading="lazy" src="/brand/logo-horizontal.svg" alt="PokerNights" width="148" height="28" /></a>
+          <p class="footer__lede">Who pays whom, worked out.</p>
+        </div>
+        {cols.map((c) => (
+          <div class="span-2 footer__col">
+            <h4>{c.head}</h4>
+            <ul>{c.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>
+          </div>
+        ))}
+      </div>
+      <div class="footer__legal">
+        <span>&copy; 2026 PokerNights. It never moves money. Product names and logos are trademarks of their owners.</span>
+        <div class="socials"></div>
+      </div>
+    </div>
+  </div>
+</footer>

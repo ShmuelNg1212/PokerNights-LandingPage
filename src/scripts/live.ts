@@ -1,4 +1,4 @@
-import { createTable, type TableSnapshot } from '../lib/table';
+import { createTable, cashOuts, type TableSnapshot } from '../lib/table';
 import { peso, signedPeso } from '../lib/money';
 import { buyInLabel, chipClass, MAX_STACK, timerLabel, transferCount } from '../lib/labels';
 
@@ -63,29 +63,90 @@ function renderResults(s: TableSnapshot) {
   }
 }
 
+/** Replaces a list's rows with one clone of its first row per item. */
+function fill<T>(list: HTMLElement, items: T[], apply: (row: HTMLElement, item: T, i: number) => void) {
+  const shape = list.firstElementChild;
+  if (!shape) return;
+  list.replaceChildren(
+    ...items.map((item, i) => {
+      const row = shape.cloneNode(true) as HTMLElement;
+      apply(row, item, i);
+      return row;
+    }),
+  );
+}
+
+const chip = (el: Element | null, colour: number, initials: string) => {
+  if (!el) return;
+  el.className = el.className.replace(/\bk\d+\b/, chipClass(colour));
+  (el as HTMLElement).dataset.initials = initials;
+};
+const text = (row: ParentNode, sel: string, value: string) => {
+  const el = row.querySelector(sel);
+  if (el) el.textContent = value;
+};
+
+/** The hero card's demo loop stops for good once the visitor marks a payment. */
+let payTouched = false;
+
 function renderTransfers(s: TableSnapshot) {
-  const list = document.querySelector<HTMLElement>('[data-transfers]');
-  // The server-rendered first row is the shape every new row is cloned from.
-  const shape = list?.querySelector('li');
-  if (!list || !shape) return;
   const people = new Map(s.players.map((p) => [p.id, p]));
-  const chip = (el: Element, colour: number, initials: string) => {
-    el.className = `chip is-small ${chipClass(colour)}`;
-    el.textContent = initials;
-  };
-  const rows = s.transfers.map((t) => {
-    const li = shape.cloneNode(true) as HTMLElement;
-    const from = people.get(t.from)!;
-    const to = people.get(t.to)!;
-    chip(li.querySelector('[data-from-chip]')!, from.colour, from.initials);
-    chip(li.querySelector('[data-to-chip]')!, to.colour, to.initials);
-    li.querySelector('[data-from]')!.textContent = from.name;
-    li.querySelector('[data-to]')!.textContent = to.name;
-    li.querySelector('[data-amount]')!.textContent = peso(t.amount);
-    return li;
-  });
-  list.replaceChildren(...rows);
+  for (const list of all('[data-transfers]')) {
+    fill(list, s.transfers, (row, t, i) => {
+      const from = people.get(t.from)!;
+      const to = people.get(t.to)!;
+      chip(row.querySelector('[data-from-chip]'), from.colour, from.initials);
+      chip(row.querySelector('[data-to-chip]'), to.colour, to.initials);
+      text(row, '[data-from]', from.name);
+      text(row, '[data-to]', to.name);
+      text(row, '[data-amount]', peso(t.amount));
+      row.classList.toggle('is-paid', t.paid);
+      if (i > 0 || payTouched) row.removeAttribute('data-m-loop');
+      const btn = row.querySelector<HTMLButtonElement>('[data-mark-paid]');
+      if (btn) {
+        btn.dataset.markPaid = String(i);
+        btn.setAttribute('aria-pressed', String(t.paid));
+        btn.setAttribute('aria-label', `${t.paid ? 'Undo paid' : 'Mark paid'}: ${from.name} pays ${to.name} ${peso(t.amount)}`);
+      }
+    });
+  }
   for (const el of all('[data-transfer-count]')) el.textContent = transferCount(s.transfers.length);
+}
+
+const KIND = { 'buy-in': 'Buy-in', rebuy: 'Rebuy', 'cash-out': 'Cash-out' } as const;
+
+function renderLog(s: TableSnapshot) {
+  const rows = [...s.entries, ...cashOuts(s)];
+  for (const list of all('[data-log]')) {
+    fill(list, rows, (row, e) => {
+      row.className = `log-row is-${e.kind}`;
+      text(row, 'time', e.time);
+      chip(row.querySelector('[data-log-chip]'), e.colour, e.initials);
+      text(row, '[data-log-name]', e.name);
+      text(row, '[data-log-kind]', KIND[e.kind]);
+      text(row, '[data-log-amt]', peso(e.amount));
+    });
+  }
+  for (const el of all('[data-log-count]')) el.textContent = `${rows.length} entries`;
+}
+
+function renderStandings(s: TableSnapshot) {
+  const people = new Map(s.players.map((p) => [p.id, p]));
+  const sorted = [...s.results].sort((a, b) => b.result - a.result);
+  for (const list of all('[data-standings]')) {
+    fill(list, sorted, (row, r) => {
+      const p = people.get(r.id)!;
+      chip(row.querySelector('[data-st-chip]'), p.colour, p.initials);
+      text(row, '[data-st-name]', p.name);
+      text(row, '[data-st-in]', `${peso(r.boughtIn)} in`);
+      const res = row.querySelector('[data-st-res]');
+      if (res) {
+        res.textContent = signedPeso(r.result);
+        res.classList.toggle('up', r.result > 0);
+        res.classList.toggle('down', r.result < 0);
+      }
+    });
+  }
 }
 
 const marks = new WeakMap<HTMLElement, number>();
@@ -110,6 +171,8 @@ function render(s: TableSnapshot) {
   renderPot(s);
   renderResults(s);
   renderTransfers(s);
+  renderLog(s);
+  renderStandings(s);
   if (s.lastRebuy) mark(s.lastRebuy);
 }
 
@@ -134,9 +197,17 @@ function startClock() {
 export function initLive() {
   table.subscribe(render);
   document.addEventListener('click', (e) => {
-    const btn = (e.target as Element | null)?.closest<HTMLButtonElement>('[data-rebuy]');
-    if (!btn) return;
-    table.rebuy(btn.dataset.rebuy!);
+    const target = e.target as Element | null;
+    const rebuy = target?.closest<HTMLButtonElement>('[data-rebuy]');
+    if (rebuy) {
+      table.rebuy(rebuy.dataset.rebuy!);
+      return;
+    }
+    const pay = target?.closest<HTMLButtonElement>('[data-mark-paid]');
+    if (pay) {
+      payTouched = true;
+      table.markPaid(Number(pay.dataset.markPaid));
+    }
   });
   startClock();
 }

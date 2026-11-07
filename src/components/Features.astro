@@ -1,0 +1,126 @@
+---
+import Video from './Video.astro';
+import { createTable } from '../lib/table';
+import { peso } from '../lib/money';
+
+const t = createTable().snapshot();
+const people = new Map(t.players.map((p) => [p.id, p]));
+const lanes = t.transfers.slice(0, 3).map((x) => ({
+  label: peso(x.amount),
+  icon: 'ui:arrow-right',
+  done: true,
+  sub: `${people.get(x.from)!.name} to ${people.get(x.to)!.name}`,
+}));
+const diagram = JSON.stringify({
+  layout: 'lanes',
+  alt: `Six results at count-up go into the settle-up, which gives ${t.transfers.length} transfers: the largest loser pays the largest winner first.`,
+  input: { label: 'Counted', icon: 'ui:check', sub: peso(t.boughtIn) },
+  core: { label: 'Settle' },
+  size: 'card',
+  ground: 'none',
+  lanes,
+});
+
+// The count-up chip rack for Miguel: chip value, how many, line total (centavos).
+const rack = [
+  { value: 20_00, n: 12, k: 'k9' },
+  { value: 100_00, n: 9, k: 'k2' },
+  { value: 500_00, n: 2, k: 'k3' },
+  { value: 1_000_00, n: 1, k: 'k1' },
+];
+const short = (c: number) => (c >= 1_000_00 ? `${c / 1_000_00}K` : String(c / 100));
+const rackTotal = rack.reduce((a, r) => a + r.value * r.n, 0);
+---
+<section class="section ground-inverse g2 g2m" id="features" style="--h: 2" aria-labelledby="features-h" data-moment="line-carries-colour" data-moment-opts='{"from": "base"}'>
+  <div class="wrap">
+    <div class="group">
+      <div class="section-head">
+        <h2 id="features-h">Count-up checks the books</h2>
+      </div>
+      <div class="grid bento">
+        <article class="card card--row span-8">
+          <h3>Counts the chips for you</h3>
+          <p>Tap a chip colour to add one, hold to take one off. The total fills in the cash-out.</p>
+          <div class="panel">
+            <div class="stage stage--fade-br">
+              <div class="at-corner rack-frag" style="--ax:40px;--ay:48px">
+                <div class="ui ui-pn pn-card rack" data-app data-ly-steps="600" aria-hidden="true">
+                  <div class="rack__head">
+                    <span class="chip k1" aria-hidden="true" data-initials="M"></span>
+                    <span><strong>Miguel</strong><small class="pn-muted">Count-up · Friday table</small></span>
+                    <span class="pn-badge is-quiet">Counting</span>
+                  </div>
+                  <ul class="rack__rows">
+                    {rack.map((r) => (
+                      <li data-step>
+                        <span class={`chip is-small ${r.k}`} aria-hidden="true" data-initials={short(r.value)}></span>
+                        <span class="rack__value">{peso(r.value)} chip</span>
+                        <span class="rack__n">× {r.n}</span>
+                        <span class="rack__line">{peso(r.value * r.n)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p class="rack__total" data-step><span>Stack total</span><strong>{peso(rackTotal)}</strong></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+        <article class="card card--row span-4">
+          <h3>Draws the seats</h3>
+          <p>One tap draws the dealer. Every phone at the table plays the same seat draw.</p>
+          <div class="panel panel--clip">
+            <Video name="seat-draw" class="feature-clip" label="The PokerNights seat draw on a phone: the dealer seat is drawn among six players." />
+          </div>
+        </article>
+      </div>
+    </div>
+    <div class="grid bento">
+      <article class="card card--row span-4">
+        <h3>Reverses a wrong entry</h3>
+        <p>The host reverses it with a reason. The entry stays in the log, struck through.</p>
+        <div class="panel">
+          <div class="stage stage--fade-b">
+            <div class="at-rise fit" style="--fit-max:300px;--ax:max(20px, 50% - 150px);--ay:40px;--ay-sm:32px">
+              <div class="ui ui-pn pn-card mini-log" data-app aria-hidden="true">
+                <h3>Session log</h3>
+                <ul class="pn-rows">
+                  <li><span class="chip is-small k4" aria-hidden="true" data-initials="P"></span><span>Paolo · Rebuy</span><span class="amt">₱1,000</span></li>
+                  <li class="is-reversed"><span class="chip is-small k4" aria-hidden="true" data-initials="P"></span><span><s>Paolo · Rebuy</s><small>Reversed: one zero too many</small></span><span class="amt"><s>₱10,000</s></span></li>
+                  <li><span class="chip is-small k3" aria-hidden="true" data-initials="T"></span><span>Trina · Buy-in</span><span class="amt">₱2,000</span></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+      <article class="card card--row span-4">
+        <h3>Counts in pesos or chips</h3>
+        <p>The host picks one for the game. The app never converts one into the other.</p>
+        <div class="panel">
+          <div class="stage stage--fade-b">
+            <div class="at-rise fit" style="--fit-max:300px;--ax:max(20px, 50% - 150px);--ay:40px;--ay-sm:32px">
+              <div class="ui ui-pn pn-card units" data-app aria-hidden="true">
+                <h3>Game settings</h3>
+                <p class="pn-muted">Friday table counts in</p>
+                <span class="pn-segment"><span class="is-on">Pesos</span><span>Chips</span></span>
+                <dl class="units__facts">
+                  <div><dt>Blinds</dt><dd>₱10 / ₱20</dd></div>
+                  <div><dt>Usual buy-in</dt><dd>₱1,000</dd></div>
+                  <div><dt>Rake</dt><dd>₱50 per buy-in</dd></div>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+      <article class="card card--row span-4">
+        <h3>Settles in the fewest transfers</h3>
+        <p>The largest loser pays the largest winner first: {t.transfers.length} payments for six players.</p>
+        <div class="panel">
+          <div class="dg" data-diagram data-dg-still><script type="application/json" set:html={diagram} /></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>

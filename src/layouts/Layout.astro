@@ -1,13 +1,18 @@
 ---
 import { execSync } from 'node:child_process';
 import '../styles/tokens.css';
-import '../styles/base.css';
+import '../styles/ui.css';
+import '../styles/page.css';
 
 interface Props {
   title: string;
   description: string;
+  /** Load the dealt section moment (line-carries-colour). The home page only. */
+  moments?: boolean;
+  /** The page holds a diagram card. */
+  diagrams?: boolean;
 }
-const { title, description } = Astro.props;
+const { title, description, moments = false, diagrams = false } = Astro.props;
 
 function buildMarker(): string {
   const fromHost = process.env.COMMIT_REF;
@@ -23,27 +28,76 @@ const site = Astro.site ?? new URL(Astro.url.origin);
 const ogImage = new URL('/brand/link-preview.png', site).href;
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en" data-type="software" data-radius="round" data-ground="sand" data-buttons="arrow" data-motion>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <meta name="site-kind" content="software" />
+    <meta name="page-type" content="software" />
     <meta name="build" content={build} />
-    <meta name="theme-color" content="#191511" />
+    <meta name="theme-color" content="#130e0a" />
     <meta name="color-scheme" content="dark" />
     <link rel="icon" href="/brand/logo-mark.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/brand/apple-touch-icon.png" />
-    <link rel="preload" href="/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
     <meta name="twitter:card" content="summary_large_image" />
     <script is:inline>document.documentElement.classList.add('js');</script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wdth,wght@75..100,400..700&display=swap" rel="stylesheet" />
+    <link rel="preload" href="/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/assets/system.css" />
+    <link rel="stylesheet" href="/assets/ui/cards.css" />
+    <link rel="stylesheet" href="/assets/motion/motion.css" />
+    <link rel="stylesheet" href="/assets/backgrounds/backgrounds.css" />
+    <link rel="stylesheet" href="/assets/layout/layout.css" />
+    <link rel="stylesheet" href="/assets/icons/icon.css" />
+    <!-- start.mjs brand --page software --bg "#130e0a" --ink "#f0e7d6" --accent "#ebbd57" --surface "#1e1813" --muted "#b4a997" --type instrument --radius round -->
+    <style is:inline>
+:root {
+  --p-bg: #130e0a; --p-surface: #1e1813; --p-ink: #f0e7d6; --p-muted: #b4a997;
+  --p-accent: #ebbd57; --p-accent-ink: #130e0a; --p-action: #ebbd57; --p-action-ink: #130e0a;
+  --p-inv-bg: #f0e7d6; --p-inv-surface: #ded5c5; --p-inv-ink: #130e0a; --p-inv-muted: #5d564e;
+  --p-inv-accent: #130e0a; --p-inv-accent-ink: #f0e7d6; --p-inv-action: #130e0a; --p-inv-action-ink: #f0e7d6;
+  --font-display: "Instrument Sans", system-ui, sans-serif;
+  --font-text: "Instrument Sans", system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --display-weight: 500;
+  --display-tracking: -0.028em;
+  --display-tracking-xl: -0.036em;
+  --display-stretch: 96%;
+  --ly-scale: 1.04;
+}
+    </style>
+    <link rel="stylesheet" href="/assets/ui/base.css" />
+    {diagrams && <link rel="stylesheet" href="/assets/diagrams/diagram.css" />}
+    <script is:inline src="/assets/backgrounds/backgrounds.js"></script>
+    {moments && (
+      <Fragment>
+        <script is:inline>document.documentElement.classList.add('mo-js');setTimeout(()=>document.documentElement.classList.add('mo-safe'),2500)</script>
+        <link rel="modulepreload" href="/assets/moments/moments.js" />
+        <link rel="modulepreload" href="/assets/moments/lib.js" />
+        <link rel="modulepreload" href="/assets/moments/line-carries-colour/moment.js" />
+      </Fragment>
+    )}
   </head>
   <body>
-    <a class="skip-link" href="#main">Skip to content</a>
+    <!-- type: software
+         deal: hero collage, nav nav-centre (dealt nav-mega: one page has no feature pages), close close-type,
+         footer footer-columns, rhythm dark-band, buttons arrow, mark: the client's logo, ground sand,
+         palette: the brand (Rack) through start.mjs brand, type instrument, radius round
+         effect: fluted-glass in the hero frame (speed 0: the hero card's loop is the page's one timed loop)
+         moments: line-carries-colour on #features; hero moment none (the hero holds the effect) -->
     <slot />
+    <script type="module" is:inline src="/assets/system.js"></script>
+    <script type="module" is:inline src="/assets/motion/motion.js"></script>
+    <script type="module" is:inline src="/assets/layout/layout.js"></script>
+    {diagrams && <script type="module" is:inline src="/assets/diagrams/mount.js"></script>}
   </body>
 </html>

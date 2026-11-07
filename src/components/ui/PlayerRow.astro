@@ -17,7 +17,7 @@ const { id, name, initials, colour, buyIns, boughtIn, live = false } = Astro.pro
 const stack = Math.min(buyIns, MAX_STACK);
 ---
 <li class="player-row" data-player={live ? id : undefined}>
-  <span class={`chip ${chipClass(colour)}`} aria-hidden="true">{initials}</span>
+  <span class={`chip ${chipClass(colour)}`} aria-hidden="true" data-initials={initials}></span>
   <span class="player-identity">
     <span class="player-name">{name}</span>
     <span class="player-meta">
@@ -31,10 +31,10 @@ const stack = Math.min(buyIns, MAX_STACK);
     {live && <span class="row-mark" data-mark hidden>Rebuy added</span>}
   </span>
   {live ? (
-    <button type="button" class="ui-btn" data-rebuy={id} aria-label={`Rebuy for ${name}`}>
+    <button type="button" class="pn-btn" data-rebuy={id} aria-label={`Rebuy for ${name}`}>
       <Icon name="plus" />Rebuy
     </button>
   ) : (
-    <span class="ui-btn" aria-hidden="true"><Icon name="plus" />Rebuy</span>
+    <span class="pn-btn" aria-hidden="true"><Icon name="plus" />Rebuy</span>
   )}
 </li>

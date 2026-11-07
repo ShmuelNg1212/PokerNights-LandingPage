@@ -1,5 +1,4 @@
-/* PokerNights — The Rack. Values copied from ~/PokerNights/DESIGN.md and static/css/app.css.
-   Everything downstream uses these tokens only. */
+/* PokerNights — The Rack. Values copied from ~/PokerNights/DESIGN.md and static/css/app.css. */
 @font-face {
   font-family: Archivo;
   font-style: normal;
@@ -17,59 +16,32 @@
   line-gap-override: 0%;
 }
 
+/* The Rack's primitives, for the app's own fragments only ([data-app], src/styles/ui.css).
+   The page itself uses the tasteskill system (public/assets/system.css) and its --p-* palette. */
 :root {
-  /* Brand primitives */
-  --ground: oklch(0.17 0.012 60);
-  --rail: oklch(0.215 0.014 60);
-  --rail-2: oklch(0.265 0.016 60);
-  --line: oklch(0.55 0.018 60);
-  --rule: oklch(0.33 0.018 60);
-  --bone: oklch(0.93 0.025 85);
-  --bone-dim: oklch(0.74 0.028 80);
-  --ink: oklch(0.19 0.02 60);
-  --felt: oklch(0.34 0.095 265);
-  --felt-ink: oklch(0.86 0.04 265);
-  --brass: oklch(0.82 0.13 85);
-  --up: oklch(0.82 0.13 160);
-  --down: oklch(0.76 0.14 25);
-  --c1: #9e3038; --c2: #285aa8; --c3: #267449; --c4: #e4bd48; --c5: #82409b;
-  --c6: #d48d48; --c7: #70b9bd; --c8: #dd86a1; --c9: #b4b1a6; --c10: #524b9a;
-
-  /* Page roles */
-  --bg: var(--ground);
-  --surface: var(--rail);
-  --surface-2: var(--rail-2);
-  --text: var(--bone);
-  --muted: var(--bone-dim);
-  --accent: var(--bone);
-  --accent-ink: var(--ink);
-  --focus: var(--brass);
-
-  /* Page type: five steps */
-  --font: Archivo, ArchivoFallback, system-ui, sans-serif;
-  --t-xl: clamp(3.25rem, 6.6vw, 6.5rem);
-  --t-l: clamp(2.25rem, 4.4vw, 4.5rem);
-  --t-m: clamp(1.25rem, 1.6vw, 1.5rem);
-  --t-body: 1.0625rem;
-  --t-s: 0.9375rem;
-
-  /* Space */
-  --gutter: clamp(16px, 2.8vw, 40px);
-  --section-gap: clamp(112px, 14vw, 200px);
-  --max: 1360px;
-
-  /* Radii: the page uses pills; fragments use the app's own radii. */
-  --r-pill: 999px;
-  --r-surface: 1rem;
-  --r-btn: 15px;
-  --r-field: 10px;
-  --r-sheet: 26px;
-  --r-bar: 4px;
-
-  /* Motion: the app's curves */
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --t-press: 110ms;
-  --t-fast: 180ms;
-
-  color-scheme: dark;
+  --rk-ground: oklch(0.17 0.012 60);
+  --rk-rail: oklch(0.215 0.014 60);
+  --rk-rail-2: oklch(0.265 0.016 60);
+  --rk-line: oklch(0.55 0.018 60);
+  --rk-rule: oklch(0.33 0.018 60);
+  --rk-bone: oklch(0.93 0.025 85);
+  --rk-bone-dim: oklch(0.74 0.028 80);
+  --rk-ink: oklch(0.19 0.02 60);
+  --rk-felt: oklch(0.34 0.095 265);
+  --rk-felt-ink: oklch(0.86 0.04 265);
+  --rk-brass: oklch(0.82 0.13 85);
+  --rk-up: oklch(0.82 0.13 160);
+  --rk-down: oklch(0.76 0.14 25);
+  --rk-c1: #9e3038; --rk-c2: #285aa8; --rk-c3: #267449; --rk-c4: #e4bd48; --rk-c5: #82409b;
+  --rk-c6: #d48d48; --rk-c7: #70b9bd; --rk-c8: #dd86a1; --rk-c9: #b4b1a6; --rk-c10: #524b9a;
+  --rk-font: Archivo, ArchivoFallback, system-ui, sans-serif;
+  --rk-r-pill: 999px;
+  --rk-r-surface: 1rem;
+  --rk-r-btn: 15px;
+  --rk-r-field: 10px;
+  --rk-r-sheet: 26px;
+  --rk-r-bar: 4px;
+  --rk-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --rk-t-press: 110ms;
+  --rk-t-fast: 180ms;
 }

@@ -1,5 +1,5 @@
 ---
-/** A muted loop of the real app over its poster. Plays only in view (see scripts/media.ts). */
+/** A muted loop of the real app over its poster. Plays while the pointer rests on its card (see scripts/media.ts). */
 interface Props {
   name: 'seat-draw' | 'deal' | 'recap';
   label: string;
@@ -16,8 +16,8 @@ const { name, label, class: extra } = Astro.props;
 </div>
 
 <style>
-  .app-clip { position: relative; overflow: hidden; border-radius: 26px; background: var(--ground); aspect-ratio: 720 / 1300; }
+  .app-clip { position: relative; overflow: hidden; border-radius: 26px; background: var(--rk-ground); aspect-ratio: 720 / 1300; }
   .app-clip :is(img, video) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
-  .app-clip video { opacity: 0; transition: opacity 300ms var(--ease-out); }
+  .app-clip video { opacity: 0; transition: opacity 300ms var(--rk-ease-out); }
   .app-clip video.is-playing { opacity: 1; }
 </style>

@@ -1,0 +1,60 @@
+---
+import Video from './Video.astro';
+---
+<section class="section" id="steps" style="--hm: 2" aria-labelledby="steps-h">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="steps-h">Start in 3 steps</h2>
+    </div>
+    <div class="grid steps-grid">
+      <article class="card card--row span-4">
+        <span class="step-num">1</span>
+        <h3>Open your host’s link</h3>
+        <p>Your host sends a link in the group chat. Open it and make your account.</p>
+        <div class="panel">
+          <div class="stage stage--fade-b">
+            <div class="at-rise fit step-frag" style="--fit-max:300px;--ax:max(20px, 50% - 150px);--ay:32px;--ay-sm:24px">
+              <div class="ui ui-pn pn-card invite" data-app data-ly-steps="700" aria-hidden="true">
+                <img loading="lazy" class="invite__more" src="/brand/logo-mark.svg" alt="" width="36" height="36" />
+                <h3>Join Friday table</h3>
+                <p class="pn-muted">Hana invited you · 6 players</p>
+                <span class="pn-label">Username</span><span class="pn-field"><span data-step>carlo.r</span></span>
+                <span class="pn-label invite__more">Password</span><span class="pn-field invite__more"><span data-step>••••••••••</span></span>
+                <span class="pn-btn is-primary is-block invite__more" data-step>Create account and join</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+      <article class="card card--row span-4">
+        <span class="step-num">2</span>
+        <h3>Put it on your phone</h3>
+        <p>iPhone: Share, then Add to Home Screen. Android: the menu, then Install app.</p>
+        <div class="panel">
+          <div class="stage stage--fade-b">
+            <div class="at-rise fit step-frag" style="--fit-max:300px;--ax:max(20px, 50% - 150px);--ay:32px;--ay-sm:24px">
+              <div class="ui ui-pn pn-card install" data-app aria-hidden="true">
+                <h3>Put PokerNights on your phone</h3>
+                <p class="pn-muted">It opens like an app, with no address bar.</p>
+                <ol class="install-steps">
+                  <li><strong>iPhone</strong><span>In Safari, tap Share, then Add to Home Screen.</span></li>
+                  <li><strong>Android</strong><span>In Chrome, open the menu, then Install app.</span></li>
+                  <li><strong>From Messenger or Viber</strong><span>Open the link in your browser first.</span></li>
+                </ol>
+                <span class="pn-btn is-block">Got it</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+      <article class="card card--row span-4">
+        <span class="step-num">3</span>
+        <h3>Log every buy-in</h3>
+        <p>The host taps Rebuy. Every phone at the table sees it in about five seconds.</p>
+        <div class="panel panel--clip">
+          <Video name="deal" class="step-clip" label="PokerNights on a phone: the Rebuy sheet for Carlo, then the pot rises from ₱6,000 to ₱7,000." />
+        </div>
+      </article>
+    </div>
+  </div>
+</section>

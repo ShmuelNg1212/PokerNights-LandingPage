@@ -6,15 +6,15 @@ import { peso } from '../../lib/money';
 
 const t = createTable().snapshot();
 ---
-<div class="live-set" data-ui data-live-set role="group" aria-label="A working copy of the PokerNights set page. Tap Rebuy to record one.">
-  <div class="ui-bar">
-    <span class="ui-back"><Icon name="back" />Session: Friday table</span>
+<div class="ui ui-pn live-set" data-app data-live-set role="group" aria-label="A working copy of the PokerNights set page. Tap Rebuy to record one.">
+  <div class="pn-bar">
+    <span class="pn-back"><Icon name="back" />Session: Friday table</span>
     <span class="live-status">Live · <time data-clock>21:40</time></span>
   </div>
   <div class="felt">
     <div class="felt-head">
       <h3>Friday table <small>Set 1</small></h3>
-      <span class="ui-badge">In play</span>
+      <span class="pn-badge">In play</span>
     </div>
     <div class="pot">
       <div>
@@ -28,7 +28,7 @@ const t = createTable().snapshot();
     </div>
     <p class="set-totals"><span data-total>{peso(t.boughtIn)}</span> bought in · {peso(t.cashedOut)} cashed out</p>
   </div>
-  <div class="ui-section-head">
+  <div class="pn-section-head">
     <h4>Players <small>6 · 2 seats free</small></h4>
   </div>
   <ul class="player-list">
@@ -43,7 +43,7 @@ const t = createTable().snapshot();
     width: 100%;
     max-width: 440px;
     overflow: hidden;
-    background: var(--ground);
+    background: var(--rk-ground);
     border-radius: 28px 28px 0 0;
   }
 </style>
