@@ -83,7 +83,7 @@ Build with the motion off first. The sheet's blueprints give the geometry; the b
 
 ### Motion pass
 
-- [ ] **M1. Motion task list.** `tests: alongside`
+- [x] **M1. Motion task list.** `tests: alongside`
 
   | Element | Property | Easing / spring | Duration | Reduced motion |
   |---|---|---|---|---|
@@ -100,7 +100,7 @@ Build with the motion off first. The sheet's blueprints give the geometry; the b
 
   - Done when: every element above has its move. Content shows if the script fails.
 
-- [ ] **M2. Build and audit the motion.** `tests: alongside`
+- [x] **M2. Build and audit the motion.** `tests: alongside`
   - `search-motion-docs` before any Motion API call. Transform and opacity only.
   - `inspect.mjs` counts 16 or more moving elements. The MotionScore audit through the `motion` skill. `animation-performance` if a frame drops at 4× processor slowdown.
   - Done when: committed as `feat:`.

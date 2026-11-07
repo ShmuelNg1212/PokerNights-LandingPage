@@ -54,3 +54,30 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .lines [data-line] { display: inline-block; }
 
 .wrap { width: 100%; max-width: var(--max); margin-inline: auto; padding-inline: var(--gutter); }
+
+/* Motion. Content is visible without script; travel only when motion is welcome. */
+.roll-cell { display: inline-block; overflow: hidden; vertical-align: bottom; }
+.roll-cell > span { display: inline-block; }
+@media (prefers-reduced-motion: no-preference) {
+  .js .hero .lines [data-line] {
+    transform: translateY(105%);
+    animation: line-up 900ms var(--ease-out) forwards;
+    animation-delay: calc(var(--i) * 110ms + 150ms);
+  }
+  .js .hero [data-hero-after] {
+    opacity: 0;
+    animation: fade-up 600ms var(--ease-out) 620ms forwards;
+  }
+  .js .hero [data-hero-fragment] {
+    opacity: 0;
+    animation: fade-up 800ms var(--ease-out) 300ms forwards;
+  }
+  .js.motion-ready [data-reveal]:not(.is-in) { opacity: 0; }
+  .js.motion-ready main .lines:not(.is-in) [data-line] { transform: translateY(105%); }
+  .js.motion-ready main .lines.is-in [data-line] {
+    animation: line-up 900ms var(--ease-out) both;
+    animation-delay: calc(var(--i) * 110ms);
+  }
+}
+@keyframes line-up { from { transform: translateY(105%); } to { transform: none; } }
+@keyframes fade-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
