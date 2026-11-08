@@ -77,11 +77,17 @@ Done when: `npm test` is green with the new tests.
 
 Depends on T5 and Q3.
 
-- [ ] Make `#table` a custom scroll moment with `data-moment="log-replay"`. It pins for two screens.
-- [ ] As the visitor scrolls, the log rows appear in time order. The pot figure rolls to each new total (the existing `roll.ts`). The transfers and the results appear when the cash-outs land.
-- [ ] Scrolling up runs it back. Both ends are finished states: the full night at the end. The start shows the first buy-in, not an empty table, so the section never reads as empty.
-- [ ] Rebuy and Mark paid still work at the end of the replay. A Rebuy during the replay jumps to the end state first.
-- [ ] Phones, reduced motion and no script: the full night, as now.
+- [x] Make `#table` a custom scroll moment with `data-moment="log-replay"`. It pins for two screens.
+- [x] As the visitor scrolls, the log rows appear in time order. The pot figure rolls to each new total (the existing `roll.ts`). The transfers and the results appear when the cash-outs land.
+- [x] Scrolling up runs it back. Both ends are finished states: the full night at the end. The start shows the first buy-in, not an empty table, so the section never reads as empty.
+- [x] Rebuy and Mark paid still work at the end of the replay. A Rebuy during the replay jumps to the end state first.
+- [x] Phones, reduced motion and no script: the full night, as now.
+
+- Changed in execute:
+  - The Log section has no pot figure. The log's entry badge counts up with the rows instead. The plan's pot roll does not apply here.
+  - Each player's result row comes in at their first buy-in. Its "in" total grows with each rebuy. It shows "Playing" until that player's cash-out, then the result. This keeps the right pane full during the replay.
+  - A Rebuy during the replay does not jump to the end. The replay reads the live table on each frame, so the new row arrives at the end of the night.
+  - The log slides up so that its newest row stays in view.
 
 Acceptance: the probe checks the pot and the row count at five scroll positions against `replayAt()`, down and up. A Rebuy at the end adds ₱1,000.
 Done when: the figures on screen match `replayAt()` at every probed position.

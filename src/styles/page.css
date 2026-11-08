@@ -102,6 +102,23 @@ html:not(.js) :is([data-rebuy], [data-mark-paid]) { display: none; }
 .standing__res.down { color: var(--rk-down); }
 .pay-foot { margin: 12px 20px 80px; color: var(--rk-bone-dim); font-size: .8125rem; }
 
+/* The night replays with the scroll (src/scripts/replay.ts, ADR 0004). Live, the section is two screens and
+   its .wrap sticks for the second; rows after the current step wait faded and 8px down, and arrive in 240 ms
+   as the scroll reaches them (back the same way). The log slides up so its newest row stays in view. Who
+   pays whom waits for the last cash-out; until then one line says so. Not live: none of this applies. */
+.pay-wait { display: none; }
+main > #table.is-replay { height: calc(2 * 100vh); height: calc(2 * 100svh); padding: 0; }
+main > #table.is-replay > .wrap { position: sticky; top: 0; height: 100vh; height: 100svh; box-sizing: border-box; padding-block: var(--padt) calc(var(--padb) + var(--bar)); }
+#table.is-replay .app-head { position: relative; z-index: 1; background: var(--u-bg); }
+#table.is-replay .standing__res.is-playing { color: var(--rk-bone-dim); font-weight: 500; }
+#table.is-replay .log { translate: 0 var(--replay-shift, 0px); transition: translate .32s var(--rk-ease-out); }
+#table.is-replay :is(.log-row, .standing) { transition: opacity .24s var(--rk-ease-out), translate .24s var(--rk-ease-out); }
+#table.is-replay :is(.log-row, .standing).is-later { opacity: 0; translate: 0 8px; }
+#table.is-replay:not(.is-settled) .pay-wait { display: block; margin: 16px 20px 8px; }
+#table.is-replay .pay-list > li { transition: opacity .32s var(--rk-ease-out); }
+#table.is-replay:not(.is-settled) .pay-list > li { opacity: 0; pointer-events: none; }
+#table.is-replay:not(.is-settled) .pay-list { height: 0; overflow: hidden; }
+
 /* The open pane's one loop: Mark paid is pressed on the first transfer, the state turns Paid, then it
    rests. Every keyframe runs on the kit's --m-cycle; the motion layer pauses it; --m-still is the
    finished frame. A visitor's own tap ends it (live.ts removes data-m-loop). */

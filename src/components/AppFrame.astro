@@ -7,7 +7,7 @@ const t = createTable().snapshot();
 const people = new Map(t.players.map((p) => [p.id, p]));
 const log = nightLog(t);
 ---
-<section class="section" id="table" aria-labelledby="table-h">
+<section class="section" id="table" data-replay aria-labelledby="table-h">
   <div class="wrap">
     <div class="grid section-head--row">
       <h2 id="table-h" data-rise class="span-6">PokerNights keeps the log and works out who pays whom</h2>
@@ -35,6 +35,7 @@ const log = nightLog(t);
           <span class="app-head__title">Who pays whom</span>
           <span class="pn-badge is-brass" data-transfer-count>{transferCount(t.transfers.length)}</span>
         </div>
+        <p class="pay-wait pn-muted" aria-hidden="true">Who pays whom appears when every stack is counted.</p>
         <ul class="pay-list" data-transfers data-pay-list>
           {t.transfers.map((x, i) => {
             const from = people.get(x.from)!;
@@ -56,7 +57,7 @@ const log = nightLog(t);
           {standings(t).map((r) => {
             const p = people.get(r.id)!;
             return (
-              <li class="standing" data-standing>
+              <li class="standing" data-standing data-st-id={r.id}>
                 <span class={`chip is-small ${chipClass(p.colour)}`} aria-hidden="true" data-st-chip data-initials={p.initials}></span>
                 <span class="standing__name" data-st-name>{p.name}</span>
                 <span class="standing__in" data-st-in>{peso(r.boughtIn)} in</span>

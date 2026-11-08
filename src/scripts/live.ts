@@ -9,6 +9,8 @@ export interface LiveHooks {
 }
 
 const table = createTable();
+/** The table as the page shows it now (replay.ts reads it). */
+export const liveSnapshot = () => table.snapshot();
 const hooks: LiveHooks = {};
 export function setLiveHooks(next: LiveHooks) {
   Object.assign(hooks, next);
@@ -126,6 +128,7 @@ function renderStandings(s: TableSnapshot) {
   for (const list of all('[data-standings]')) {
     fill(list, sorted, (row, r) => {
       const p = people.get(r.id)!;
+      row.dataset.stId = r.id;
       chip(row.querySelector('[data-st-chip]'), p.colour, p.initials);
       text(row, '[data-st-name]', p.name);
       text(row, '[data-st-in]', `${peso(r.boughtIn)} in`);

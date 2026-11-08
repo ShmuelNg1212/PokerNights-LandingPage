@@ -254,6 +254,57 @@ for (const [w, h] of [[1440, 900], [1024, 768]]) {
   await ctx.close();
 }
 
+// The Log section replays the night with the scroll (T6): the same step both ways, the rows, badge and results
+// agree, the whole night at the foot, and a Rebuy still lands.
+{
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  await ctx.addInitScript(() => document.addEventListener('readystatechange', () => { document.documentElement.dataset.motion = 'live'; }, { once: true }));
+  const page = await ctx.newPage();
+  await page.goto(`${BASE}/`);
+  await page.waitForTimeout(1500);
+  const read = (f) => page.evaluate(async (f) => {
+    const root = document.querySelector('#table');
+    const top = root.getBoundingClientRect().top + scrollY;
+    scrollTo(0, top + f * (root.offsetHeight - innerHeight));
+    await new Promise((r) => setTimeout(r, 450));
+    const rows = [...root.querySelectorAll('[data-log] > li')];
+    const shown = rows.filter((r) => getComputedStyle(r).opacity === '1').length;
+    const results = [...root.querySelectorAll('[data-standing]')].filter((r) => getComputedStyle(r).opacity === '1').length;
+    const pays = [...root.querySelectorAll('[data-pay-list] > li')].filter((r) => getComputedStyle(r).opacity === '1').length;
+    return { step: +root.dataset.replayStep, total: rows.length, shown, badge: root.querySelector('[data-log-count]').textContent, results, pays, live: root.classList.contains('is-replay'), screens: root.offsetHeight / innerHeight };
+  }, f);
+  const fs = [0, 0.25, 0.5, 0.75, 1];
+  const down = []; for (const f of fs) down.push(await read(f));
+  const up = []; for (const f of [...fs].reverse()) up.unshift(await read(f));
+  check('Log replay: live and two screens tall', down[0].live && Math.abs(down[0].screens - 2) < 0.01, `${down[0].screens}`);
+  check('Log replay: the first buy-in at the top, the whole night at the foot', down[0].step === 1 && down[4].step === down[4].total, `${down[0].step} … ${down[4].step}/${down[4].total}`);
+  check('Log replay: the steps grow with the scroll', down.every((d, i) => i === 0 || d.step > down[i - 1].step), down.map((d) => d.step).join(','));
+  check('Log replay: the same step scrolling down and up', down.every((d, i) => d.step === up[i].step), `${down.map((d) => d.step)} / ${up.map((d) => d.step)}`);
+  check('Log replay: rows shown and the badge match the step', down.every((d) => d.shown === d.step && d.badge === `${d.step} entries`), down.map((d) => `${d.shown}/${d.badge}`).join(', '));
+  check('Log replay: who pays whom only at the foot', down.slice(0, 4).every((d) => d.pays === 0) && down[4].pays === 4, down.map((d) => d.pays).join(','));
+  check('Log replay: every result shows at the foot', down[4].results === 6, `${down[4].results}`);
+  await read(1);
+  const ends = await page.$$eval('#table [data-st-res]', (l) => l.map((e) => e.textContent));
+  check('Log replay: the results at the foot are the counted ones', ends.every((t) => /^[+−-]?₱/.test(t)), ends.join(' '));
+  await page.evaluate(() => scrollTo(0, 0));
+  await page.click('.hero [data-rebuy="bea"]');
+  const end = await read(1);
+  check('Log replay: a Rebuy replays too, and the foot holds the new night', end.total === down[4].total + 1 && end.step === end.total && end.badge === `${end.total} entries`, JSON.stringify(end));
+  await page.click('#table [data-mark-paid="0"]');
+  await page.waitForTimeout(100);
+  check('Log replay: Mark paid works at the foot', await page.$eval('#table [data-pay-list] > li:first-child', (li) => li.classList.contains('is-paid')));
+  await ctx.close();
+}
+{
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+  const page = await ctx.newPage();
+  await page.goto(`${BASE}/`);
+  await page.waitForTimeout(800);
+  const r = await page.$eval('#table', (s) => ({ live: s.classList.contains('is-replay'), later: s.querySelectorAll('.is-later').length, badge: s.querySelector('[data-log-count]').textContent }));
+  check('reduced motion: the Log section shows the whole night, not pinned', !r.live && r.later === 0 && r.badge === '14 entries', JSON.stringify(r));
+  await ctx.close();
+}
+
 await browser.close();
 const failed = results.filter((r) => !r).length;
 console.log(`\n${results.length - failed}/${results.length} passed`);
