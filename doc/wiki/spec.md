@@ -53,13 +53,14 @@ Each section is exactly one or two screens tall.
 - The kit's hover layer: buttons step and press, links draw their underline, the focus ring settles.
 - One timed loop: the hero card's transfers arrive one by one. The first step card and the open pane's Mark paid also loop, each on its own screen. Every loop has a pause button and restarts under the pointer.
 - The pot's digits roll when a rebuy lands (700 ms).
-- The count-up band has the dealt scroll moment `line-carries-colour`.
+- The count-up band has the dealt scroll moment `line-carries-colour`. Its blocks fade in over 0.3 s, so none jumps when the line reaches the top.
+- The other section headings rise once as they come on screen: opacity and 12px up, 700 ms ease-out ([ADR 0003](../adr/0003-section-headings-rise.md)). The hero heading and all cards stay still.
 - The app clips play only while the pointer rests on their card.
 
 ## Without script and with reduced motion
 
 - Without script: the live parts show a fixed, correct state. Rebuy and Mark paid are hidden. The close's button opens Log in.
-- With reduced motion: every loop shows its finished picture. The pot figure changes at once. The moment shows the finished section.
+- With reduced motion: every loop shows its finished picture. The pot figure changes at once. The moment shows the finished section. Every heading shows at once.
 
 ## Media
 
