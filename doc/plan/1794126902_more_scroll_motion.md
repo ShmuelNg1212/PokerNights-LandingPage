@@ -35,10 +35,10 @@ Done when: the build serves the 2.5.1 runtime and the probe is green.
 
 ### T2. Hero entrance — `tests: alongside`
 
-- [ ] Add the `m-enter` head line to `src/layouts/Layout.astro`.
-- [ ] Add `data-enter` to the hero section. Mark the window with `data-enter-media` if the kit does not find it.
-- [ ] The h1 rises line by line (700 ms, lines 80 ms apart). The lead and buttons fade up 12px (520 ms, 60 ms apart). The window settles from 0.98 to 1 over 900 ms. Ease `--m-ease-enter`. Total about 1.1 s.
-- [ ] The hero card's transfer loop and Rebuy keep working during and after the entrance.
+- [x] Add the `m-enter` head line to `src/layouts/Layout.astro`.
+- [x] Add `data-enter` to the hero section. Mark the window with `data-enter-media` if the kit does not find it.
+- [x] The h1 rises line by line (700 ms, lines 80 ms apart). The lead and buttons fade up 12px (520 ms, 60 ms apart). The window settles from 0.98 to 1 over 900 ms. Ease `--m-ease-enter`. Total about 1.1 s.
+- [x] The hero card's transfer loop and Rebuy keep working during and after the entrance.
 
 Acceptance: the probe sees the h1 masked at load and at rest by 1.2 s with `data-motion="live"`. Reduced motion shows the hero as written at once. Rebuy works at 300 ms after load.
 Done when: the gate's `hero-enter` check passes.

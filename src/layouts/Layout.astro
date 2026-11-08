@@ -76,6 +76,8 @@ const ogImage = new URL('/brand/link-preview.png', site).href;
 }
     </style>
     <link rel="stylesheet" href="/assets/ui/base.css" />
+    <!-- the hero's entrance (tasteskill 2.5.1 motion.md): its words wait for motion.js, 700 ms at most -->
+    <script is:inline>document.documentElement.classList.add('m-enter');setTimeout(()=>document.documentElement.classList.add('m-enter-done'),700)</script>
     {diagrams && <link rel="stylesheet" href="/assets/diagrams/diagram.css" />}
     <script is:inline src="/assets/backgrounds/backgrounds.js"></script>
     {moments && (

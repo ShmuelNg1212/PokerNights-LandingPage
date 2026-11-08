@@ -166,6 +166,31 @@ for (const vp of [{ width: 390, height: 844, mobile: true }, { width: 1440, heig
   await ctx.close();
 }
 
+// The hero enters once on load (tasteskill 2.5.1): the h1 in word masks, then it stands; Rebuy works meanwhile.
+{
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  await ctx.addInitScript(() => document.addEventListener('readystatechange', () => { document.documentElement.dataset.motion = 'live'; }, { once: true }));
+  const page = await ctx.newPage();
+  await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
+  // motion.js waits for the fonts (250 ms at most) before it masks the words
+  await page.waitForSelector('.hero.is-entering', { timeout: 800 }).catch(() => {});
+  const early = await page.$eval('.hero', (h) => ({ entering: h.classList.contains('is-entering'), masks: h.querySelectorAll('h1 .m-w').length }));
+  check('the hero enters: the h1 rises out of word masks', early.entering && early.masks > 0, JSON.stringify(early));
+  await page.waitForTimeout(180);
+  await page.click('.hero [data-rebuy="carlo"]');
+  await page.waitForTimeout(1300);
+  const rest = await page.$eval('.hero', (h) => ({ done: h.classList.contains('is-entered'), masks: h.querySelectorAll('h1 .m-w').length, h1: getComputedStyle(h.querySelector('h1')).opacity, lead: getComputedStyle(h.querySelector('.hero__lead')).opacity, scale: getComputedStyle(h.querySelector('.hero__art')).scale }));
+  check('the hero stands by 1.6 s, its h1 given back whole', rest.done && rest.masks === 0 && rest.h1 === '1' && rest.lead === '1' && (rest.scale === 'none' || rest.scale === '1'), JSON.stringify(rest));
+  check('a Rebuy during the entrance still lands', (await page.$eval('.hero [data-pot]', (el) => el.dataset.value || el.textContent)) === '₱11,500');
+  await ctx.close();
+  const rctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+  const r = await rctx.newPage();
+  await r.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
+  await r.waitForTimeout(60);
+  check('reduced motion: the hero stands as written at once', await r.$eval('.hero', (h) => !h.classList.contains('is-entering') && getComputedStyle(h.querySelector('h1')).opacity === '1'));
+  await rctx.close();
+}
+
 await browser.close();
 const failed = results.filter((r) => !r).length;
 console.log(`\n${results.length - failed}/${results.length} passed`);

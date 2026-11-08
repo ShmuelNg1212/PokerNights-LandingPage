@@ -9,7 +9,7 @@ import { CONTACT } from '../lib/links';
 const t = createTable().snapshot();
 const people = new Map(t.players.map((p) => [p.id, p]));
 ---
-<section class="hero hero--collage" aria-labelledby="hero-h">
+<section class="hero hero--collage" data-enter aria-labelledby="hero-h">
   <div class="wrap"><div class="hero-text grid hero__grid">
     <div class="hero__text span-6">
       <h1 id="hero-h">Bookkeeping app for home poker games</h1>
