@@ -221,6 +221,39 @@ for (const vp of [{ width: 390, height: 844, mobile: true }, { width: 1440, heig
   await rctx.close();
 }
 
+// The Steps section pins (T4, the kit's pinned-chapters): the steps open with the scroll, both ways; phones get rows.
+for (const [w, h] of [[1440, 900], [1024, 768]]) {
+  const ctx = await browser.newContext({ viewport: { width: w, height: h } });
+  await ctx.addInitScript(() => document.addEventListener('readystatechange', () => { document.documentElement.dataset.motion = 'live'; }, { once: true }));
+  const page = await ctx.newPage();
+  await page.goto(`${BASE}/`);
+  await page.waitForFunction(() => document.querySelector('#steps')?.classList.contains('is-live'), null, { timeout: 4000 }).catch(() => {});
+  const res = await page.evaluate(async () => {
+    const root = document.querySelector('#steps');
+    const top = root.getBoundingClientRect().top + scrollY;
+    const span = root.offsetHeight - innerHeight;
+    const frame = () => new Promise((r) => requestAnimationFrame(r));
+    const open = async (f) => { scrollTo(0, top + f * span); for (let i = 0; i < 4; i++) await frame(); return [...root.querySelectorAll('.mo-pc__step')].findIndex((s) => s.classList.contains('is-on')); };
+    const down = [await open(0.05), await open(0.5), await open(0.95)];
+    const up = [await open(0.5), await open(0.05)];
+    const stuck = root.querySelector('.mo-pc__grid').getBoundingClientRect().top;
+    return { live: root.classList.contains('is-live'), screens: root.offsetHeight / innerHeight, down, up, stuck };
+  });
+  check(`${w}: Steps pins for two screens`, res.live && Math.abs(res.screens - 2) < 0.01, JSON.stringify(res));
+  check(`${w}: steps 1, 2, 3 open with the scroll`, res.down.join() === '0,1,2', res.down.join());
+  check(`${w}: scrolling back opens them in reverse`, res.up.join() === '1,0', res.up.join());
+  await ctx.close();
+}
+{
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const page = await ctx.newPage();
+  await page.goto(`${BASE}/`);
+  await page.waitForTimeout(1500);
+  const r = await page.$eval('#steps', (s) => ({ live: s.classList.contains('is-live'), visuals: [...s.querySelectorAll('.mo-pc__step > .mo-pc__visual')].filter((v) => v.getBoundingClientRect().height > 100).length, p: [...s.querySelectorAll('.mo-pc__step > p')].every((p) => getComputedStyle(p).opacity === '1') }));
+  check('390: Steps does not pin; each step stands with its screen', !r.live && r.visuals === 3 && r.p, JSON.stringify(r));
+  await ctx.close();
+}
+
 await browser.close();
 const failed = results.filter((r) => !r).length;
 console.log(`\n${results.length - failed}/${results.length} passed`);

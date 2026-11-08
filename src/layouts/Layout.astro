@@ -7,7 +7,7 @@ import '../styles/page.css';
 interface Props {
   title: string;
   description: string;
-  /** Load the dealt section moment (line-carries-colour). The home page only. */
+  /** Preload the dealt moment (pinned-chapters, in Steps). The home page only. */
   moments?: boolean;
   /** The page holds a diagram card. */
   diagrams?: boolean;
@@ -85,7 +85,8 @@ const ogImage = new URL('/brand/link-preview.png', site).href;
         <script is:inline>document.documentElement.classList.add('mo-js');setTimeout(()=>document.documentElement.classList.add('mo-safe'),2500)</script>
         <link rel="modulepreload" href="/assets/moments/moments.js" />
         <link rel="modulepreload" href="/assets/moments/lib.js" />
-        <link rel="modulepreload" href="/assets/moments/line-carries-colour/moment.js" />
+        <link rel="modulepreload" href="/assets/moments/pinned-chapters/moment.js" />
+        <link rel="stylesheet" href="/assets/moments/pinned-chapters/moment.css" />
       </Fragment>
     )}
   </head>

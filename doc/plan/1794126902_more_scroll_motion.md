@@ -57,10 +57,10 @@ Done when: the arrows draw and undraw with the scroll and stand whole in every s
 
 Depends on Q2 and Q3.
 
-- [ ] Rebuild `src/components/Steps.astro` to the `pinned-chapters` recipe. The three steps list at the left. One frame at the right shows the invite fragment, the install card, then the deal clip.
-- [ ] The section holds for two screens. Each step opens in its share of the scroll. The frame crossfades in about half of that share and holds for the rest.
-- [ ] The deal clip plays only while its step is open and the pointer rests on the frame, as now.
-- [ ] Phones and reduced motion: the kit's static rows.
+- [x] Rebuild `src/components/Steps.astro` to the `pinned-chapters` recipe. The three steps list at the left. One frame at the right shows the invite fragment, the install card, then the deal clip.
+- [x] The section holds for two screens. Each step opens in its share of the scroll. The frame crossfades in about half of that share and holds for the rest.
+- [x] The deal clip plays only while its step is open and the pointer rests on the frame, as now.
+- [x] Phones and reduced motion: the kit's static rows.
 
 Acceptance: at 1440x900, 1024x768 and 820x1180 the probe sees step 1, 2 and 3 open at the start, middle and end of the pin. Scrolling back opens them in reverse. At 390 nothing pins.
 Done when: the steps open with the scroll at every width above 640px and stand as rows below it.
