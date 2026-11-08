@@ -1,6 +1,6 @@
 # 0003: Section headings rise on scroll
 
-Date: 2026-11-08. Status: accepted. Amends [0002](0002-tasteskill-revamp.md) on one point.
+Date: 2026-11-08. Status: accepted, amended by [0004](0004-more-scroll-motion.md). Amends [0002](0002-tasteskill-revamp.md) on one point.
 
 ## Context
 

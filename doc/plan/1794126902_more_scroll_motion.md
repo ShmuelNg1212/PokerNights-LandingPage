@@ -120,8 +120,8 @@ Done when: the window and card follow the scroll and rest at both ends.
 
 ### T9. ADR 0004 and the heading rise — `tests: alongside`
 
-- [ ] Write `doc/adr/0004-more-scroll-motion.md` with the answers to Q1 to Q6. Mark ADR 0003 amended or superseded (Q4).
-- [ ] If Q4 is (b), remove `src/scripts/rise.ts`, the `.rise` rules and every `data-rise`.
+- [x] Write `doc/adr/0004-more-scroll-motion.md` with the answers to Q1 to Q6. Mark ADR 0003 amended or superseded (Q4).
+- [x] If Q4 is (b), remove `src/scripts/rise.ts`, the `.rise` rules and every `data-rise`. (Q4 is (a): nothing removed.)
 
 Done when: the ADR is committed and the code matches it.
 
