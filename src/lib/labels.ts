@@ -23,6 +23,9 @@ export const MAX_STACK = 6;
 /** "1 transfer", "4 transfers". */
 export const transferCount = (n: number) => `${n} transfer${n === 1 ? '' : 's'}`;
 
+/** The session log's badge: "1 entry", "14 entries". */
+export const entryCount = (n: number) => `${n} ${n === 1 ? 'entry' : 'entries'}`;
+
 /** The kind of a log entry, as the session log says it. */
 export const ENTRY_LABEL = { 'buy-in': 'Buy-in', rebuy: 'Rebuy', 'cash-out': 'Cash-out' } as const;
 

@@ -280,7 +280,7 @@ for (const [w, h] of [[1440, 900], [1024, 768]]) {
   check('Log replay: the first buy-in at the top, the whole night at the foot', down[0].step === 1 && down[4].step === down[4].total, `${down[0].step} … ${down[4].step}/${down[4].total}`);
   check('Log replay: the steps grow with the scroll', down.every((d, i) => i === 0 || d.step > down[i - 1].step), down.map((d) => d.step).join(','));
   check('Log replay: the same step scrolling down and up', down.every((d, i) => d.step === up[i].step), `${down.map((d) => d.step)} / ${up.map((d) => d.step)}`);
-  check('Log replay: rows shown and the badge match the step', down.every((d) => d.shown === d.step && d.badge === `${d.step} entries`), down.map((d) => `${d.shown}/${d.badge}`).join(', '));
+  check('Log replay: rows shown and the badge match the step', down.every((d) => d.shown === d.step && d.badge === `${d.step} ${d.step === 1 ? 'entry' : 'entries'}`), down.map((d) => `${d.shown}/${d.badge}`).join(', '));
   check('Log replay: who pays whom only at the foot', down.slice(0, 4).every((d) => d.pays === 0) && down[4].pays === 4, down.map((d) => d.pays).join(','));
   check('Log replay: every result shows at the foot', down[4].results === 6, `${down[4].results}`);
   await read(1);

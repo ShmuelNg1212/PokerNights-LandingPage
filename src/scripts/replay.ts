@@ -13,7 +13,7 @@
  */
 import { replayAt, type ReplayView } from '../lib/table';
 import { peso, signedPeso } from '../lib/money';
-import { resultTone } from '../lib/labels';
+import { entryCount, resultTone } from '../lib/labels';
 import { liveSnapshot } from './live';
 
 /** The scroll share that holds the whole night at the foot of the section. */
@@ -78,7 +78,7 @@ export function initReplay() {
     if (r.step === shown && log.children.length === total) return;
     shown = r.step;
     [...log.children].forEach((row, i) => row.classList.toggle('is-later', i >= r.step));
-    badge(`${r.step} entries`);
+    badge(entryCount(r.step));
     results(r);
     root.classList.toggle('is-settled', r.settled);
     // the newest row stays in view: the list slides up as it grows past its pane (offsetTop and the pane's
@@ -106,7 +106,7 @@ export function initReplay() {
     results(replayAt(liveSnapshot(), Infinity));
     for (const el of root.querySelectorAll('.is-later')) el.classList.remove('is-later');
     log.style.removeProperty('--replay-shift');
-    badge(`${log.children.length} entries`);
+    badge(entryCount(log.children.length));
   };
   const sync = () => (fits() ? go() : rest());
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buyInLabel, chipClass, timerLabel, transferCount } from './labels';
+import { buyInLabel, chipClass, entryCount, timerLabel, transferCount } from './labels';
 
 describe('buyInLabel', () => {
   it('words buy-ins and rebuys as the app does', () => {
@@ -27,5 +27,13 @@ describe('chipClass and transferCount', () => {
     expect(transferCount(1)).toBe('1 transfer');
     expect(transferCount(4)).toBe('4 transfers');
     expect(transferCount(0)).toBe('0 transfers');
+  });
+});
+
+describe('entryCount', () => {
+  it('counts log entries, one in the singular', () => {
+    expect(entryCount(1)).toBe('1 entry');
+    expect(entryCount(14)).toBe('14 entries');
+    expect(entryCount(0)).toBe('0 entries');
   });
 });

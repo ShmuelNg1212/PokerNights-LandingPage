@@ -1,7 +1,7 @@
 ---
 import { createTable, nightLog, standings } from '../lib/table';
 import { peso, signedPeso } from '../lib/money';
-import { chipClass, transferCount, ENTRY_LABEL, resultTone } from '../lib/labels';
+import { chipClass, entryCount, transferCount, ENTRY_LABEL, resultTone } from '../lib/labels';
 
 const t = createTable().snapshot();
 const people = new Map(t.players.map((p) => [p.id, p]));
@@ -17,7 +17,7 @@ const log = nightLog(t);
       <div class="app__pane app__pane--list"><div class="ui ui-pn pane-body" data-app>
         <div class="app-head">
           <span class="app-head__title">Friday table · Session log</span>
-          <span class="pn-badge is-quiet" data-log-count>{log.length} entries</span>
+          <span class="pn-badge is-quiet" data-log-count>{entryCount(log.length)}</span>
         </div>
         <ol class="log" data-log>
           {log.map((e) => (

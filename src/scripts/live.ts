@@ -1,6 +1,6 @@
 import { createTable, nightLog, standings, type TableSnapshot } from '../lib/table';
 import { peso, signedPeso } from '../lib/money';
-import { buyInLabel, chipClass, ENTRY_LABEL, MAX_STACK, resultTone, timerLabel, transferCount } from '../lib/labels';
+import { buyInLabel, chipClass, ENTRY_LABEL, entryCount, MAX_STACK, resultTone, timerLabel, transferCount } from '../lib/labels';
 
 /** Hooks a pot figure can use to animate its change (set by roll.ts). */
 export interface LiveHooks {
@@ -119,7 +119,7 @@ function renderLog(s: TableSnapshot) {
       text(row, '[data-log-amt]', peso(e.amount));
     });
   }
-  for (const el of all('[data-log-count]')) el.textContent = `${rows.length} entries`;
+  for (const el of all('[data-log-count]')) el.textContent = entryCount(rows.length);
 }
 
 function renderStandings(s: TableSnapshot) {
