@@ -8,8 +8,8 @@
  * The figures come from replayAt() over the live table, so a Rebuy in the hero replays here too, and the end is
  * always exactly the table the rest of the page shows. The script toggles classes; the CSS does the motion.
  *
- * Live only from 1024px on a screen at least 640px tall, with motion allowed; a headless shot (unless
- * data-motion="live"), reduced motion, no script or a smaller screen show the whole night, as written.
+ * Live only from 1024px on a screen at least 640px tall, with motion allowed; reduced motion,
+ * data-motion="off", no script or a smaller screen show the whole night, as written.
  */
 import { replayAt, type ReplayView } from '../lib/table';
 import { peso, signedPeso } from '../lib/money';
@@ -26,14 +26,21 @@ export function initReplay() {
   const log = root.querySelector<HTMLElement>('[data-log]');
   const pane = log?.closest<HTMLElement>('.app__pane');
   if (!log || !pane) return;
-  const headless = /HeadlessChrome/.test(navigator.userAgent) && html.dataset.motion !== 'live';
-  if (html.dataset.motion === 'off' || headless) return;
+  if (html.dataset.motion === 'off') return;
   const still = matchMedia('(prefers-reduced-motion: reduce)');
   const fits = () => !still.matches && innerWidth >= 1024 && innerHeight >= 640;
 
   let live = false;
   let raf = 0;
   let shown = -1;
+
+  const payList = root.querySelector<HTMLElement>('[data-pay-list]');
+
+  /** A row that waits is hidden from assistive tech too; who pays whom takes no focus until it shows. */
+  const later = (el: Element, wait: boolean) => {
+    el.classList.toggle('is-later', wait);
+    el.toggleAttribute('aria-hidden', wait);
+  };
 
   const badge = (text: string) => {
     for (const el of root.querySelectorAll('[data-log-count]')) if (el.textContent !== text) el.textContent = text;
@@ -47,7 +54,7 @@ export function initReplay() {
       const mine = r.log.filter((e) => e.player === id);
       const bought = mine.reduce((a, e) => (e.kind === 'cash-out' ? a : a + e.amount), 0);
       const out = mine.find((e) => e.kind === 'cash-out');
-      row.classList.toggle('is-later', !mine.length);
+      later(row, !mine.length);
       const inEl = row.querySelector('[data-st-in]');
       const want = `${peso(bought)} in`;
       if (inEl && inEl.textContent !== want) inEl.textContent = want;
@@ -77,10 +84,11 @@ export function initReplay() {
     root.dataset.replayStep = String(r.step);
     if (r.step === shown && log.children.length === total) return;
     shown = r.step;
-    [...log.children].forEach((row, i) => row.classList.toggle('is-later', i >= r.step));
+    [...log.children].forEach((row, i) => later(row, i >= r.step));
     badge(entryCount(r.step));
     results(r);
     root.classList.toggle('is-settled', r.settled);
+    if (payList) payList.inert = !r.settled;
     // the newest row stays in view: the list slides up as it grows past its pane (offsetTop and the pane's
     // height are both measured from the pane, which is the rows' offset parent)
     const last = log.children[r.step - 1] as HTMLElement | undefined;
@@ -104,7 +112,8 @@ export function initReplay() {
     root.classList.remove('is-replay', 'is-settled');
     delete root.dataset.replayStep;
     results(replayAt(liveSnapshot(), Infinity));
-    for (const el of root.querySelectorAll('.is-later')) el.classList.remove('is-later');
+    for (const el of root.querySelectorAll('.is-later')) later(el, false);
+    if (payList) payList.inert = false;
     log.style.removeProperty('--replay-shift');
     badge(entryCount(log.children.length));
   };

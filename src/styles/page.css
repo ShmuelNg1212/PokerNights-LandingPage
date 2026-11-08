@@ -246,6 +246,10 @@ main > #table.is-replay > .wrap { position: sticky; top: 0; height: 100vh; heigh
    lays the section out (moment.css). Each step's screen sits on the lit ground of its figure; a short figure
    drops a fragment's lower rows (the container queries above), so no row is cut half way. */
 #steps .step-visual { container: panel / size; overflow: hidden; }
+/* at rest the kit makes the section as tall as its steps; the page keeps it on whole screens: one on a tablet
+   (shorter frames, 3:2), two on a phone, so the next section's heading never shows in its frame */
+@media (min-width: 640px) and (max-width: 1023px) { #steps:not(.is-live) .step-visual { aspect-ratio: 3 / 2; } }
+@media (max-width: 639px) { main > #steps[data-moment]:not(.is-live) { min-height: calc(2 * 100lvh); } }
 #steps .step-visual > .pn-card { width: min(340px, 100%); max-height: 100%; overflow: hidden; box-shadow: 0 18px 40px -18px rgb(0 0 0 / .55); }
 #steps .step-visual > .app-clip { height: 100%; width: auto; max-width: 100%; aspect-ratio: 720 / 1300; box-shadow: 0 18px 40px -18px rgb(0 0 0 / .55); }
 /* the kit's step type (.mo-pc__step h3, p) reaches into the fragments: they keep the app's own */

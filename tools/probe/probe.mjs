@@ -35,13 +35,15 @@ for (const vp of [{ width: 390, height: 844, mobile: true }, { width: 1440, heig
   const after = { hero: await names(page, '.hero'), app: await names(page, '#table'), log: await logCount() };
   check(`${w}: who pays whom changed, the same in both places`, JSON.stringify(after.hero) !== JSON.stringify(before.hero) && JSON.stringify(after.hero) === JSON.stringify(after.app), after.app.join(' | '));
   check(`${w}: the session log gained one row`, after.log === before.log + 1, `${before.log} → ${after.log}`);
+  // a wide screen replays the night in the Log section: its foot holds the whole night
+  await page.evaluate(() => { const r = document.querySelector('#table'); scrollTo(0, r.getBoundingClientRect().top + scrollY + r.offsetHeight - innerHeight); });
+  await page.waitForTimeout(400);
   const lastRebuy = await page.$$eval('#table [data-log] > li.is-rebuy', (l) => l.at(-1)?.textContent.replace(/\s+/g, ' ').trim());
   check(`${w}: the new log row is Carlo's rebuy`, /Carlo\s*Rebuy\s*₱1,000/.test(lastRebuy || ''), lastRebuy);
   const carloRes = await page.$$eval('#table [data-standing]', (l) => l.map((x) => x.textContent.replace(/\s+/g, ' ').trim()).find((t) => t.includes('Carlo')));
   check(`${w}: Carlo's result counts the rebuy`, /₱3,000 in/.test(carloRes || ''), carloRes);
 
   if (!vp.mobile) {
-    await page.locator('#table').scrollIntoViewIfNeeded();
     await page.click('#table [data-mark-paid="0"]');
     await page.waitForTimeout(100);
     const paid = await page.$eval('#table [data-pay-list] > li:first-child', (li) => ({ cls: li.classList.contains('is-paid'), pressed: li.querySelector('[data-mark-paid]').getAttribute('aria-pressed'), loop: li.hasAttribute('data-m-loop') }));
@@ -271,7 +273,9 @@ for (const [w, h] of [[1440, 900], [1024, 768]]) {
     const shown = rows.filter((r) => getComputedStyle(r).opacity === '1').length;
     const results = [...root.querySelectorAll('[data-standing]')].filter((r) => getComputedStyle(r).opacity === '1').length;
     const pays = [...root.querySelectorAll('[data-pay-list] > li')].filter((r) => getComputedStyle(r).opacity === '1').length;
-    return { step: +root.dataset.replayStep, total: rows.length, shown, badge: root.querySelector('[data-log-count]').textContent, results, pays, live: root.classList.contains('is-replay'), screens: root.offsetHeight / innerHeight };
+    const inert = root.querySelector('[data-pay-list]').inert;
+    const unread = rows.filter((r) => r.getAttribute('aria-hidden') !== null).length;
+    return { inert, unread, step: +root.dataset.replayStep, total: rows.length, shown, badge: root.querySelector('[data-log-count]').textContent, results, pays, live: root.classList.contains('is-replay'), screens: root.offsetHeight / innerHeight };
   }, f);
   const fs = [0, 0.25, 0.5, 0.75, 1];
   const down = []; for (const f of fs) down.push(await read(f));
@@ -281,6 +285,7 @@ for (const [w, h] of [[1440, 900], [1024, 768]]) {
   check('Log replay: the steps grow with the scroll', down.every((d, i) => i === 0 || d.step > down[i - 1].step), down.map((d) => d.step).join(','));
   check('Log replay: the same step scrolling down and up', down.every((d, i) => d.step === up[i].step), `${down.map((d) => d.step)} / ${up.map((d) => d.step)}`);
   check('Log replay: rows shown and the badge match the step', down.every((d) => d.shown === d.step && d.badge === `${d.step} ${d.step === 1 ? 'entry' : 'entries'}`), down.map((d) => `${d.shown}/${d.badge}`).join(', '));
+  check('Log replay: rows still to come are hidden from screen readers; Mark paid takes no focus until it shows', down.every((d) => d.unread === d.total - d.step && d.inert === (d.step < d.total)), down.map((d) => `${d.unread}/${d.inert}`).join(', '));
   check('Log replay: who pays whom only at the foot', down.slice(0, 4).every((d) => d.pays === 0) && down[4].pays === 4, down.map((d) => d.pays).join(','));
   check('Log replay: every result shows at the foot', down[4].results === 6, `${down[4].results}`);
   await read(1);

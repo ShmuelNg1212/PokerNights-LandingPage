@@ -5,18 +5,15 @@
  * line sweep (sweep.ts) already reveals it.
  *
  * Nothing is hidden before this runs, and a heading already on screen or above it never hides, so a
- * late script or an anchor jump cannot blank a heading. Reduced motion, data-motion="off", no
- * IntersectionObserver and a headless shot (unless data-motion="live", as motion.js does) leave every
- * heading as written.
+ * late script or an anchor jump cannot blank a heading. Reduced motion, data-motion="off" and no
+ * IntersectionObserver leave every heading as written. A checker's browser gets the same page as a visitor.
  */
 export function initRise() {
   const html = document.documentElement;
   const heads = [...document.querySelectorAll<HTMLElement>('[data-rise]')];
-  const headless = /HeadlessChrome/.test(navigator.userAgent) && html.dataset.motion !== 'live';
   if (
     !heads.length ||
     html.dataset.motion === 'off' ||
-    headless ||
     typeof IntersectionObserver !== 'function' ||
     matchMedia('(prefers-reduced-motion: reduce)').matches
   )

@@ -11,8 +11,8 @@
  * tenth of a screen of scroll. Every block is whole when the line reaches the top, so nothing jumps there.
  *
  * The script only adds the stage and works out where on the scroll each block fades (--sw-a, --sw-b).
- * The CSS does the motion. No scroll-timeline support, a phone, reduced motion, data-motion="off" or a
- * headless shot (unless data-motion="live"): no stage, every block as written.
+ * The CSS does the motion. No scroll-timeline support, a phone, reduced motion or data-motion="off": no
+ * stage, every block as written. A checker's browser gets the same page as a visitor.
  */
 
 // The climb, in the section's view timeline ("cover": 0 when the section's top is at the screen's
@@ -45,11 +45,9 @@ function blocks(root: Element, skip: Element): HTMLElement[] {
 export function initSweep() {
   const html = document.documentElement;
   const root = document.querySelector<HTMLElement>('[data-sweep]');
-  const headless = /HeadlessChrome/.test(navigator.userAgent) && html.dataset.motion !== 'live';
   if (
     !root ||
     html.dataset.motion === 'off' ||
-    headless ||
     !CSS.supports('animation-timeline', 'view()') ||
     !CSS.supports('animation-range', 'cover 10px cover 20px') ||
     matchMedia('(prefers-reduced-motion: reduce), (max-width: 639px)').matches
