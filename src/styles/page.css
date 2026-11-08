@@ -283,3 +283,10 @@ html:not(.js) :is([data-rebuy], [data-mark-paid]) { display: none; }
 .join__error:empty { display: none; }
 html.js .join__nojs { display: none; }
 html:not(.js) .join__field { display: none; }
+
+/* ---------------------------------------------------------------- section headings rise (src/scripts/rise.ts)
+   A heading below the screen at load waits at opacity 0, 12px down, then rises once as it comes on screen.
+   700 ms ease-out (tasteskill moments.md: ease-outs, 600-1,000 ms for a reveal). Headings only; ADR 0003. */
+.rise { opacity: 0; translate: 0 12px; }
+.rise.is-in { opacity: 1; translate: 0 0; transition: opacity .7s var(--rk-ease-out), translate .7s var(--rk-ease-out); }
+@media (prefers-reduced-motion: reduce) { .rise { opacity: 1; translate: none; } }

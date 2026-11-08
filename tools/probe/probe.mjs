@@ -101,6 +101,55 @@ for (const vp of [{ width: 390, height: 844, mobile: true }, { width: 1440, heig
   await ctx.close();
 }
 
+// Section headings rise once as they come on screen (ADR 0003). data-motion="live" lets headless Chrome run it.
+// The count-up band's blocks fade, never jump, as its moment opens (the largest one-frame opacity change).
+{
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  await ctx.addInitScript(() => document.addEventListener('readystatechange', () => { document.documentElement.dataset.motion = 'live'; }, { once: true }));
+  const page = await ctx.newPage();
+  await page.goto(`${BASE}/`);
+  await page.waitForTimeout(600);
+  const o = (id) => page.$eval(id, (e) => +getComputedStyle(e).opacity);
+  check('a section heading below the screen waits hidden', (await o('#compare-h')) === 0);
+  await page.$eval('#compare-h', (e) => e.scrollIntoView({ block: 'center' }));
+  await page.waitForTimeout(1000);
+  check('it rises in when scrolled to', (await o('#compare-h')) === 1 && (await page.$eval('#compare-h', (e) => getComputedStyle(e).translate)) !== '0px 12px');
+  const jump = await page.evaluate(async () => {
+    const root = document.querySelector('#features');
+    const top = root.getBoundingClientRect().top + scrollY;
+    const els = [...root.querySelectorAll('h2,h3,p,strong,small,dt,dd,img,li,.pn-badge,.dg-label')].filter((e) => !e.closest('[data-ly-steps]'));
+    const frame = () => new Promise((r) => requestAnimationFrame(r));
+    let worst = 0;
+    for (const [from, to] of [[top - innerHeight, top + 300], [top + 300, top - innerHeight]]) {
+      const dir = Math.sign(to - from);
+      let y = from; scrollTo(0, y); await frame(); await frame();
+      let prev = els.map((e) => +getComputedStyle(e).opacity);
+      while (dir > 0 ? y < to : y > to) {
+        y += dir * 10; scrollTo(0, y); await frame();
+        const stage = root.querySelector('.mo-lc__stage');
+        const sr = stage && getComputedStyle(stage).display !== 'none' ? stage.getBoundingClientRect() : null;
+        const cutY = sr ? sr.top + parseFloat(root.style.getPropertyValue('--mo-cut')) : -1e9;
+        const cur = els.map((e) => +getComputedStyle(e).opacity);
+        cur.forEach((v, i) => { const r = els[i].getBoundingClientRect(); if (r.top >= cutY && r.height && r.bottom > 0 && r.top < innerHeight) worst = Math.max(worst, Math.abs(v - prev[i])); });
+        prev = cur;
+      }
+    }
+    return worst;
+  });
+  check('the count-up band never jumps as its moment opens', jump < 0.2, `largest one-frame opacity change ${jump.toFixed(3)}`);
+  await ctx.close();
+}
+{
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  await ctx.addInitScript(() => document.addEventListener('readystatechange', () => { document.documentElement.dataset.motion = 'live'; }, { once: true }));
+  const page = await ctx.newPage();
+  await page.goto(`${BASE}/#questions`);
+  await page.waitForTimeout(1200);
+  const shown = await page.$$eval('[data-rise]', (l) => l.filter((e) => e.getBoundingClientRect().top < innerHeight).every((e) => getComputedStyle(e).opacity === '1'));
+  check('an anchor jump leaves no heading hidden at or above it', shown);
+  await ctx.close();
+}
+
 await browser.close();
 const failed = results.filter((r) => !r).length;
 console.log(`\n${results.length - failed}/${results.length} passed`);
