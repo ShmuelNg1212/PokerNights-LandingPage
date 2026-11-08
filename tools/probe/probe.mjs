@@ -382,6 +382,20 @@ for (const [w, h] of [[1440, 900], [1024, 768]]) {
   await ctx.close();
 }
 
+// The count-up band on short laptop screens: the first card row (the seat-draw clip) ends above the second.
+for (const [w, h] of [[1440, 760], [1280, 720], [1440, 900]]) {
+  const page = await browser.newPage({ viewport: { width: w, height: h } });
+  await page.goto(`${BASE}/`);
+  const gap = await page.evaluate(() => {
+    const [a, b] = [...document.querySelectorAll('#features .bento')];
+    const bottom = Math.max(...[...a.children].map((c) => c.getBoundingClientRect().bottom));
+    const top = Math.min(...[...b.children].filter((c) => c.offsetParent).map((c) => c.getBoundingClientRect().top));
+    return Math.round(top - bottom);
+  });
+  check(`${w}x${h}: the count-up band's two card rows do not overlap`, gap > 0, `${gap}px apart`);
+  await page.close();
+}
+
 await browser.close();
 const failed = results.filter((r) => !r).length;
 console.log(`\n${results.length - failed}/${results.length} passed`);

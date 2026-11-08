@@ -163,6 +163,9 @@ main > #table.is-replay > .wrap { position: sticky; top: 0; height: 100vh; heigh
 .bento-frag { --ay: 40px; --ay-sm: 32px; }
 .rack-frag { --ax: 40px; --ay: 48px; }
 #features .dg { position: absolute; inset: 0; }
+/* the seat-draw clip fills its panel and crops from the top. In flow, its portrait ratio set the panel's
+   height (622px in a 345px column), so the first row ran past its screen and under the second row's cards */
+#features .panel--clip > .feature-clip { position: absolute; inset: 0; aspect-ratio: auto; border-radius: 0; }
 /* the settle-up diagram's captions in the ink, so they hold 4.5:1 on the lit panel */
 #features .dg .dg-cap { color: var(--dg-ink); }
 /* The count-up band's line sweep (src/scripts/sweep.ts): the look of the kit's line-carries-colour moment on a
