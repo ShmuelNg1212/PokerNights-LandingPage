@@ -167,3 +167,7 @@ One commit for each task: T1 `build:`, T2 to T4 and T6 to T8 `feat:`, T5 `feat:`
   - Fixed after that run: `copy-headings` (step titles reworded), `section-gaps` (Steps on a phone).
 - Code review (medium, `main...feat/more-scroll-motion`): 10 findings. 8 fixed in `fix: review round 1`. Not changed: the Compare stroke animates `background-size` on 12 spans (repaint, no long task in `perf.mjs`).
 - Baseline: the checker on a `main` build (`98e62d1`) gave 15 FAIL, which is the source of the "on main" list above.
+
+## Release
+
+- Rollback: the previous `origin/main` is `98e62d1d53b3`. In Netlify, publish the deploy of that commit.
