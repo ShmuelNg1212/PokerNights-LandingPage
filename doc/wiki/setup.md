@@ -44,10 +44,20 @@ node $S/scripts/perf.mjs dist/index.html --root dist --profile <dir>
 
 ## Release (Netlify)
 
-Not linked yet. When the repo has a remote and a Netlify site:
+- Repo: `https://github.com/ShmuelNg1212/PokerNights-LandingPage`, branch `main`.
+- Site: `https://pokernightspage.netlify.app`. Netlify builds from the repo with `netlify.toml`: `npm run build`, publish `dist`, Node 24.
+- A push to `main` deploys the site. Push only when the human says "ship" or "push".
+- `astro.config.mjs` takes `site` from Netlify's `URL` variable, so the link preview image is absolute on the main address.
 
-1. Link the repo to Netlify. `netlify.toml` gives the build: `npm run build`, publish `dist`.
-2. In Netlify, Forms: turn on email notifications for `host-request`.
-3. Before a push to `main`: run `npm test` and `npm run build` with the host's build variables (`URL`, `COMMIT_REF`). Record the previous `origin/main` commit.
-4. After the push: open the live page. The release is finished when `<meta name="build">` shows the new commit.
-5. Rollback: in Netlify, Deploys, publish the previous deploy. Then revert the commit on `main`.
+Steps:
+
+1. Before a push to `main`: run `npm test`, then `COMMIT_REF=$(git rev-parse HEAD) npm run build`. Record the current `origin/main` commit (`git rev-parse origin/main`) for rollback.
+2. List the commits that will go out: `git log --oneline origin/main..main`.
+3. Push: `git push origin main`.
+4. Check the live page: `curl -s https://pokernightspage.netlify.app/ | grep -o '<meta name="build"[^>]*>'`. The release is finished when it shows the first 12 characters of the new commit.
+5. Run the probe on the live site: `PN_LANDING_URL=https://pokernightspage.netlify.app PLAYWRIGHT_BROWSERS_PATH=/private/tmp/pn-browser-binaries node tools/probe/probe.mjs`.
+6. Rollback: in Netlify, open Deploys and publish the previous deploy. Then `git revert` the bad commit on `main` and push. Do not force-push.
+
+Forms: the contact page's `host-request` form uses Netlify Forms. In Netlify, open Forms, make sure form detection is on and `host-request` is listed, and turn on email notifications.
+
+First release: `769abc6` on 2026-11-08. The remote was empty before it.
