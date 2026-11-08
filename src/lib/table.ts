@@ -203,3 +203,34 @@ export const nightLog = (s: TableSnapshot): EntryView[] => [...s.entries, ...cas
 
 /** The results from the biggest win to the biggest loss. */
 export const standings = (s: TableSnapshot): ResultView[] => [...s.results].sort((a, b) => b.result - a.result);
+
+/** The night as it stood after its first `step` log entries (the Log section replays it with the scroll). */
+export interface ReplayView {
+  step: number;
+  /** Steps in the whole night: one per log entry. */
+  total: number;
+  log: EntryView[];
+  /** What was bought in so far. */
+  boughtIn: number;
+  /** Every stack is counted: the transfers and results stand. */
+  settled: boolean;
+  transfers: TransferView[];
+  results: ResultView[];
+}
+
+/** The night after `step` entries, from the same snapshot the live table shows, so the end is that table. */
+export function replayAt(s: TableSnapshot, step: number): ReplayView {
+  const night = nightLog(s);
+  const n = Math.min(night.length, Math.max(0, Math.floor(step)));
+  const log = night.slice(0, n);
+  const settled = n === night.length;
+  return {
+    step: n,
+    total: night.length,
+    log,
+    boughtIn: log.reduce((a, e) => (e.kind === 'cash-out' ? a : a + e.amount), 0),
+    settled,
+    transfers: settled ? s.transfers : [],
+    results: settled ? s.results : [],
+  };
+}

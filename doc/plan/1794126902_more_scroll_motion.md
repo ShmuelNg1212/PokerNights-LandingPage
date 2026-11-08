@@ -67,8 +67,8 @@ Done when: the steps open with the scroll at every width above 640px and stand a
 
 ### T5. Log replay logic — `tests: first`
 
-- [ ] Add `replayAt(snapshot, step)` to `src/lib/table.ts`. It returns the table after the first `step` log entries: the pot, each player's buy-in, and the log so far. Cash-outs, transfers and results appear only at the last step.
-- [ ] Tests first in `src/lib/table.test.ts`: step 0 is an empty pot; each buy-in or rebuy adds its amount; the last step equals `snapshot()` exactly; the books balance at the last step; no step shows transfers before the cash-outs.
+- [x] Add `replayAt(snapshot, step)` to `src/lib/table.ts`. It returns the table after the first `step` log entries: the pot, each player's buy-in, and the log so far. Cash-outs, transfers and results appear only at the last step.
+- [x] Tests first in `src/lib/table.test.ts`: step 0 is an empty pot; each buy-in or rebuy adds its amount; the last step equals `snapshot()` exactly; the books balance at the last step; no step shows transfers before the cash-outs.
 
 Acceptance: the new tests fail before the code and pass after it. All old tests pass.
 Done when: `npm test` is green with the new tests.

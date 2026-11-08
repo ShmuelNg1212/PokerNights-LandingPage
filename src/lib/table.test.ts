@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createTable, USUAL_BUY_IN } from './table';
+import { createTable, nightLog, replayAt, USUAL_BUY_IN } from './table';
 
 const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
 
@@ -123,5 +123,62 @@ describe('the cash-outs at count-up', () => {
     expect(rows.every((r) => r.kind === 'cash-out')).toBe(true);
     expect(rows[0]!.at).toBeGreaterThan(t.entries.at(-1)!.at);
     expect(sum(rows.map((r) => r.amount))).toBe(t.boughtIn);
+  });
+});
+
+describe('the night replayed step by step (the Log section, as it scrolls)', () => {
+  const t = createTable().snapshot();
+  const night = nightLog(t);
+
+  it('has one step per log entry; step 0 is an empty table', () => {
+    const r = replayAt(t, 0);
+    expect(r.total).toBe(night.length);
+    expect(r.log).toEqual([]);
+    expect(r.boughtIn).toBe(0);
+    expect(r.settled).toBe(false);
+  });
+
+  it('adds each buy-in and rebuy to what was bought in, in log order', () => {
+    let last = 0;
+    for (let step = 1; step <= night.length; step++) {
+      const r = replayAt(t, step);
+      const e = night[step - 1]!;
+      expect(r.log).toEqual(night.slice(0, step));
+      expect(r.boughtIn - last).toBe(e.kind === 'cash-out' ? 0 : e.amount);
+      last = r.boughtIn;
+    }
+  });
+
+  it('shows no transfers or results before the last cash-out', () => {
+    for (let step = 0; step < night.length; step++) {
+      const r = replayAt(t, step);
+      expect(r.transfers).toEqual([]);
+      expect(r.results).toEqual([]);
+    }
+  });
+
+  it('ends on the whole night: the same log, transfers and results as the table, the books balanced', () => {
+    const r = replayAt(t, night.length);
+    expect(r.settled).toBe(true);
+    expect(r.log).toEqual(night);
+    expect(r.boughtIn).toBe(t.boughtIn);
+    expect(r.transfers).toEqual(t.transfers);
+    expect(r.results).toEqual(t.results);
+    const cashed = sum(r.log.filter((e) => e.kind === 'cash-out').map((e) => e.amount));
+    expect(cashed).toBe(r.boughtIn);
+  });
+
+  it('clamps a step outside the night', () => {
+    expect(replayAt(t, -3)).toEqual(replayAt(t, 0));
+    expect(replayAt(t, night.length + 5)).toEqual(replayAt(t, night.length));
+    expect(replayAt(t, 2.7)).toEqual(replayAt(t, 2));
+  });
+
+  it('follows a rebuy: the replay of the new night ends on the new table', () => {
+    const table = createTable();
+    const after = table.rebuy('carlo');
+    const r = replayAt(after, nightLog(after).length);
+    expect(r.boughtIn).toBe(after.boughtIn);
+    expect(r.transfers).toEqual(after.transfers);
   });
 });
