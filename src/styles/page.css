@@ -133,6 +133,12 @@ html:not(.js) :is([data-rebuy], [data-mark-paid]) { display: none; }
 #features .dg { position: absolute; inset: 0; }
 /* the settle-up diagram's captions in the ink, so they hold 4.5:1 on the lit panel */
 #features .dg .dg-cap { color: var(--dg-ink); }
+/* The dealt moment (line-carries-colour) sets each block's opacity from the scroll. When the line reaches the
+   top it puts every block back to full at once, but the blocks near the top are still part faded, so they
+   jump (the heading went 0.46 to 1 in one frame). A short linear opacity fade turns that jump into a fade. The kit
+   files stay as they are (doc/wiki/setup.md). Steps and the clip keep their own transitions. */
+#features.mo-lc.is-live :is(h2, h3, p, strong, small, dt, dd, svg, img, li, .pn-badge, .dg-cap__l, .dg-label):not([data-step]) { transition: opacity .3s linear; }
+#features.mo-lc.is-live .pn-segment span { transition: background-color var(--rk-t-fast) var(--rk-ease-out), color var(--rk-t-fast) var(--rk-ease-out), opacity .3s linear; }
 
 /* 1024-1279: steps keep three across against the kit's two-up rule (the fragments narrow to fit), so the
    section stays one screen; the band goes one card a row and shows three of its five cards */
