@@ -336,6 +336,26 @@ for (const [w, h] of [[1440, 900], [1024, 768]]) {
   await rctx.close();
 }
 
+// The hero settles as the visitor leaves it (T8): rests at the top, eases back with the scroll, both ways.
+{
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const page = await ctx.newPage();
+  await page.goto(`${BASE}/`);
+  await page.waitForTimeout(1500);
+  const h = await page.evaluate(async () => {
+    const frame = () => new Promise((r) => requestAnimationFrame(r));
+    const at = async (y) => { scrollTo(0, y); await frame(); await frame(); return [+getComputedStyle(document.querySelector('.hero-window')).scale, parseFloat(getComputedStyle(document.querySelector('.hero-card')).translate.split(' ')[1] || '0')]; };
+    const ys = [0, 300, 700];
+    const down = []; for (const y of ys) down.push(await at(y));
+    const up = []; for (const y of [...ys].reverse()) up.unshift(await at(y));
+    return { down, up };
+  });
+  check('hero: as written at the top of the page', h.down[0][0] === 1 && h.down[0][1] === 0, JSON.stringify(h.down[0]));
+  check('hero: the window eases back and the card lifts as the hero leaves', h.down[1][0] < 1 && h.down[1][0] > 0.97 && h.down[2][0] === 0.97 && h.down[2][1] === -24, JSON.stringify(h.down));
+  check('hero: the same both ways', JSON.stringify(h.down) === JSON.stringify(h.up), JSON.stringify(h.up));
+  await ctx.close();
+}
+
 await browser.close();
 const failed = results.filter((r) => !r).length;
 console.log(`\n${results.length - failed}/${results.length} passed`);

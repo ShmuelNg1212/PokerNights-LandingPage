@@ -48,6 +48,23 @@ html:not(.js) :is([data-rebuy], [data-mark-paid]) { display: none; }
   .hero-window .player-row .player-meta { display: none; }
 }
 
+/* The hero settles as the visitor leaves it (ADR 0004): over the first 70% of the hero's exit, the window eases
+   back to 0.97 and the who-pays-whom card lifts 24px off it. Scale and translate only, on the hero's own view
+   timeline, so it follows the scroll exactly and rests at both ends; at the top of the page it is the hero as
+   written. It moves the window inside .hero__art, which the entrance settles, so the two never fight.
+   From 1024px (the card shows there); not under reduced motion or without scroll timelines.
+   (two selectors, so the minifier cannot fold the timeline into the shorthand, as in the sweep) */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) and (min-width: 1024px) {
+    .hero[data-enter] { view-timeline: --leave block; }
+    .hero-window { animation: hero-leave-window linear both; transform-origin: 50% 0; }
+    .hero-card { animation: hero-leave-card linear both; }
+    .hero[data-enter] :is(.hero-window, .hero-card) { animation-timeline: --leave; animation-range: exit 0% exit 70%; }
+  }
+}
+@keyframes hero-leave-window { from { scale: 1; } to { scale: .97; } }
+@keyframes hero-leave-card { from { translate: 0 0; } to { translate: 0 -24px; } }
+
 /* ---------------------------------------------------------------- the app window (#table) */
 .app.ui {
   --u-bg: var(--rk-ground); --u-border: var(--rk-rule); --u-line: var(--rk-rule); --u-r: 20px;

@@ -109,9 +109,11 @@ Done when: the strokes follow the scroll in both directions.
 
 Depends on Q1 and T2.
 
-- [ ] As the hero scrolls away, the window scales from 1 to 0.97. The who-pays-whom card moves back into line with the window (translate only).
-- [ ] It starts only after the entrance ends. A scroll during the entrance does not break it.
-- [ ] Phones and reduced motion: no change.
+- [x] As the hero scrolls away, the window scales from 1 to 0.97. The who-pays-whom card moves back into line with the window (translate only).
+- [x] It starts only after the entrance ends. A scroll during the entrance does not break it.
+- [x] Phones and reduced motion: no change.
+
+- Changed in execute: the card lifts 24px off the window (translate only), so the two separate in depth as the hero leaves. The range is the hero's `exit 0%` to `exit 70%`. The motion is on the window inside `.hero__art`, and the entrance settles `.hero__art`, so the two never act on one element.
 
 Acceptance: the probe reads the window's scale at the top, the middle and the end of the hero, down and up.
 Done when: the window and card follow the scroll and rest at both ends.
