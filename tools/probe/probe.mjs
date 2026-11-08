@@ -382,17 +382,32 @@ for (const [w, h] of [[1440, 900], [1024, 768]]) {
   await ctx.close();
 }
 
-// The count-up band on short laptop screens: the first card row (the seat-draw clip) ends above the second.
-for (const [w, h] of [[1440, 760], [1280, 720], [1440, 900]]) {
-  const page = await browser.newPage({ viewport: { width: w, height: h } });
+// The count-up band: the two card rows never overlap (the seat-draw clip once ran under the second row on a short
+// laptop), and no panel cuts a row of its fragment half-way, on phones, 1024-1279 and short laptops.
+for (const [w, h, m] of [[1440, 760], [1280, 720], [1440, 900], [1024, 768], [1180, 820], [1279, 900], [375, 667, 1], [390, 844, 1], [430, 932, 1]]) {
+  const page = await browser.newPage({ viewport: { width: w, height: h }, isMobile: !!m, hasTouch: !!m });
   await page.goto(`${BASE}/`);
-  const gap = await page.evaluate(() => {
+  const r = await page.evaluate(() => {
     const [a, b] = [...document.querySelectorAll('#features .bento')];
-    const bottom = Math.max(...[...a.children].map((c) => c.getBoundingClientRect().bottom));
-    const top = Math.min(...[...b.children].filter((c) => c.offsetParent).map((c) => c.getBoundingClientRect().top));
-    return Math.round(top - bottom);
+    const shown = (g) => [...g.children].filter((c) => c.offsetParent).map((c) => c.getBoundingClientRect());
+    const gap = Math.min(...shown(b).map((c) => c.top)) - Math.max(...shown(a).map((c) => c.bottom));
+    const ROWS = '.rack__head, .rack__rows li, .rack__total, .mini-log h3, .pn-rows li, .units h3, .units > .pn-muted, .units .pn-segment, .units__facts > div';
+    const cut = [];
+    for (const pnl of document.querySelectorAll('#features .panel')) {
+      if (!pnl.offsetParent) continue;
+      const pr = pnl.getBoundingClientRect();
+      for (const e of pnl.querySelectorAll(ROWS)) {
+        if (!e.offsetParent) continue;
+        const r = e.getBoundingClientRect(), list = e.parentElement.getBoundingClientRect();
+        if (r.left >= list.right - 1) continue; // wrapped off, out of sight
+        const foot = Math.min(pr.bottom, list.bottom, e.closest('.ui').getBoundingClientRect().bottom);
+        if (r.bottom > foot + 1) cut.push(e.textContent.replace(/\s+/g, ' ').trim().slice(0, 24));
+      }
+    }
+    return { gap: Math.round(gap), cut };
   });
-  check(`${w}x${h}: the count-up band's two card rows do not overlap`, gap > 0, `${gap}px apart`);
+  check(`${w}x${h}: the count-up band's two card rows do not overlap`, r.gap > 0, `${r.gap}px apart`);
+  if (w < 1280) check(`${w}x${h}: no count-up panel cuts a row half-way`, r.cut.length === 0, r.cut.join(' | '));
   await page.close();
 }
 

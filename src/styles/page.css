@@ -198,10 +198,29 @@ main > #table.is-replay > .wrap { position: sticky; top: 0; height: 100vh; heigh
 @keyframes dg-draw { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
 @media (max-width: 639px), (prefers-reduced-motion: reduce) { .is-sweep .dg :is(.dg-edges, .dg-ports) { animation: none; } }
 
-/* 1024-1279: the band goes one card a row and shows three of its five cards */
+/* 1024-1279 and a phone: each screen's cards share the height that screen leaves under its heading, and
+   each panel takes what its card leaves under the words. Fixed panel heights left a screen half empty
+   (a phone) or one card stretched to a screen with a short panel in it (1024-1279). From 1024 the cards
+   keep the desktop's words-over-panel: the chip count and the seat draw side by side, then the log and the
+   units side by side over the settle-up, its words beside its diagram. A short screen grows the section. */
+@media (max-width: 639px), (min-width: 1024px) and (max-width: 1279px) {
+  #features .group > .bento { flex: 1 1 auto; min-height: 0; }
+  #features .wrap > .bento { align-self: stretch; }
+  #features .bento { grid-auto-rows: minmax(0, 1fr); }
+}
 @media (min-width: 1024px) and (max-width: 1279px) {
-  #features.g2 > .wrap { display: flex; flex-direction: column; row-gap: var(--s-4); }
-  #features .wrap > .bento > .card:nth-child(-n+2) { display: none; }
+  #features .group .card.span-8 { grid-column: auto / span 7; }
+  #features .group .card.span-4 { grid-column: auto / span 5; }
+  #features .panel { flex: 1 1 0; height: auto; min-height: 160px; }
+  #features .wrap > .bento { grid-template-rows: minmax(0, 1fr) auto; }
+  #features .wrap > .bento > .card:last-child { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr); column-gap: var(--s-6); }
+  #features .wrap > .bento > .card:last-child > :not(.panel) { grid-column: 1; }
+  /* its panel runs flush to the card's top, right and bottom: the diagram's height without the card's padding */
+  #features .wrap > .bento > .card:last-child { overflow: clip; }
+  #features .wrap > .bento > .card:last-child > .panel { grid-column: 2; grid-row: 1 / -1; height: 220px; margin: calc(-1 * var(--c-pad)) calc(-1 * var(--c-pad)) calc(-1 * var(--c-pad)) 0; border-radius: 0; }
+  #features .rack-frag { right: 20px; }
+  #features .bento-frag { --ay: 24px; }
+  #features .rack { width: 100%; }
 }
 /* 640-1023 */
 @media (min-width: 640px) and (max-width: 1023px) {
@@ -209,43 +228,57 @@ main > #table.is-replay > .wrap { position: sticky; top: 0; height: 100vh; heigh
   #features .group .panel { --p-h: calc((100svh - 192px - 150px - 128px - 16px) / 2); }
   #features .wrap > .bento .panel { --p-h: calc((100svh - 192px - 192px - 32px) / 3); }
 }
-@media (min-width: 640px) and (max-width: 1279px) {
+@media (min-width: 640px) and (max-width: 1023px) {
   #features .grid > .card { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-auto-rows: min-content; column-gap: var(--s-6); align-content: start; }
   #features .grid > .card > :not(.panel) { grid-column: 1; }
   #features .grid > .card > .panel { grid-column: 2; grid-row: 1 / span 4; margin: 0; border-radius: var(--p-r); }
 }
-@media (min-width: 1024px) and (max-width: 1279px) { #features .panel { --p-h: 150px; } }
 /* a phone: the chip count alone on the first screen; the units and the settle-up on the second (the
    seat draw plays only under a pointer, so a phone shows its poster nowhere) */
 @media (max-width: 639px) {
-  #features .group .panel { --p-h: 260px; }
-  #features .wrap > .bento .panel { --p-h: 180px; }
   #features .group .bento > .card:nth-child(2), #features .wrap > .bento > .card:nth-child(1) { display: none; }
   #features .rack { width: 100%; }
   #features .rack__rows li { grid-template-columns: 30px minmax(0, 1fr) auto auto; }
 }
-/* short panels (under 1280) have a fixed height, crop their fragment at the edge instead of fading it,
-   and each fragment keeps to what its panel holds, so no row is cropped half-way */
+/* short panels (under 1280) crop their fragment at the edge instead of fading it, and each fragment keeps
+   to what its panel holds, so no row is cropped half-way. A tablet's panels have a fixed height (--p-h);
+   a phone's and 1024-1279's take what their card leaves (above). */
+@media (min-width: 640px) and (max-width: 1023px) { #features .panel { height: var(--p-h); } }
 @media (max-width: 1279px) {
   #features .stage { -webkit-mask: none; mask: none; }
-  #features .panel { height: var(--p-h); container: panel / size; }
+  #features .panel { container: panel / size; }
   #features .rack-frag { --ax: 20px; --ay: 20px; }
+}
+/* a phone keeps panels it can read (the section grows on a short phone, as it did with fixed panels) */
+@media (max-width: 639px) {
+  #features .panel { flex: 1 1 0; height: auto; min-height: 180px; }
+  #features .group .panel { min-height: 240px; }
+}
+/* The band's fragments end 16px above their panel's foot, and a row that does not fit wraps into a
+   second column that the list clips: the panel shows whole rows only, whatever its height. The head and
+   the total stay; the rows go from the last up (the log's reversed entry is first, so it goes last). */
+@media (max-width: 1279px) {
+  #features .stage > :is(.rack-frag, .bento-frag) { bottom: 16px; display: flex; flex-direction: column; }
+  #features :is(.rack, .mini-log, .units) { display: flex; flex-direction: column; max-height: 100%; min-height: 0; overflow: hidden; }
+  #features .units { gap: 10px; }
+  #features :is(.rack__head, .rack__total, .mini-log > h3, .units > :not(.units__facts)) { flex: none; }
+  #features :is(.rack__rows, .mini-log .pn-rows, .units__facts) { flex: 0 1 auto; min-height: 0; display: flex; flex-direction: column; flex-wrap: wrap; align-content: flex-start; overflow: hidden; }
+  #features :is(.rack__rows, .mini-log .pn-rows, .units__facts) > * { width: 100%; }
+  /* an empty first item, so the first real row can wrap off too (a flex line keeps at least one item) */
+  #features :is(.rack__rows, .mini-log .pn-rows, .units__facts)::before { content: ""; width: 100%; height: 0; }
 }
 @container panel (max-height: 280px) {
   .invite > .invite__more { display: none; }
   .install > .pn-muted, .install-steps li:nth-child(n+2), .install > .pn-btn { display: none; }
   .rack { padding: 12px 16px; }
-  .rack__head .pn-badge, .rack__rows li:nth-child(n+3) { display: none; }
-  .mini-log .pn-rows li:nth-child(3) { display: none; }
-  .units > .pn-muted, .units__facts div:nth-child(n+2) { display: none; }
+  .rack__head .pn-badge { display: none; }
+  .units > .pn-muted { display: none; }
 }
 @container panel (max-height: 200px) {
   .invite > .pn-muted { display: none; }
-  .rack__rows li:nth-child(n+2) { display: none; }
-  .units__facts { display: none; }
-  .mini-log .pn-rows li:nth-child(1) { display: none; }
 }
-@container panel (max-height: 160px) { .rack__rows, .rack__total { display: none; } }
+/* a short panel keeps the units' Pesos/Chips switch and drops the card's title */
+@container panel (max-height: 170px) { #features .units > h3 { display: none; } }
 
 /* ---------------------------------------------------------------- steps (#steps): the kit's pinned-chapters
    lays the section out (moment.css). Each step's screen sits on the lit ground of its figure; a short figure

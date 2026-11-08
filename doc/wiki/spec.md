@@ -35,7 +35,7 @@ Each section is exactly one or two screens tall. From 1024 px, Log and Steps are
 2. **Log (`#table`).** The app's session page at desktop: the night's log (buy-ins, rebuys, cash-outs) beside who pays whom, with Mark paid, and the results. From 1024 px it replays the night with the scroll (see Motion).
 3. **Steps (`#steps`).** Three steps: open the invite link, install the app on your phone, log each buy-in in the app. Each step has its screen: the invite card, the install card, the deal clip. From 1024 px the steps open one at a time with the scroll; below that each step is a row with its screen.
 4. **Compare (`#compare`).** PokerNights against a notebook and a group-chat tally, in words.
-5. **Count-up (`#features`).** On the bone band: the chip count, the seat draw, a reversed entry, pesos or chips, and the settle-up diagram. Narrow screens show three of the five cards.
+5. **Count-up (`#features`).** On the bone band: the chip count, the seat draw, a reversed entry, pesos or chips, and the settle-up diagram. A phone shows three of the five cards: the chip count, then pesos or chips and the settle-up. Below 1280 px each screen's cards fill that screen. A panel shows only whole rows of its fragment and drops the lowest rows first. The session log lists the reversed entry first, so it stays longest.
 6. **Questions (`#questions`).** Six questions, every answer open (five on tablets).
 7. **Close and footer.** "Join your group tonight", the invite field, then the footer columns and the legal line.
 
