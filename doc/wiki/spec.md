@@ -53,7 +53,7 @@ Each section is exactly one or two screens tall.
 - The kit's hover layer: buttons step and press, links draw their underline, the focus ring settles.
 - One timed loop: the hero card's transfers arrive one by one. The first step card and the open pane's Mark paid also loop, each on its own screen. Every loop has a pause button and restarts under the pointer.
 - The pot's digits roll when a rebuy lands (700 ms).
-- The count-up band has the dealt scroll moment `line-carries-colour`. Its blocks fade in over 0.3 s, so none jumps when the line reaches the top.
+- The count-up band has a line sweep, the look of the dealt moment `line-carries-colour` (`src/scripts/sweep.ts`). A hairline climbs the band and uncovers it. Each block fades in over a tenth of a screen of scroll after the line passes its top. A CSS scroll timeline drives it, so it follows the scroll position exactly, in both directions. Browsers without scroll timelines, phones and reduced motion get the band with no sweep.
 - The other section headings rise once as they come on screen: opacity and 12px up, 700 ms ease-out ([ADR 0003](../adr/0003-section-headings-rise.md)). The hero heading and all cards stay still.
 - The app clips play only while the pointer rests on their card.
 
