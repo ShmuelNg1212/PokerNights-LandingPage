@@ -270,6 +270,20 @@ main > #table.is-replay > .wrap { position: sticky; top: 0; height: 100vh; heigh
   .cmp__cell::before { content: attr(data-col); color: var(--muted); font-weight: 400; }
   .cmp__cell.is-ours::before { color: var(--action); }
 }
+/* The old ways get crossed out (ADR 0004): as the section rises from half a screen down to the top, a 2px stroke
+   in the accent runs through each notebook and group-chat answer, row by row, left to right; finished when the
+   section is at the top, and back the same way. Its own view timeline, so it follows the scroll exactly. The
+   words keep their colour under it. Phones, reduced motion and browsers without scroll timelines: no stroke.
+   (two selectors, so the minifier cannot fold the timeline into the shorthand, as in the sweep) */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) and (min-width: 640px) {
+    #compare[data-strike] { view-timeline: --strike block; }
+    #compare .cmp__strike { background: linear-gradient(var(--action), var(--action)) no-repeat 0 58% / 0% 2px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+    #compare .cmp__strike { animation: cmp-strike linear both; }
+    #compare[data-strike] .cmp__row .cmp__strike { animation-timeline: --strike; animation-range: cover calc(25% + var(--r, 0) * 3.4%) cover calc(33% + var(--r, 0) * 3.4%); }
+  }
+}
+@keyframes cmp-strike { from { background-size: 0% 2px; } to { background-size: 100% 2px; } }
 /* a phone: PokerNights against the notebook; the group-chat column and one row wait for a wider screen */
 @media (max-width: 639px) { .cmp__cell:last-child, .cmp__row--phone-cut { display: none; } }
 

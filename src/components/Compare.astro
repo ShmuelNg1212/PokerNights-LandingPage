@@ -9,7 +9,7 @@ const rows: Array<[string, string, string, string]> = [
   ['Last month’s games', 'Every closed session, per player', 'Somewhere in a drawer', 'Buried in the chat'],
 ];
 ---
-<section class="section" id="compare" aria-labelledby="compare-h">
+<section class="section" id="compare" data-strike aria-labelledby="compare-h">
   <div class="wrap">
     <div class="section-head">
       <h2 id="compare-h" data-rise>PokerNights next to a notebook</h2>
@@ -21,11 +21,11 @@ const rows: Array<[string, string, string, string]> = [
         <span class="span-3 cmp__opt" role="columnheader">A notebook</span>
         <span class="span-3 cmp__opt" role="columnheader"><span class="cmp__marks"><img loading="lazy" data-icon="messenger" src="/assets/icons/messenger.svg" alt="Messenger" width="24" height="24" /><img loading="lazy" data-icon="si:viber" src="/assets/icons/viber.svg" alt="Viber" width="24" height="24" /></span>A group-chat tally</span>
       </div>
-      {rows.map(([name, ...answers]) => (
-        <div class:list={['grid', 'cmp__row', name === 'Rake' && 'cmp__row--wide', name === 'Last month’s games' && 'cmp__row--phone-cut']} role="row">
+      {rows.map(([name, ...answers], r) => (
+        <div class:list={['grid', 'cmp__row', name === 'Rake' && 'cmp__row--wide', name === 'Last month’s games' && 'cmp__row--phone-cut']} role="row" style={`--r: ${r}`}>
           <span class="span-3 cmp__name" role="rowheader">{name}</span>
           {answers.map((a, i) => (
-            <span class:list={['span-3', 'cmp__cell', i === 0 && 'is-ours']} role="cell" data-col={columns[i]}>{a}</span>
+            <span class:list={['span-3', 'cmp__cell', i === 0 && 'is-ours']} role="cell" data-col={columns[i]}>{i === 0 ? a : <span class="cmp__strike">{a}</span>}</span>
           ))}
         </div>
       ))}

@@ -96,9 +96,11 @@ Done when: the figures on screen match `replayAt()` at every probed position.
 
 Depends on Q1.
 
-- [ ] As the Compare section scrolls through the middle of the screen, a pen stroke crosses out each line of the notebook and group-chat columns, one line at a time. The PokerNights column stays clean.
-- [ ] The stroke is an SVG path with stroke-dashoffset, scrubbed to the scroll. The text under it stays at full contrast.
-- [ ] Phones and reduced motion: no stroke. The words stand.
+- [x] As the Compare section scrolls through the middle of the screen, a pen stroke crosses out each line of the notebook and group-chat columns, one line at a time. The PokerNights column stays clean.
+- [x] The stroke is an SVG path with stroke-dashoffset, scrubbed to the scroll. The text under it stays at full contrast.
+- [x] Phones and reduced motion: no stroke. The words stand.
+
+- Changed in execute: the stroke is a 2px line in the accent, drawn by `background-size` on an inline span, not an SVG path. An inline span crosses each line of a wrapped answer. It runs from `cover 25%` to `cover 50%` (half a screen down to the top), so it is finished when the section is at the top. Browsers without scroll timelines show no stroke.
 
 Acceptance: the probe sees no stroke at the section's top, all strokes at its bottom, and the same values down and up.
 Done when: the strokes follow the scroll in both directions.

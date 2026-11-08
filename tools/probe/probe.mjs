@@ -305,6 +305,37 @@ for (const [w, h] of [[1440, 900], [1024, 768]]) {
   await ctx.close();
 }
 
+// Compare: the notebook and group-chat answers get crossed out with the scroll (T7).
+{
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const page = await ctx.newPage();
+  await page.goto(`${BASE}/`);
+  await page.waitForTimeout(1200);
+  const s = await page.evaluate(async () => {
+    const root = document.querySelector('#compare');
+    const top = root.getBoundingClientRect().top + scrollY;
+    const frame = () => new Promise((r) => requestAnimationFrame(r));
+    const at = async (f) => { scrollTo(0, top + f * innerHeight); await frame(); await frame(); return [...root.querySelectorAll('.cmp__strike')].filter((e) => e.offsetParent).map((e) => parseFloat(getComputedStyle(e).backgroundSize)); };
+    const fs = [-1, -0.3, -0.2, 0];
+    const down = []; for (const f of fs) down.push(await at(f));
+    const up = []; for (const f of [...fs].reverse()) up.unshift(await at(f));
+    const ours = [...root.querySelectorAll('.cmp__cell.is-ours')].some((c) => c.querySelector('.cmp__strike'));
+    return { down, up, ours, n: down[0].length };
+  });
+  const avg = (xs) => xs.reduce((a, b) => a + b, 0) / xs.length;
+  check('Compare: no stroke below, every old-way answer crossed at the top', s.n === 12 && s.down[0].every((v) => v === 0) && s.down[3].every((v) => v === 100), s.down.map(avg).join(' → '));
+  check('Compare: the strokes run part way mid-scroll, row by row', avg(s.down[1]) > 0 && avg(s.down[1]) < avg(s.down[2]) && avg(s.down[2]) < 100, s.down.map(avg).join(' → '));
+  check('Compare: the same both ways', s.down.every((d, i) => d.every((v, k) => Math.abs(v - s.up[i][k]) < 0.5)));
+  check('Compare: the PokerNights column is never crossed', !s.ours);
+  await ctx.close();
+  const rctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+  const r = await rctx.newPage();
+  await r.goto(`${BASE}/#compare`);
+  await r.waitForTimeout(400);
+  check('reduced motion: no stroke on Compare', await r.$$eval('.cmp__strike', (l) => l.every((e) => getComputedStyle(e).backgroundImage === 'none')));
+  await rctx.close();
+}
+
 await browser.close();
 const failed = results.filter((r) => !r).length;
 console.log(`\n${results.length - failed}/${results.length} passed`);
