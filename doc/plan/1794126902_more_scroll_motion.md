@@ -4,7 +4,9 @@ Study: [1794126902_more_scroll_motion.md](../study/1794126902_more_scroll_motion
 
 ## OPEN QUESTIONS
 
-Tasteskill 2.5.1 permits only the hero entrance and idea 2 as written. The other ideas need an exception. Answer each question. The default is in bold.
+Answered 2026-11-08: the human approved every default (1a, 2a, 3a, 4a, 5a, 6 dropped).
+
+Tasteskill 2.5.1 permits only the hero entrance and idea 2 as written. The other ideas need an exception. The default is in bold.
 
 1. **Exception scope.** The human asked for a lot of motion. The plan adds three scroll moments (count-up sweep, Steps pinned, Log replay) plus scroll motion in Compare and the hero. 2.5.1 allows one moment on six sections. Options: **(a) accept all of them in ADR 0004**; (b) only what 2.5.1 allows (hero entrance, idea 2, Steps pinned in place of the sweep).
 2. **Sweep and pinned steps together.** The kit's `pinned-chapters` lists `line-carries-colour` under `avoidWith`. Options: **(a) keep both**; (b) drop the sweep.
@@ -25,8 +27,8 @@ Tasteskill 2.5.1 permits only the hero entrance and idea 2 as written. The other
 
 ### T1. Update the kit copy to 2.5.1 — `tests: alongside`
 
-- [ ] Copy the 2.5.1 `motion`, `ui`, `layout` runtime files and the `pinned-chapters` moment into `public/assets`. Do not copy dev tools (`*.mjs`, demos).
-- [ ] Keep the project's own files in `public/assets/icons`.
+- [x] Copy the 2.5.1 `motion`, `ui`, `layout` runtime files and the `pinned-chapters` moment into `public/assets`. Do not copy dev tools (`*.mjs`, demos).
+- [x] Keep the project's own files in `public/assets/icons`.
 
 Acceptance: `npm test` and `npm run build` pass. The probe passes on the whole page with no change in behaviour.
 Done when: the build serves the 2.5.1 runtime and the probe is green.
