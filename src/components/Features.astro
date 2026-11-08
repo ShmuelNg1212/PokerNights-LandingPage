@@ -31,7 +31,7 @@ const rack = [
 const short = (c: number) => (c >= 1_000_00 ? `${c / 1_000_00}K` : String(c / 100));
 const rackTotal = rack.reduce((a, r) => a + r.value * r.n, 0);
 ---
-<section class="section ground-inverse g2 g2m" id="features" style="--h: 2" aria-labelledby="features-h" data-moment="line-carries-colour" data-moment-opts='{"from": "base"}'>
+<section class="section ground-inverse g2 g2m" id="features" style="--h: 2" aria-labelledby="features-h" data-sweep>
   <div class="wrap">
     <div class="group">
       <div class="section-head">

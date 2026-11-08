@@ -133,12 +133,25 @@ html:not(.js) :is([data-rebuy], [data-mark-paid]) { display: none; }
 #features .dg { position: absolute; inset: 0; }
 /* the settle-up diagram's captions in the ink, so they hold 4.5:1 on the lit panel */
 #features .dg .dg-cap { color: var(--dg-ink); }
-/* The dealt moment (line-carries-colour) sets each block's opacity from the scroll. When the line reaches the
-   top it puts every block back to full at once, but the blocks near the top are still part faded, so they
-   jump (the heading went 0.46 to 1 in one frame). A short linear opacity fade turns that jump into a fade. The kit
-   files stay as they are (doc/wiki/setup.md). Steps and the clip keep their own transitions. */
-#features.mo-lc.is-live :is(h2, h3, p, strong, small, dt, dd, svg, img, li, .pn-badge, .dg-cap__l, .dg-label):not([data-step]) { transition: opacity .3s linear; }
-#features.mo-lc.is-live .pn-segment span { transition: background-color var(--rk-t-fast) var(--rk-ease-out), color var(--rk-t-fast) var(--rk-ease-out), opacity .3s linear; }
+/* The count-up band's line sweep (src/scripts/sweep.ts): the look of the kit's line-carries-colour moment on a
+   CSS scroll timeline, so it runs on the compositor, tied to the scroll position. Only transform and opacity
+   move. The climb runs from 37.1vh to 80vh of the section's "cover" range (keep equal to START and END in
+   sweep.ts) with a smoothstep curve. Each block fades over its own range (--sw-a to --sw-b) from the script. */
+.is-sweep { position: relative; overflow: clip; view-timeline: --sweep block; }
+.is-sweep > .sweep__stage { position: absolute; inset: clamp(8px, 1.2vw, 18px); z-index: 20; pointer-events: none; overflow: clip; border-radius: var(--r-lg, 16px); }
+.sweep__stage > * { position: absolute; inset: 0; animation: sweep-cover linear(0, .028, .104, .216, .352, .5, .648, .784, .896, .972, 1) both; animation-timeline: --sweep; animation-range: cover 37.1vh cover 80vh; }
+.sweep__cover { background: var(--p-bg, var(--bg)); transform-origin: 50% 0; }
+.sweep__stage > .sweep__line { animation-name: sweep-line; }
+.sweep__line::before { content: ""; position: absolute; inset: 0 0 auto; height: 1px; background: var(--accent); animation: sweep-out linear both; }
+.sweep__block { animation: sweep-in linear both; }
+/* the timeline and range in rules of their own: the minifier folds them into the shorthand above, which Chrome rejects */
+.is-sweep .sweep__line::before { animation-timeline: --sweep; animation-range: cover 78vh cover 80vh; }
+.is-sweep .sweep__block { animation-timeline: --sweep; animation-range: cover var(--sw-a, 0px) cover var(--sw-b, 0px); }
+@keyframes sweep-cover { from { transform: scaleY(1); } to { transform: scaleY(0); } }
+@keyframes sweep-line { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes sweep-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sweep-out { from { opacity: 1; } to { opacity: 0; } }
+@media (max-width: 639px), (prefers-reduced-motion: reduce) { .sweep__stage { display: none; } .is-sweep .sweep__block { animation: none; } }
 
 /* 1024-1279: steps keep three across against the kit's two-up rule (the fragments narrow to fit), so the
    section stays one screen; the band goes one card a row and shows three of its five cards */

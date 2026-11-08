@@ -2,7 +2,7 @@
  * Section headings ([data-rise]) rise into place once, when they first come on screen: opacity 0 to 1 and
  * 12px up, 700 ms ease-out (page.css). Only the headings move; cards, copy and pictures stay still
  * (ADR 0003: an approved exception to tasteskill's no-reveal rule). The count-up heading is left out: its
- * dealt moment already reveals it.
+ * line sweep (sweep.ts) already reveals it.
  *
  * Nothing is hidden before this runs, and a heading already on screen or above it never hides, so a
  * late script or an anchor jump cannot blank a heading. Reduced motion, data-motion="off", no

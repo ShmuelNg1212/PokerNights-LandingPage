@@ -102,7 +102,7 @@ for (const vp of [{ width: 390, height: 844, mobile: true }, { width: 1440, heig
 }
 
 // Section headings rise once as they come on screen (ADR 0003). data-motion="live" lets headless Chrome run it.
-// The count-up band's blocks fade, never jump, as its moment opens (the largest one-frame opacity change).
+// The count-up band's sweep: on the scroll timeline, the same from either direction, and no jumps.
 {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   await ctx.addInitScript(() => document.addEventListener('readystatechange', () => { document.documentElement.dataset.motion = 'live'; }, { once: true }));
@@ -114,29 +114,45 @@ for (const vp of [{ width: 390, height: 844, mobile: true }, { width: 1440, heig
   await page.$eval('#compare-h', (e) => e.scrollIntoView({ block: 'center' }));
   await page.waitForTimeout(1000);
   check('it rises in when scrolled to', (await o('#compare-h')) === 1 && (await page.$eval('#compare-h', (e) => getComputedStyle(e).translate)) !== '0px 12px');
-  const jump = await page.evaluate(async () => {
+  // The count-up band's line sweep (src/scripts/sweep.ts) runs on the section's scroll timeline, so a block's
+  // opacity is a function of the scroll position alone: the same whether the visitor arrives from above, from
+  // below, or in one jump. The old script-driven moment with its 0.3 s fade read 0.41 from below and 0.57 from above.
+  const sweep = await page.evaluate(async () => {
     const root = document.querySelector('#features');
     const top = root.getBoundingClientRect().top + scrollY;
-    const els = [...root.querySelectorAll('h2,h3,p,strong,small,dt,dd,img,li,.pn-badge,.dg-label')].filter((e) => !e.closest('[data-ly-steps]'));
+    const els = [...root.querySelectorAll('.sweep__block')].filter((e) => e.getBoundingClientRect().height);
     const frame = () => new Promise((r) => requestAnimationFrame(r));
-    let worst = 0;
+    const settle = async (y) => { scrollTo(0, y); await frame(); await frame(); };
+    const op = () => els.map((e) => +getComputedStyle(e).opacity);
+    const anims = document.getAnimations().filter((a) => root.contains(a.effect.target));
+    const onTimeline = anims.length >= els.length + 2 && anims.every((a) => a.timeline && a.timeline.constructor.name === 'ViewTimeline');
+    let drift = 0, jump = 0, hidden = 0;
+    for (let y = top - innerHeight * 0.7; y <= top + innerHeight * 0.1; y += 40) {
+      await settle(top + 600); await settle(y); const up = op();
+      await settle(top - innerHeight); await settle(y); const down = op();
+      up.forEach((v, i) => { drift = Math.max(drift, Math.abs(v - down[i])); });
+    }
+    // step through the climb and back in 10 px frames: no block above the line changes by more than 0.2 in a frame
     for (const [from, to] of [[top - innerHeight, top + 300], [top + 300, top - innerHeight]]) {
       const dir = Math.sign(to - from);
-      let y = from; scrollTo(0, y); await frame(); await frame();
-      let prev = els.map((e) => +getComputedStyle(e).opacity);
+      let y = from; await settle(y);
+      let prev = op();
       while (dir > 0 ? y < to : y > to) {
         y += dir * 10; scrollTo(0, y); await frame();
-        const stage = root.querySelector('.mo-lc__stage');
-        const sr = stage && getComputedStyle(stage).display !== 'none' ? stage.getBoundingClientRect() : null;
-        const cutY = sr ? sr.top + parseFloat(root.style.getPropertyValue('--mo-cut')) : -1e9;
-        const cur = els.map((e) => +getComputedStyle(e).opacity);
-        cur.forEach((v, i) => { const r = els[i].getBoundingClientRect(); if (r.top >= cutY && r.height && r.bottom > 0 && r.top < innerHeight) worst = Math.max(worst, Math.abs(v - prev[i])); });
+        const cut = root.querySelector('.sweep__line').getBoundingClientRect().top;
+        const cur = op();
+        cur.forEach((v, i) => { const r = els[i].getBoundingClientRect(); if (r.top >= cut && r.bottom > 0 && r.top < innerHeight) jump = Math.max(jump, Math.abs(v - prev[i])); });
         prev = cur;
       }
     }
-    return worst;
+    await settle(top);
+    hidden = op().filter((v) => v < 1).length;
+    return { onTimeline, n: anims.length, drift, jump, hidden };
   });
-  check('the count-up band never jumps as its moment opens', jump < 0.2, `largest one-frame opacity change ${jump.toFixed(3)}`);
+  check('the count-up sweep runs on the scroll timeline', sweep.onTimeline, `${sweep.n} animations`);
+  check('the count-up sweep reads the same from above, from below and after a jump', sweep.drift < 0.02, `largest difference ${sweep.drift.toFixed(3)}`);
+  check('the count-up band never jumps as its sweep opens', sweep.jump < 0.2, `largest one-frame opacity change ${sweep.jump.toFixed(3)}`);
+  check('every count-up block is whole once the section is at the top', sweep.hidden === 0, `${sweep.hidden} still faded`);
   await ctx.close();
 }
 {

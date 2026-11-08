@@ -12,7 +12,6 @@ import Closing from '../components/Closing.astro';
 <Layout
   title="PokerNights: buy-ins and settle-up for home poker nights"
   description="PokerNights keeps the bank for your home poker game: buy-ins, rebuys, cash-outs and who pays whom at the end. It never moves money."
-  moments
   diagrams
 >
   <Nav />
@@ -33,9 +32,11 @@ import Closing from '../components/Closing.astro';
   import { initMedia } from '../scripts/media';
   import { initRoll } from '../scripts/roll';
   import { initRise } from '../scripts/rise';
+  import { initSweep } from '../scripts/sweep';
   initRoll();
   initLive();
   initOpen();
   initMedia();
   initRise();
+  initSweep();
 </script>
