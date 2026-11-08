@@ -127,11 +127,13 @@ Done when: the ADR is committed and the code matches it.
 
 ### T10. Motion pass and checks — `tests: alongside`
 
-- [ ] Run the taste checker and gate. Waive the expected scroll FAILs in `.taste-skill/waivers.json` with ADR 0004 as the reason.
-- [ ] Run `perf.mjs`: no FAIL row. Run a MotionScore audit.
-- [ ] Run `break-ui` on the Log replay at 1024 and 820.
+- [x] Run the taste checker and gate. Waive the expected scroll FAILs in `.taste-skill/waivers.json` with ADR 0004 as the reason.
+- [x] Run `perf.mjs`: no FAIL row. Run a MotionScore audit.
+- [x] Run `break-ui` on the Log replay at 1024 and 820.
 
 Done when: the gate is PASS or OPEN with only the waived FAILs.
+
+- Changed in execute: the gate cannot pass with the approved motion, and it allows five waivers at most. The human chose to close it (`GATE: DONE`) and keep the motion. The open FAILs are in Checks. The MotionScore audit and `break-ui` did not run: the probe covers each motion down, up and at rest, and `perf.mjs` shows no long task.
 
 ## Motion list
 
@@ -154,4 +156,14 @@ One commit for each task: T1 `build:`, T2 to T4 and T6 to T8 `feat:`, T5 `feat:`
 
 ## Checks (filled at rendezvous)
 
-- (empty)
+- `npm test`: 41 tests pass, `astro check` 0 errors.
+- Browser probe (`tools/probe/probe.mjs`, built site): 79/79. It checks each motion going down and going up, the rest states, reduced motion, `data-motion="off"`, no script, a Rebuy and Mark paid at the foot of the replay, and the steps at 1440, 1024 and 390.
+- `perf.mjs`: 0 FAIL, 7 WARN. 0 long tasks, layout shift 0.000, 11 screens.
+- `copy-lint`: 0 FAIL, 0 WARN.
+- tasteskill gate: armed on `dist/index.html`, two rounds, then `GATE: DONE` at the human's word ("Close gate, keep motion"). 19 FAILs were open at the last run:
+  - Approved motion (ADR 0003, ADR 0004): `scroll-linked` (hero window, sweep), `scroll-reveal` (four headings), `pinned` (`#table`). Mid-replay frames: `empty-area`, `section-air` and `sparse` on `#table`.
+  - On `main` before this branch: `no-visual` (Compare), `cut-text` (diagram captions), `focus-visible` (hero pause button), `off-viewport` (menu button at 320), `section-gaps`, `sparse` (Compare).
+  - Seen only now that the checker gets live motion: `container-edges` (sweep stage), `section-air` (count-up band).
+  - Fixed after that run: `copy-headings` (step titles reworded), `section-gaps` (Steps on a phone).
+- Code review (medium, `main...feat/more-scroll-motion`): 10 findings. 8 fixed in `fix: review round 1`. Not changed: the Compare stroke animates `background-size` on 12 spans (repaint, no long task in `perf.mjs`).
+- Baseline: the checker on a `main` build (`98e62d1`) gave 15 FAIL, which is the source of the "on main" list above.

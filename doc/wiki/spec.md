@@ -67,7 +67,7 @@ Each section is exactly one or two screens tall. From 1024 px, Log and Steps are
 ## Without script and with reduced motion
 
 - Without script: the live parts show a fixed, correct state. Rebuy and Mark paid are hidden. The close's button opens Log in.
-- With reduced motion: every loop shows its finished picture. The pot figure changes at once. The hero stands as written. Log and Steps do not hold: Log shows the whole night, and Steps shows a row per step. Compare has no strokes. The count-up band shows the finished section with its diagram whole. Every heading shows at once.
+- With reduced motion: every loop shows its finished picture. The pot figure changes at once. The hero stands as written. Log and Steps do not hold: Log shows the whole night. Steps shows its three steps side by side from 1024 px, and a row per step below that. Compare has no strokes. The count-up band shows the finished section with its diagram whole. Every heading shows at once.
 
 ## Media
 
