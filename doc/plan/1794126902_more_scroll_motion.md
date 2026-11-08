@@ -67,7 +67,7 @@ Done when: the steps open with the scroll at every width above 640px and stand a
 
 ### T5. Log replay logic — `tests: first`
 
-- [x] Add `replayAt(snapshot, step)` to `src/lib/table.ts`. It returns the table after the first `step` log entries: the pot, each player's buy-in, and the log so far. Cash-outs, transfers and results appear only at the last step.
+- [x] Add `replayAt(snapshot, step)` to `src/lib/table.ts`. It returns the table after the first `step` log entries: what was bought in, each player's buy-in and result so far (`players`, added at rendezvous), and the log so far. Cash-outs, transfers and results appear only at the last step.
 - [x] Tests first in `src/lib/table.test.ts`: step 0 is an empty pot; each buy-in or rebuy adds its amount; the last step equals `snapshot()` exactly; the books balance at the last step; no step shows transfers before the cash-outs.
 
 Acceptance: the new tests fail before the code and pass after it. All old tests pass.
@@ -78,9 +78,9 @@ Done when: `npm test` is green with the new tests.
 Depends on T5 and Q3.
 
 - [x] Make `#table` a custom scroll moment with `data-moment="log-replay"`. It pins for two screens.
-- [x] As the visitor scrolls, the log rows appear in time order. The pot figure rolls to each new total (the existing `roll.ts`). The transfers and the results appear when the cash-outs land.
+- [x] As the visitor scrolls, the log rows appear in time order. ~~The pot figure rolls to each new total.~~ The entry badge counts the rows (see below). The transfers and the results appear when the cash-outs land.
 - [x] Scrolling up runs it back. Both ends are finished states: the full night at the end. The start shows the first buy-in, not an empty table, so the section never reads as empty.
-- [x] Rebuy and Mark paid still work at the end of the replay. A Rebuy during the replay jumps to the end state first.
+- [x] Rebuy and Mark paid still work at the end of the replay. ~~A Rebuy during the replay jumps to the end state first.~~ A Rebuy replays at the same scroll (see below).
 - [x] Phones, reduced motion and no script: the full night, as now.
 
 - Changed in execute:

@@ -14,7 +14,7 @@
 import { replayAt, type ReplayView } from '../lib/table';
 import { peso, signedPeso } from '../lib/money';
 import { entryCount, resultTone } from '../lib/labels';
-import { liveSnapshot } from './live';
+import { liveSnapshot, onLiveRender } from './live';
 
 /** The scroll share that holds the whole night at the foot of the section. */
 const HOLD_END = 0.1;
@@ -39,7 +39,8 @@ export function initReplay() {
   /** A row that waits is hidden from assistive tech too; who pays whom takes no focus until it shows. */
   const later = (el: Element, wait: boolean) => {
     el.classList.toggle('is-later', wait);
-    el.toggleAttribute('aria-hidden', wait);
+    if (wait) el.setAttribute('aria-hidden', 'true');
+    else el.removeAttribute('aria-hidden');
   };
 
   const badge = (text: string) => {
@@ -49,18 +50,16 @@ export function initReplay() {
   /** Each player's result row: shown from their first buy-in, its total growing with each rebuy, the result
    *  from their cash-out. At the last step these are the live table's own figures. */
   const results = (r: ReplayView) => {
+    const played = new Map(r.players.map((p) => [p.id, p]));
     for (const row of root.querySelectorAll<HTMLElement>('[data-standing]')) {
-      const id = row.dataset.stId ?? '';
-      const mine = r.log.filter((e) => e.player === id);
-      const bought = mine.reduce((a, e) => (e.kind === 'cash-out' ? a : a + e.amount), 0);
-      const out = mine.find((e) => e.kind === 'cash-out');
-      later(row, !mine.length);
+      const p = played.get(row.dataset.stId ?? '');
+      later(row, !p);
       const inEl = row.querySelector('[data-st-in]');
-      const want = `${peso(bought)} in`;
+      const want = `${peso(p?.boughtIn ?? 0)} in`;
       if (inEl && inEl.textContent !== want) inEl.textContent = want;
       const res = row.querySelector<HTMLElement>('[data-st-res]');
       if (!res) continue;
-      const result = out ? out.amount - bought : null;
+      const result = p?.result ?? null;
       const text = result === null ? 'Playing' : signedPeso(result);
       if (res.textContent !== text) res.textContent = text;
       res.className = `standing__res ${result === null ? 'is-playing' : resultTone(result)}`.trim();
@@ -76,14 +75,14 @@ export function initReplay() {
   const apply = () => {
     raf = 0;
     if (!live) return;
-    const s = liveSnapshot();
-    const total = replayAt(s, Infinity).total;
-    // the first entry at the top; the last at (1 - HOLD_END), held to the foot
+    // live.ts renders the whole night into the log, so its rows are the steps. The first entry at the top;
+    // the last at (1 - HOLD_END), held to the foot. Nothing more is read or built while the step stands.
+    const total = Math.max(1, log.children.length);
     const step = 1 + Math.floor(Math.min(1, progress() / (1 - HOLD_END)) * (total - 1) + 1e-9);
-    const r = replayAt(s, step);
+    if (step === shown) return;
+    shown = step;
+    const r = replayAt(liveSnapshot(), step);
     root.dataset.replayStep = String(r.step);
-    if (r.step === shown && log.children.length === total) return;
-    shown = r.step;
     [...log.children].forEach((row, i) => later(row, i >= r.step));
     badge(entryCount(r.step));
     results(r);
@@ -112,7 +111,7 @@ export function initReplay() {
     root.classList.remove('is-replay', 'is-settled');
     delete root.dataset.replayStep;
     results(replayAt(liveSnapshot(), Infinity));
-    for (const el of root.querySelectorAll('.is-later')) later(el, false);
+    for (const el of root.querySelectorAll('[data-log] > li, [data-standing]')) later(el, false);
     if (payList) payList.inert = false;
     log.style.removeProperty('--replay-shift');
     badge(entryCount(log.children.length));
@@ -127,10 +126,9 @@ export function initReplay() {
     tick();
   });
   still.addEventListener('change', sync);
-  // a Rebuy adds a log row and re-sorts the results: replay them again at the same scroll
-  const again = new MutationObserver(() => {
+  // a Rebuy or Mark paid re-renders the lists (and resets their rows' classes): replay them again at once
+  onLiveRender(() => {
     shown = -1;
-    tick();
+    if (live) apply();
   });
-  for (const list of root.querySelectorAll('[data-log], [data-standings]')) again.observe(list, { childList: true });
 }

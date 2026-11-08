@@ -274,7 +274,7 @@ for (const [w, h] of [[1440, 900], [1024, 768]]) {
     const results = [...root.querySelectorAll('[data-standing]')].filter((r) => getComputedStyle(r).opacity === '1').length;
     const pays = [...root.querySelectorAll('[data-pay-list] > li')].filter((r) => getComputedStyle(r).opacity === '1').length;
     const inert = root.querySelector('[data-pay-list]').inert;
-    const unread = rows.filter((r) => r.getAttribute('aria-hidden') !== null).length;
+    const unread = rows.filter((r) => r.getAttribute('aria-hidden') === 'true').length;
     return { inert, unread, step: +root.dataset.replayStep, total: rows.length, shown, badge: root.querySelector('[data-log-count]').textContent, results, pays, live: root.classList.contains('is-replay'), screens: root.offsetHeight / innerHeight };
   }, f);
   const fs = [0, 0.25, 0.5, 0.75, 1];
@@ -306,6 +306,8 @@ for (const [w, h] of [[1440, 900], [1024, 768]]) {
   await page.goto(`${BASE}/`);
   await page.waitForTimeout(800);
   const r = await page.$eval('#table', (s) => ({ live: s.classList.contains('is-replay'), later: s.querySelectorAll('.is-later').length, badge: s.querySelector('[data-log-count]').textContent }));
+  const steps = await page.$eval('#steps', (s) => s.offsetHeight / innerHeight);
+  check('reduced motion: Steps stands as rows on one screen at 1440', steps <= 1.001, `${steps.toFixed(2)} screens`);
   check('reduced motion: the Log section shows the whole night, not pinned', !r.live && r.later === 0 && r.badge === '14 entries', JSON.stringify(r));
   await ctx.close();
 }
@@ -339,6 +341,25 @@ for (const [w, h] of [[1440, 900], [1024, 768]]) {
   await r.waitForTimeout(400);
   check('reduced motion: no stroke on Compare', await r.$$eval('.cmp__strike', (l) => l.every((e) => getComputedStyle(e).backgroundImage === 'none')));
   await rctx.close();
+}
+
+// data-motion="off": the CSS scroll motions rest too.
+{
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  await ctx.addInitScript(() => document.addEventListener('readystatechange', () => { document.documentElement.dataset.motion = 'off'; }, { once: true }));
+  const page = await ctx.newPage();
+  await page.goto(`${BASE}/`);
+  await page.waitForTimeout(1200);
+  const off = await page.evaluate(async () => {
+    const frame = () => new Promise((r) => requestAnimationFrame(r));
+    scrollTo(0, 500); await frame(); await frame();
+    const hero = getComputedStyle(document.querySelector('.hero-window')).scale;
+    const c = document.querySelector('#compare'); scrollTo(0, c.getBoundingClientRect().top + scrollY - innerHeight * 0.25); await frame(); await frame();
+    const strike = getComputedStyle(document.querySelector('.cmp__strike')).backgroundSize;
+    return { hero, strike, replay: document.querySelector('#table').classList.contains('is-replay') };
+  });
+  check('data-motion="off": no hero, Compare or replay motion', ['none', '1'].includes(off.hero) && off.strike.startsWith('0%') && !off.replay, JSON.stringify(off));
+  await ctx.close();
 }
 
 // The hero settles as the visitor leaves it (T8): rests at the top, eases back with the scroll, both ways.

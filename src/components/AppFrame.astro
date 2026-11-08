@@ -35,7 +35,7 @@ const log = nightLog(t);
           <span class="app-head__title">Who pays whom</span>
           <span class="pn-badge is-brass" data-transfer-count>{transferCount(t.transfers.length)}</span>
         </div>
-        <p class="pay-wait pn-muted" aria-hidden="true">Who pays whom appears when every stack is counted.</p>
+        <p class="pay-wait pn-muted">Who pays whom appears when every stack is counted.</p>
         <ul class="pay-list" data-transfers data-pay-list>
           {t.transfers.map((x, i) => {
             const from = people.get(x.from)!;

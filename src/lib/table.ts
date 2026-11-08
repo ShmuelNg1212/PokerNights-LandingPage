@@ -216,6 +216,16 @@ export interface ReplayView {
   settled: boolean;
   transfers: TransferView[];
   results: ResultView[];
+  /** Each player who has played so far, in order of their first entry. */
+  players: ReplayPlayer[];
+}
+
+export interface ReplayPlayer {
+  id: string;
+  /** Their buy-ins and rebuys so far. */
+  boughtIn: number;
+  /** Their result, from their cash-out on; null while they still play. */
+  result: number | null;
 }
 
 /** The night after `step` entries, from the same snapshot the live table shows, so the end is that table. */
@@ -224,6 +234,13 @@ export function replayAt(s: TableSnapshot, step: number): ReplayView {
   const n = Math.min(night.length, Math.max(0, Math.floor(step)));
   const log = night.slice(0, n);
   const settled = n === night.length;
+  const players = new Map<string, ReplayPlayer>();
+  for (const e of log) {
+    const p = players.get(e.player) ?? { id: e.player, boughtIn: 0, result: null };
+    if (e.kind === 'cash-out') p.result = e.amount - p.boughtIn;
+    else p.boughtIn += e.amount;
+    players.set(e.player, p);
+  }
   return {
     step: n,
     total: night.length,
@@ -232,5 +249,6 @@ export function replayAt(s: TableSnapshot, step: number): ReplayView {
     settled,
     transfers: settled ? s.transfers : [],
     results: settled ? s.results : [],
+    players: [...players.values()],
   };
 }

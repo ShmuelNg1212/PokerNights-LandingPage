@@ -158,6 +158,12 @@ function mark(id: string) {
   }
 }
 
+const rendered = new Set<() => void>();
+/** Called after every render of the live table (replay.ts re-applies its step). */
+export function onLiveRender(fn: () => void) {
+  rendered.add(fn);
+}
+
 function render(s: TableSnapshot) {
   renderPlayers(s);
   renderPot(s);
@@ -165,6 +171,7 @@ function render(s: TableSnapshot) {
   renderLog(s);
   renderStandings(s);
   if (s.lastRebuy) mark(s.lastRebuy);
+  for (const fn of rendered) fn();
 }
 
 /** The live badge reads the visitor's own clock; the set timer counts from arrival. */

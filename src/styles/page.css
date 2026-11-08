@@ -62,6 +62,8 @@ html:not(.js) :is([data-rebuy], [data-mark-paid]) { display: none; }
     .hero[data-enter] :is(.hero-window, .hero-card) { animation-timeline: --leave; animation-range: exit 0% exit 70%; }
   }
 }
+/* data-motion="off" stops every CSS scroll motion on the page (the scripts check it themselves) */
+:root[data-motion="off"] :is(.hero-window, .hero-card, .cmp__strike, .dg-edges, .dg-ports) { animation: none !important; }
 @keyframes hero-leave-window { from { scale: 1; } to { scale: .97; } }
 @keyframes hero-leave-card { from { translate: 0 0; } to { translate: 0 -24px; } }
 
@@ -249,6 +251,14 @@ main > #table.is-replay > .wrap { position: sticky; top: 0; height: 100vh; heigh
 /* at rest the kit makes the section as tall as its steps; the page keeps it on whole screens: one on a tablet
    (shorter frames, 3:2), two on a phone, so the next section's heading never shows in its frame */
 @media (min-width: 640px) and (max-width: 1023px) { #steps:not(.is-live) .step-visual { aspect-ratio: 3 / 2; } }
+/* from 1024 at rest (reduced motion, a short screen) the three steps stand side by side, each over its 4:3 frame, as the
+   step cards did, so the heading and the steps hold one screen */
+@media (min-width: 1024px) {
+  #steps:not(.is-live) .mo-pc__steps { grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--gutter); }
+  #steps:not(.is-live) .mo-pc__step { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto 1fr; align-items: start; }
+  #steps:not(.is-live) .mo-pc__step > * { grid-column: 1; grid-row: auto; align-self: start; }
+  #steps:not(.is-live) .mo-pc__step > .mo-pc__visual { align-self: end; margin-top: var(--s-4); padding: clamp(16px, 2vw, 28px); }
+}
 @media (max-width: 639px) {
   main > #steps[data-moment]:not(.is-live) { min-height: calc(2 * 100lvh); }
   /* square frames fill the two screens: no empty band before Compare */

@@ -168,6 +168,18 @@ describe('the night replayed step by step (the Log section, as it scrolls)', () 
     expect(cashed).toBe(r.boughtIn);
   });
 
+  it('gives each player who has played their buy-ins so far, and their result only from their cash-out', () => {
+    const mid = replayAt(t, 8); // every buy-in and rebuy, no cash-out yet
+    expect(mid.players.map((p) => p.id).sort()).toEqual(t.players.map((p) => p.id).sort());
+    for (const p of mid.players) {
+      expect(p.boughtIn).toBe(t.players.find((x) => x.id === p.id)!.boughtIn);
+      expect(p.result).toBeNull();
+    }
+    expect(replayAt(t, 1).players.map((p) => p.id)).toEqual(['miguel']);
+    const end = replayAt(t, night.length);
+    for (const p of end.players) expect(p.result).toBe(t.results.find((r) => r.id === p.id)!.result);
+  });
+
   it('clamps a step outside the night', () => {
     expect(replayAt(t, -3)).toEqual(replayAt(t, 0));
     expect(replayAt(t, night.length + 5)).toEqual(replayAt(t, night.length));
