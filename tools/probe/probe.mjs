@@ -191,6 +191,36 @@ for (const vp of [{ width: 390, height: 844, mobile: true }, { width: 1440, heig
   await rctx.close();
 }
 
+// The settle-up diagram's lines draw with the scroll (T3): hidden below, whole above, the same both ways.
+{
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  await ctx.addInitScript(() => document.addEventListener('readystatechange', () => { document.documentElement.dataset.motion = 'live'; }, { once: true }));
+  const page = await ctx.newPage();
+  await page.goto(`${BASE}/`);
+  await page.waitForTimeout(1500);
+  const draw = await page.evaluate(async () => {
+    const dg = document.querySelector('#features .dg');
+    const top = dg.getBoundingClientRect().top + scrollY;
+    const frame = () => new Promise((r) => requestAnimationFrame(r));
+    const at = async (f) => { scrollTo(0, top - f * innerHeight); await frame(); await frame(); return parseFloat(getComputedStyle(dg.querySelector('.dg-edges')).clipPath.split(' ')[2]); };
+    const down = [], up = [];
+    for (const f of [1, 0.6, 0.4, 0.1]) down.push(await at(f));
+    for (const f of [0.1, 0.4, 0.6, 1]) up.unshift(await at(f));
+    return { down, up };
+  });
+  check('the settle-up lines are hidden below and whole once in view', draw.down[0] === 100 && draw.down[3] === 0, draw.down.join(' → '));
+  check('the settle-up lines draw part way mid-scroll', draw.down.slice(1, 3).every((v) => v > 0 && v < 100), draw.down.join(' → '));
+  check('the settle-up lines read the same scrolling down and up', draw.down.every((v, i) => Math.abs(v - draw.up[i]) < 0.5), `${draw.down} / ${draw.up}`);
+  await ctx.close();
+  const rctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+  const r = await rctx.newPage();
+  await r.goto(`${BASE}/`);
+  await r.$eval('#features .dg', (e) => e.scrollIntoView({ block: 'end' }));
+  await r.waitForTimeout(300);
+  check('reduced motion: the settle-up lines stand whole', await r.$eval('#features .dg-edges', (e) => ['none', 'inset(0px)'].includes(getComputedStyle(e).clipPath)));
+  await rctx.close();
+}
+
 await browser.close();
 const failed = results.filter((r) => !r).length;
 console.log(`\n${results.length - failed}/${results.length} passed`);

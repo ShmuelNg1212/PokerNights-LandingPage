@@ -152,6 +152,16 @@ html:not(.js) :is([data-rebuy], [data-mark-paid]) { display: none; }
 @keyframes sweep-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes sweep-out { from { opacity: 1; } to { opacity: 0; } }
 @media (max-width: 639px), (prefers-reduced-motion: reduce) { .sweep__stage { display: none; } .is-sweep .sweep__block { animation: none; } }
+/* The settle-up diagram's lines draw from the top (Counted, then Settle, then each transfer) as the diagram comes
+   on screen: its own view timeline, from when half of it is in to when it is at the middle of the screen, in
+   both directions. It sits low in the band, under the line's climb, so the sweep's own timeline would draw it
+   off screen. Only inside the live sweep; otherwise the lines stand whole.
+   (two selectors, so the minifier cannot fold the timeline into the shorthand, as in the sweep above) */
+.is-sweep .dg { view-timeline: --dg block; }
+.is-sweep .dg-edges, .is-sweep .dg-ports { animation: dg-draw linear both; }
+.is-sweep .dg :is(.dg-edges, .dg-ports) { animation-timeline: --dg; animation-range: entry 50% cover 50%; }
+@keyframes dg-draw { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+@media (max-width: 639px), (prefers-reduced-motion: reduce) { .is-sweep .dg :is(.dg-edges, .dg-ports) { animation: none; } }
 
 /* 1024-1279: steps keep three across against the kit's two-up rule (the fragments narrow to fit), so the
    section stays one screen; the band goes one card a row and shows three of its five cards */

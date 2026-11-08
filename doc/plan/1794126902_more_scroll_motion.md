@@ -45,9 +45,10 @@ Done when: the gate's `hero-enter` check passes.
 
 ### T3. Settle-up arrows draw on the sweep (idea 2) — `tests: alongside`
 
-- [ ] In the count-up band's settle-up diagram, each arrow draws (stroke-dashoffset from full length to 0) as the sweep line passes it.
-- [ ] Use the same scroll timeline as `src/scripts/sweep.ts`. The arrowhead appears when its line is complete.
-- [ ] No sweep (phones, old browsers, reduced motion): the arrows show whole.
+- [x] In the count-up band's settle-up diagram, each arrow draws (stroke-dashoffset from full length to 0) as the sweep line passes it.
+- [x] Use the same scroll timeline as `src/scripts/sweep.ts`. The arrowhead appears when its line is complete.
+  - Changed in execute: the diagram sits below the line's climb, so the sweep's timeline drew it off screen. The lines use the diagram's own view timeline (`entry 50%` to `cover 50%`). A top-to-bottom clip draws the lines and ports together, because the kit's pulse paths own their dash values. The diagram has no separate arrowheads.
+- [x] No sweep (phones, old browsers, reduced motion): the arrows show whole.
 
 Acceptance: the probe reads each arrow at three scroll positions, going down and going up. The values match in both directions.
 Done when: the arrows draw and undraw with the scroll and stand whole in every still case.
