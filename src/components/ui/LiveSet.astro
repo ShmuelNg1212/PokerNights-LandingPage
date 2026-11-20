@@ -1,49 +1,83 @@
 ---
-import Icon from '../Icon.astro';
 import PlayerRow from './PlayerRow.astro';
 import { createTable } from '../../lib/table';
 import { peso } from '../../lib/money';
 
-const t = createTable().snapshot();
+const table = createTable().snapshot();
+const player = table.players.find(({ id }) => id === 'carlo')!;
 ---
-<div class="ui ui-pn live-set" data-app data-live-set role="group" aria-label="A working copy of the PokerNights set page. Tap Rebuy to record one.">
-  <div class="pn-bar">
-    <span class="pn-back"><Icon name="back" />Session: Friday table</span>
-    <span class="live-status">Live · <time data-clock>21:40</time></span>
-  </div>
-  <div class="felt">
-    <div class="felt-head">
-      <h3>Friday table <small>Set 1</small></h3>
-      <span class="pn-badge">In play</span>
+<div class="ui ui-pn live-set" data-app data-live-set role="group" aria-labelledby="hero-table">
+  <div class="live-set__head">
+    <h3 id="hero-table">Friday table</h3>
+    <div>
+      <span class="pot-label">Still in play</span>
+      <strong class="display-amount" data-pot aria-live="polite">{peso(table.pot)}</strong>
     </div>
-    <div class="pot">
-      <div>
-        <span class="pot-label">Still in play</span>
-        <strong class="display-amount" data-pot aria-live="polite">{peso(t.pot)}</strong>
-      </div>
-      <div class="pot-side">
-        <div><span>Set timer</span><strong data-timer>under 1 min</strong></div>
-        <div><span>Blinds</span><strong>₱10 / ₱20</strong></div>
-      </div>
-    </div>
-    <p class="set-totals"><span data-total>{peso(t.boughtIn)}</span> bought in · {peso(t.cashedOut)} cashed out</p>
-  </div>
-  <div class="pn-section-head">
-    <h4>Players <small>6 · 2 seats free</small></h4>
   </div>
   <ul class="player-list">
-    {t.players.map((p) => (
-      <PlayerRow id={p.id} name={p.name} initials={p.initials} colour={p.colour} buyIns={p.buyIns.length} boughtIn={p.boughtIn} live />
-    ))}
+    <PlayerRow id={player.id} name={player.name} initials={player.initials} colour={player.colour}
+               buyIns={player.buyIns.length} boughtIn={player.boughtIn} live />
   </ul>
 </div>
 
 <style>
   .live-set {
-    width: 100%;
-    max-width: 440px;
-    overflow: hidden;
+    width: min(100%, 380px);
+    border: 1px solid var(--rk-rule);
+    border-radius: 20px;
     background: var(--rk-ground);
-    border-radius: 28px 28px 0 0;
+  }
+  .live-set__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 12px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--rk-rule);
+  }
+  .live-set__head h3 {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  .live-set__head > div {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-left: auto;
+  }
+  .live-set .pot-label { color: var(--rk-bone-dim); white-space: nowrap; }
+  .live-set .display-amount { font-size: clamp(1.2rem, 3.8vw, 1.5rem); }
+  .live-set .player-list { padding-inline: 14px; }
+  .live-set :global(.player-row) {
+    position: relative;
+    grid-template-columns: 34px minmax(0, 1fr) auto auto;
+    gap: 8px;
+  }
+  .live-set :global(.player-row:not(.is-marked)) { border-bottom-color: transparent; }
+  .live-set :global(.player-row.is-marked) {
+    box-shadow: none;
+    padding-inline: 0;
+    margin-inline: 0;
+  }
+  .live-set :global(.player-row .chip) { width: 34px; height: 34px; }
+  .live-set :global(.player-row .pn-btn) { grid-column: auto; min-height: 44px; padding-inline: 10px; }
+  .live-set :global(.player-row .player-meta) { display: none; }
+  .live-set :global(.player-row.is-marked .player-identity) { transform: translateY(-7px); }
+  .live-set :global(.player-row .row-mark) {
+    position: absolute;
+    left: 42px;
+    top: calc(50% + 4px);
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    font-size: .625rem;
+    white-space: nowrap;
+  }
+  @media (max-width: 359px) {
+    .live-set .player-list { padding-inline: 10px; }
+    .live-set :global(.player-row) { gap: 6px; }
+    .live-set :global(.player-row .row-mark) { left: 40px; }
+    .live-set :global(.player-row .pn-btn svg) { display: none; }
   }
 </style>

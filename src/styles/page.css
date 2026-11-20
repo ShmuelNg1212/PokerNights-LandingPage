@@ -11,61 +11,97 @@
 /* without script the live table is a fixed picture: no Rebuy or Mark paid that would do nothing */
 html:not(.js) :is([data-rebuy], [data-mark-paid]) { display: none; }
 
-/* ---------------------------------------------------------------- hero: the live set in the frame */
+/* ---------------------------------------------------------------- hero: scroll video and live set */
 .hero__proof { font-size: var(--t-small); color: var(--muted); }
-/* where text-box trim is missing, the h1's capitals still start on the frame's top line */
 @supports not (text-box: trim-start cap alphabetic) { .hero--collage .hero__text > h1:first-child { margin-top: -0.25em; } }
-.hero-window { --fade-h: 96px; }
-.hero-window .live-set { max-width: none; border-radius: var(--rk-r-sheet) var(--rk-r-sheet) 0 0; box-shadow: 0 24px 60px -30px rgb(0 0 0 / .55); }
-.hero-window .live-set > * { padding-right: var(--ly-cut-room); }
-/* the small card sits over the window's lower left, inside the window it lies on */
-.hero__art > .ly-piece--note { left: calc(var(--s-8) + var(--s-4)); bottom: var(--s-6); width: 300px; z-index: 2; }
-.hero-card { padding: 14px 16px 10px; box-shadow: 0 18px 40px -16px rgb(0 0 0 / .6); }
-.hero-card__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.hero-card__head h3 { font-size: 1rem; }
-.hero-card .pn-rows li { gap: 6px; padding: 7px 0; font-size: .8125rem; }
-/* up to 1279 the frame is short, so the window shows whole: as many player rows as the frame holds,
-   its own foot inside the frame (no cut, no fade) */
-@media (max-width: 1279px) {
-  .hero__art { container: art / size; }
-  .hero-window { -webkit-mask: none; mask: none; }
-  .hero-window .live-set { border-radius: var(--rk-r-sheet); padding-bottom: 8px; }
-  .hero-window .player-row:nth-child(n+5) { display: none; }
-  .hero-window .player-row:nth-child(4) { border-bottom: 0; }
+.hero--video {
+  position: relative;
+  background: #090705;
 }
-@container art (max-height: 600px) { .hero-window .player-row:nth-child(n+4) { display: none; } .hero-window .player-row:nth-child(3) { border-bottom: 0; } }
-@container art (max-height: 520px) { .hero-window .player-row:nth-child(n+3) { display: none; } .hero-window .player-row:nth-child(2) { border-bottom: 0; } }
-@container art (max-height: 400px) { .hero-window .live-set > :is(.pn-section-head, .player-list) { display: none; } .hero-window .live-set { padding-bottom: 0; } }
-/* below 1024 the frame is too short for the card beside the window (it covered the felt) */
-@media (max-width: 1023px) { .hero__art > .ly-piece--note { display: none; } }
-/* a phone: no top bar, the felt, and one player's row, so the visitor can still tap Rebuy */
-@media (max-width: 639px) {
-  .hero-window .set-totals, .hero-window .pn-bar, .hero-window .pn-section-head { display: none; }
-  .hero-window .felt { padding-bottom: 12px; }
-  .hero-window .live-set > .player-list { display: block; }
-  .hero-window .player-row { display: none; }
-  .hero-window .player-row[data-player="carlo"] { display: grid; border-bottom: 0; }
-  .hero-window .player-row .player-meta { display: none; }
+.hero--video > .wrap { position: relative; }
+.hero--video > .wrap .hero__text { align-self: center; }
+.hero-video {
+  position: absolute;
+  inset: 0;
+  overflow: clip;
+  /* Chrome should restore to stable foreground content when the video is remounted. */
+  overflow-anchor: none;
+  pointer-events: none;
 }
-
-/* The hero settles as the visitor leaves it (ADR 0004): over the first 70% of the hero's exit, the window eases
-   back to 0.97 and the who-pays-whom card lifts 24px off it. Scale and translate only, on the hero's own view
-   timeline, so it follows the scroll exactly and rests at both ends; at the top of the page it is the hero as
-   written. It moves the window inside .hero__art, which the entrance settles, so the two never fight.
-   From 1024px (the card shows there); not under reduced motion or without scroll timelines.
-   (two selectors, so the minifier cannot fold the timeline into the shorthand, as in the sweep) */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) and (min-width: 1024px) {
-    .hero[data-enter] { view-timeline: --leave block; }
-    .hero-window { animation: hero-leave-window linear both; transform-origin: 50% 0; }
-    .hero-card { animation: hero-leave-card linear both; }
-    .hero[data-enter] :is(.hero-window, .hero-card) { animation-timeline: --leave; animation-range: exit 0% exit 70%; }
+.hero-video__media {
+  position: absolute;
+  top: 47%;
+  left: 72%;
+  height: 87%;
+  aspect-ratio: 16 / 9;
+  transform: translate(-50%, -50%);
+  mask-image: radial-gradient(ellipse 53% 83% at 50% 50%, #000 60%, transparent 100%),
+    linear-gradient(transparent, #000 3%, #000 97%, transparent);
+  mask-composite: intersect;
+}
+.hero-video__media > :is(img, video) {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.hero-video__media > video { opacity: 0; transition: opacity 180ms ease-out; }
+.hero-video.is-ready video { opacity: 1; }
+.hero-video::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #090705 5%, rgb(9 7 5 / 88%) 31%, transparent 62%);
+}
+.hero-video__demo { display: grid; justify-items: end; align-self: end; }
+.rebuy-chip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+@media (min-width: 1024px) {
+  .hero--video > .wrap > .hero__grid { grid-template-rows: minmax(0, 1fr) auto; }
+  .hero--video .hero-video__demo { grid-area: 2 / 1 / auto / span 6; justify-items: start; }
+}
+@media (min-width: 1024px) and (max-height: 719px) {
+  main > .hero--video { min-height: 640px; }
+  .hero--video > .wrap .hero__text > * + * { margin-top: var(--s-3); }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hero--video > .wrap > .hero__grid { display: grid; }
+  .hero--video .hero__text { grid-column: 1 / span 6; }
+  .hero-video__demo { grid-column: 7 / -1; }
+  .hero-video__media { height: min(73%, 570px); }
+}
+@media (max-width: 767px) {
+  main > .hero--video {
+    height: auto;
+    min-height: 100svh;
+    padding-bottom: max(var(--s-4), env(safe-area-inset-bottom));
   }
+  .hero--video > .wrap { height: auto; }
+  .hero--video > .wrap > .hero__grid { gap: var(--s-3); }
+  .hero--video .hero__proof { margin-top: var(--s-4); }
+  .hero-video__demo { align-self: stretch; padding-top: clamp(172px, 47vw, 260px); }
+  .hero-video__demo { justify-items: center; }
+  .hero-video__media {
+    top: auto;
+    bottom: 108px;
+    left: 50%;
+    height: clamp(265px, 71vw, 350px);
+    transform: translateX(-50%);
+  }
+  .hero-video::after { background: linear-gradient(#090705 28%, transparent 67%); }
 }
-/* data-motion="off" stops every CSS scroll motion on the page (the scripts check it themselves) */
-:root[data-motion="off"] :is(.hero-window, .hero-card, .cmp__strike, .dg-edges, .dg-ports) { animation: none !important; }
-@keyframes hero-leave-window { from { scale: 1; } to { scale: .97; } }
-@keyframes hero-leave-card { from { translate: 0 0; } to { translate: 0 -24px; } }
+@media (prefers-reduced-motion: reduce) {
+  .hero-video__media > video { transition: none; }
+}
+/* data-motion="off" stops the CSS scroll motions. */
+:root[data-motion="off"] :is(.cmp__strike, .dg-edges, .dg-ports) { animation: none !important; }
 
 /* ---------------------------------------------------------------- the app window (#table) */
 .app.ui {

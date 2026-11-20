@@ -1,6 +1,20 @@
 # Media
 
-Every clip and still here is the real PokerNights app, recorded on a temporary local database with synthetic players. No production data was used.
+The app clips and stills are recordings from a temporary local database with synthetic players. The hero uses a chip-stack video made in Gemini.
+
+## Hero background video
+
+The source file is `revised-hero-asset-pokernights.mp4`. The export has no audio and puts a seek point every six frames. The poster comes from the first frame of that export.
+
+Run these commands from the repo root. Set the input path to the supplied file. Use FFmpeg and `cwebp`.
+
+```sh
+ffmpeg -i /path/to/revised-hero-asset-pokernights.mp4 -map 0:v:0 -an -c:v libx264 -preset medium -crf 24 -pix_fmt yuv420p -g 6 -keyint_min 6 -sc_threshold 0 -movflags +faststart public/media/hero/chip-stack.mp4
+ffmpeg -i public/media/hero/chip-stack.mp4 -frames:v 1 /tmp/pn-chip-stack-poster.png
+cwebp -q 87 /tmp/pn-chip-stack-poster.png -o public/media/hero/chip-stack.webp
+```
+
+Keep the output at 24 frames per second. The scroll script uses that frame rate to select a picture.
 
 ## Files
 

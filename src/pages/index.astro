@@ -28,6 +28,7 @@ import Closing from '../components/Closing.astro';
 </Layout>
 
 <script>
+  import { initHeroMotion } from '../scripts/hero-motion';
   import { initLive } from '../scripts/live';
   import { initOpen } from '../scripts/open';
   import { initMedia } from '../scripts/media';
@@ -36,6 +37,7 @@ import Closing from '../components/Closing.astro';
   import { initSweep } from '../scripts/sweep';
   import { initReplay } from '../scripts/replay';
   initRoll();
+  initHeroMotion();
   initLive();
   initOpen();
   initMedia();

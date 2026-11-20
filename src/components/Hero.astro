@@ -1,15 +1,15 @@
 ---
 import Arrow from './Arrow.astro';
 import LiveSet from './ui/LiveSet.astro';
-import { createTable } from '../lib/table';
-import { peso } from '../lib/money';
-import { chipClass, transferCount } from '../lib/labels';
 import { CONTACT } from '../lib/links';
-
-const t = createTable().snapshot();
-const people = new Map(t.players.map((p) => [p.id, p]));
 ---
-<section class="hero hero--collage" data-enter aria-labelledby="hero-h">
+
+<section class="hero hero--collage hero--video" data-enter aria-labelledby="hero-h">
+  <div class="hero-video" data-hero-video aria-hidden="true">
+    <div class="hero-video__media">
+      <img src="/media/hero/chip-stack.webp" alt="" width="1280" height="720" fetchpriority="high" />
+    </div>
+  </div>
   <div class="wrap"><div class="hero-text grid hero__grid">
     <div class="hero__text span-6">
       <h1 id="hero-h">Bookkeeping app for home poker games</h1>
@@ -20,32 +20,8 @@ const people = new Map(t.players.map((p) => [p.id, p]));
       </div>
       <p class="hero__proof">Counts in pesos or chips. Invite links work for 7 days.</p>
     </div>
-    <div class="hero__art span-6 start-7" data-fx="fluted-glass" data-fx-params='{"speed":0}'>
-      <div class="ly-piece ly-piece--main stage--fade-b hero-window">
-        <LiveSet />
-      </div>
-      <div class="ly-piece ly-piece--note ui ui-pn pn-card hero-card" data-app aria-hidden="true" data-ly-steps="500">
-        <div class="hero-card__head">
-          <h3>Who pays whom</h3>
-          <span class="pn-badge is-brass" data-transfer-count>{transferCount(t.transfers.length)}</span>
-        </div>
-        <ul class="pn-rows" data-transfers>
-          {t.transfers.map((x) => {
-            const from = people.get(x.from)!;
-            const to = people.get(x.to)!;
-            return (
-              <li data-step>
-                <span class={`chip is-small ${chipClass(from.colour)}`} data-from-chip aria-hidden="true" data-initials={from.initials}></span>
-                <span data-from>{from.name}</span>
-                <span class="arrow">→</span>
-                <span class={`chip is-small ${chipClass(to.colour)}`} data-to-chip aria-hidden="true" data-initials={to.initials}></span>
-                <span data-to>{to.name}</span>
-                <span class="amt" data-amount>{peso(x.amount)}</span>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+    <div class="hero-video__demo span-6 start-7">
+      <LiveSet />
     </div>
   </div></div>
 </section>

@@ -1,11 +1,12 @@
 import { createTable, nightLog, standings, type TableSnapshot } from '../lib/table';
 import { peso, signedPeso } from '../lib/money';
-import { buyInLabel, chipClass, ENTRY_LABEL, entryCount, MAX_STACK, resultTone, timerLabel, transferCount } from '../lib/labels';
+import { buyInLabel, chipClass, ENTRY_LABEL, entryCount, MAX_STACK, resultTone, transferCount } from '../lib/labels';
 
 /** Hooks a pot figure can use to animate its change (set by roll.ts). */
 export interface LiveHooks {
   onPot?: (el: HTMLElement, from: string, to: string) => void;
   onMark?: (row: HTMLElement) => void;
+  onRebuy?: (button: HTMLButtonElement) => void;
 }
 
 const table = createTable();
@@ -43,7 +44,6 @@ function renderPot(s: TableSnapshot) {
     if (hooks.onPot) hooks.onPot(el, from, to);
     else el.textContent = to;
   }
-  for (const el of all('[data-total]')) el.textContent = peso(s.boughtIn);
 }
 
 /** Each list's first server-rendered row: the shape a new row is cloned from. */
@@ -51,7 +51,7 @@ const shapes = new WeakMap<HTMLElement, Element>();
 
 /**
  * Brings a list to one row per item. Rows already on the page are updated in place (a loop that
- * holds them, such as the hero card's, keeps working); missing rows are cloned from the list's
+ * holds them keeps working); missing rows are cloned from the list's
  * first row; extra rows are removed.
  */
 function fill<T>(list: HTMLElement, items: T[], apply: (row: HTMLElement, item: T, i: number) => void) {
@@ -80,7 +80,7 @@ const text = (row: ParentNode, sel: string, value: string) => {
   if (el) el.textContent = value;
 };
 
-/** The hero card's demo loop stops for good once the visitor marks a payment. */
+/** The transfer demo loop stops for good once the visitor marks a payment. */
 let payTouched = false;
 
 function renderTransfers(s: TableSnapshot) {
@@ -174,31 +174,14 @@ function render(s: TableSnapshot) {
   for (const fn of rendered) fn();
 }
 
-/** The live badge reads the visitor's own clock; the set timer counts from arrival. */
-function startClock() {
-  const arrived = Date.now();
-  const clock = all('[data-clock]');
-  const timer = all('[data-timer]');
-  const fmt = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
-  const tick = () => {
-    const now = new Date();
-    for (const el of clock) {
-      el.textContent = fmt.format(now);
-      el.setAttribute('datetime', now.toISOString());
-    }
-    for (const el of timer) el.textContent = timerLabel(Date.now() - arrived);
-  };
-  tick();
-  window.setInterval(tick, 15_000);
-}
-
 export function initLive() {
   table.subscribe(render);
   document.addEventListener('click', (e) => {
     const target = e.target as Element | null;
     const rebuy = target?.closest<HTMLButtonElement>('[data-rebuy]');
     if (rebuy) {
-      table.rebuy(rebuy.dataset.rebuy!);
+      const before = table.snapshot();
+      if (table.rebuy(rebuy.dataset.rebuy!) !== before) hooks.onRebuy?.(rebuy);
       return;
     }
     const pay = target?.closest<HTMLButtonElement>('[data-mark-paid]');
@@ -207,5 +190,4 @@ export function initLive() {
       table.markPaid(Number(pay.dataset.markPaid));
     }
   });
-  startClock();
 }

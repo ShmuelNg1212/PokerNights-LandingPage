@@ -7,6 +7,10 @@ const APP = 'https://pokernights-five.vercel.app';
 const results = [];
 const check = (name, ok, note = '') => { results.push(ok); console.log(`${ok ? 'PASS' : 'FAIL'} ${name}${note ? `  (${note})` : ''}`); };
 const browser = await chromium.launch({ channel: 'chrome' });
+const poster = '[data-hero-video] img';
+const clip = '[data-hero-video] video';
+const readyClip = '[data-hero-video].is-ready video';
+const videoAsset = '**/media/hero/chip-stack.mp4';
 
 const rows = (page, sel) => page.$$eval(`${sel} [data-transfers] > li`, (lis) => lis.map((li) => li.textContent.replace(/\s+/g, ' ').trim()));
 const names = (page, sel) => page.$$eval(`${sel} [data-transfers] > li`, (lis) => lis.map((li) => `${li.querySelector('[data-from]').textContent}>${li.querySelector('[data-to]').textContent} ${li.querySelector('[data-amount]').textContent}`));
@@ -15,25 +19,29 @@ const names = (page, sel) => page.$$eval(`${sel} [data-transfers] > li`, (lis) =
 for (const vp of [{ width: 390, height: 844, mobile: true }, { width: 1440, height: 900, mobile: false }]) {
   const page = await browser.newPage({ viewport: { width: vp.width, height: vp.height }, deviceScaleFactor: 2, isMobile: vp.mobile, hasTouch: vp.mobile });
   const errors = [];
+  let videoRequests = 0;
+  page.on('request', (req) => { if (req.url().endsWith('/chip-stack.mp4')) videoRequests++; });
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(`${BASE}/`);
   await page.waitForTimeout(1500);
   const w = vp.width;
   const pot = () => page.$eval('.hero [data-pot]', (el) => el.dataset.value || el.textContent);
   const logCount = () => page.$$eval('#table [data-log] > li', (l) => l.length);
-  const before = { pot: await pot(), hero: await names(page, '.hero'), app: await names(page, '#table'), log: await logCount() };
-  check(`${w}: starts at ₱10,500 with four transfers in the hero card and the window`, before.pot === '₱10,500' && before.hero.length === 4 && before.app.length === 4, `${before.pot}, ${before.hero.length}/${before.app.length}`);
-  check(`${w}: the hero card and the window list the same transfers`, JSON.stringify(before.hero) === JSON.stringify(before.app));
+  const before = { pot: await pot(), app: await names(page, '#table'), log: await logCount() };
+  check(`${w}: starts at ₱10,500 with four transfers in the Log`, before.pot === '₱10,500' && before.app.length === 4, before.pot);
+  if (vp.mobile) check('the phone displays the still and skips the video', videoRequests === 0 && await page.$eval(poster, img => img.naturalWidth > 0));
 
   const tap = (sel) => (vp.mobile ? page.tap(sel) : page.click(sel));
   await tap('.hero [data-rebuy="carlo"]');
-  await page.waitForTimeout(150);
+  const movingChip = await page.waitForSelector('.rebuy-chip', { timeout: 750 }).catch(() => null);
+  check(`${w}: Rebuy sends a chip to the pot`, !!movingChip);
   const rolling = await page.$$eval('.hero [data-pot] .roll-cell', (c) => c.length);
   check(`${w}: a rebuy rolls the pot figure`, rolling > 0, `${rolling} cells`);
   await page.waitForTimeout(1000);
   check(`${w}: the pot reads ₱11,500 after Carlo rebuys`, (await pot()) === '₱11,500', await pot());
-  const after = { hero: await names(page, '.hero'), app: await names(page, '#table'), log: await logCount() };
-  check(`${w}: who pays whom changed, the same in both places`, JSON.stringify(after.hero) !== JSON.stringify(before.hero) && JSON.stringify(after.hero) === JSON.stringify(after.app), after.app.join(' | '));
+  const after = { app: await names(page, '#table'), log: await logCount() };
+  check(`${w}: the transfer amounts change after Rebuy`, JSON.stringify(after.app) !== JSON.stringify(before.app), after.app.join(' | '));
+  check(`${w}: the chip flight clears`, !(await page.$('.rebuy-chip')));
   check(`${w}: the session log gained one row`, after.log === before.log + 1, `${before.log} → ${after.log}`);
   // a wide screen replays the night in the Log section: its foot holds the whole night
   await page.evaluate(() => { const r = document.querySelector('#table'); scrollTo(0, r.getBoundingClientRect().top + scrollY + r.offsetHeight - innerHeight); });
@@ -76,15 +84,18 @@ for (const vp of [{ width: 390, height: 844, mobile: true }, { width: 1440, heig
 {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
   const page = await ctx.newPage();
+  let requested = false;
+  await page.route(videoAsset, route => { requested = true; return route.abort(); });
   await page.goto(`${BASE}/`);
   await page.waitForTimeout(2600);
+  check('reduced motion shows the still and skips the video', !requested && await page.$eval(poster, img => img.naturalWidth > 0));
   const off = await page.$$eval('[data-ly-steps] [data-step].is-off', (l) => l.length);
-  check('reduced motion: the hero card and the step cards show every line', off === 0, `${off} lines hidden`);
+  check('reduced motion: the timed cards show every line', off === 0, `${off} lines hidden`);
   const running = await page.evaluate(() => document.getAnimations().filter((a) => a.playState === 'running' && !(a.effect?.getComputedTiming?.().iterations === 1)).length);
   check('reduced motion: no looping animation runs', running === 0, `${running} running`);
-  await page.click('.hero [data-rebuy="bea"]');
+  await page.click('.hero [data-rebuy="carlo"]');
   await page.waitForTimeout(100);
-  check('reduced motion: the pot changes at once', (await page.$eval('.hero [data-pot]', (el) => el.textContent)) === '₱11,500' && (await page.$$eval('.roll-cell', (c) => c.length)) === 0);
+  check('reduced motion: the pot changes at once', (await page.$eval('.hero [data-pot]', (el) => el.textContent)) === '₱11,500' && !(await page.$('.roll-cell, .rebuy-chip')));
   await ctx.close();
 }
 
@@ -94,7 +105,7 @@ for (const vp of [{ width: 390, height: 844, mobile: true }, { width: 1440, heig
   const page = await ctx.newPage();
   await page.goto(`${BASE}/`);
   check('without script the Rebuy and Mark paid buttons are hidden', await page.$$eval('[data-rebuy], [data-mark-paid]', (b) => b.every((x) => getComputedStyle(x).display === 'none')));
-  check('without script the hero h1 is visible', await page.isVisible('.hero h1'));
+  check('without script the hero shows its headline, still, and pot', await page.isVisible('.hero h1') && await page.$eval(poster, img => img.naturalWidth > 0) && await page.locator('.hero [data-pot]').textContent() === '₱10,500');
   check('without script the close opens Log in', !(await page.isVisible('#invite-link')) && (await page.getAttribute('form[data-open]', 'action')) === `${APP}/accounts/login/`);
   check('without script the moment section shows its words', await page.$eval('#features h2', (el) => getComputedStyle(el).opacity === '1'));
   const contact = await ctx.newPage();
@@ -181,7 +192,7 @@ for (const vp of [{ width: 390, height: 844, mobile: true }, { width: 1440, heig
   await page.waitForTimeout(180);
   await page.click('.hero [data-rebuy="carlo"]');
   await page.waitForTimeout(1300);
-  const rest = await page.$eval('.hero', (h) => ({ done: h.classList.contains('is-entered'), masks: h.querySelectorAll('h1 .m-w').length, h1: getComputedStyle(h.querySelector('h1')).opacity, lead: getComputedStyle(h.querySelector('.hero__lead')).opacity, scale: getComputedStyle(h.querySelector('.hero__art')).scale }));
+  const rest = await page.$eval('.hero', (h) => ({ done: h.classList.contains('is-entered'), masks: h.querySelectorAll('h1 .m-w').length, h1: getComputedStyle(h.querySelector('h1')).opacity, lead: getComputedStyle(h.querySelector('.hero__lead')).opacity, scale: getComputedStyle(h.querySelector('.hero-video')).scale }));
   check('the hero stands by 1.6 s, its h1 given back whole', rest.done && rest.masks === 0 && rest.h1 === '1' && rest.lead === '1' && (rest.scale === 'none' || rest.scale === '1'), JSON.stringify(rest));
   check('a Rebuy during the entrance still lands', (await page.$eval('.hero [data-pot]', (el) => el.dataset.value || el.textContent)) === '₱11,500');
   await ctx.close();
@@ -292,7 +303,7 @@ for (const [w, h] of [[1440, 900], [1024, 768]]) {
   const ends = await page.$$eval('#table [data-st-res]', (l) => l.map((e) => e.textContent));
   check('Log replay: the results at the foot are the counted ones', ends.every((t) => /^[+−-]?₱/.test(t)), ends.join(' '));
   await page.evaluate(() => scrollTo(0, 0));
-  await page.click('.hero [data-rebuy="bea"]');
+  await page.click('.hero [data-rebuy="carlo"]');
   const end = await read(1);
   check('Log replay: a Rebuy replays too, and the foot holds the new night', end.total === down[4].total + 1 && end.step === end.total && end.badge === `${end.total} entries`, JSON.stringify(end));
   await page.click('#table [data-mark-paid="0"]');
@@ -353,33 +364,147 @@ for (const [w, h] of [[1440, 900], [1024, 768]]) {
   const off = await page.evaluate(async () => {
     const frame = () => new Promise((r) => requestAnimationFrame(r));
     scrollTo(0, 500); await frame(); await frame();
-    const hero = getComputedStyle(document.querySelector('.hero-window')).scale;
+    const hero = document.querySelectorAll('[data-hero-video] video').length;
     const c = document.querySelector('#compare'); scrollTo(0, c.getBoundingClientRect().top + scrollY - innerHeight * 0.25); await frame(); await frame();
     const strike = getComputedStyle(document.querySelector('.cmp__strike')).backgroundSize;
     return { hero, strike, replay: document.querySelector('#table').classList.contains('is-replay') };
   });
-  check('data-motion="off": no hero, Compare or replay motion', ['none', '1'].includes(off.hero) && off.strike.startsWith('0%') && !off.replay, JSON.stringify(off));
+  check('data-motion="off": no hero, Compare or replay motion', off.hero === 0 && off.strike.startsWith('0%') && !off.replay, JSON.stringify(off));
   await ctx.close();
 }
 
-// The hero settles as the visitor leaves it (T8): rests at the top, eases back with the scroll, both ways.
+// Check the decoded video frames at the same scroll positions in both directions.
 {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const page = await ctx.newPage();
-  await page.goto(`${BASE}/`);
-  await page.waitForTimeout(1500);
-  const h = await page.evaluate(async () => {
-    const frame = () => new Promise((r) => requestAnimationFrame(r));
-    const at = async (y) => { scrollTo(0, y); await frame(); await frame(); return [+getComputedStyle(document.querySelector('.hero-window')).scale, parseFloat(getComputedStyle(document.querySelector('.hero-card')).translate.split(' ')[1] || '0')]; };
-    const ys = [0, 300, 700];
-    const down = []; for (const y of ys) down.push(await at(y));
-    const up = []; for (const y of [...ys].reverse()) up.unshift(await at(y));
-    return { down, up };
+  let release;
+  const hold = new Promise(resolve => { release = resolve; });
+  await page.route(videoAsset, async route => { await hold; await route.continue(); });
+  await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
+  const button = page.locator('.hero [data-rebuy]');
+  const pot = page.locator('.hero [data-pot]');
+  const rebuys = page.locator('#table [data-log] > li.is-rebuy');
+  const rebuysAtLoad = await rebuys.count();
+  await button.press('Enter');
+  check('keyboard Rebuy works while the video loads', await pot.getAttribute('data-value') === '₱11,500');
+  await button.evaluate(el => { el.click(); el.click(); });
+  await page.waitForTimeout(850);
+  check('two rapid rebuys both reach the pot and Log, and the chip clears',
+    await pot.textContent() === '₱13,500' &&
+    await rebuys.count() === rebuysAtLoad + 3 &&
+    !(await page.$('.rebuy-chip')));
+  check('a slow video leaves the still visible', await page.$eval(poster, img => img.naturalWidth > 0) && !(await page.$(readyClip)));
+
+  const scroll = y => page.evaluate(y => scrollTo({ top: y, behavior: 'instant' }), y);
+  const sample = async y => {
+    await page.waitForFunction(({ selector, y }) => {
+      const video = document.querySelector(selector);
+      const end = document.querySelector('.hero').offsetHeight * 0.45;
+      const frame = Math.round(Math.min(y / end, 1) * 239);
+      const time = frame === 0 ? 0 : (frame + 0.5) / 24;
+      return video?.readyState >= 2 && !video.seeking && video.paused && Math.abs(video.currentTime - time) < 0.015;
+    }, { selector: readyClip, y });
+    return page.$eval(readyClip, video => {
+      const surface = document.createElement('canvas');
+      surface.width = 320;
+      surface.height = 180;
+      surface.getContext('2d').drawImage(video, 0, 0, 320, 180);
+      return surface.toDataURL();
+    });
+  };
+  await scroll(175);
+  release();
+  const loadedMidway = await sample(175);
+  const positions = [0, 95, 175, 250, 410, 480];
+  const down = [];
+  for (const y of positions) { await scroll(y); down.push(await sample(y)); }
+  const up = [];
+  for (const y of [...positions].reverse()) { await scroll(y); up.unshift(await sample(y)); }
+  check('the video loads at the current scroll frame', loadedMidway === down[2] && loadedMidway !== down[0]);
+  check('the video changes through the scroll range and holds its last frame', new Set(down.slice(0, -1)).size === 5 && down[4] === down[5]);
+  check('scrolling back produces the same decoded frames', down.every((img, i) => img === up[i]));
+  await scroll(405);
+  await sample(405);
+  check('the final video pose fits below the fixed nav', await page.$eval(readyClip, video => {
+    const nav = document.querySelector('.nav').getBoundingClientRect();
+    const art = video.getBoundingClientRect();
+    return art.top >= nav.bottom - 2 && art.bottom <= innerHeight;
+  }));
+
+  await page.evaluate(async () => {
+    for (const y of [395, 52, 398, 142]) {
+      scrollTo({ top: y, behavior: 'instant' });
+      await new Promise(resolve => requestAnimationFrame(resolve));
+    }
+    document.querySelector('.hero [data-rebuy]').click();
   });
-  check('hero: as written at the top of the page', h.down[0][0] === 1 && h.down[0][1] === 0, JSON.stringify(h.down[0]));
-  check('hero: the window eases back and the card lifts as the hero leaves', h.down[1][0] < 1 && h.down[1][0] > 0.97 && h.down[2][0] === 0.97 && h.down[2][1] === -24, JSON.stringify(h.down));
-  check('hero: the same both ways', JSON.stringify(h.down) === JSON.stringify(h.up), JSON.stringify(h.up));
+  await page.waitForFunction(() => document.querySelector('.hero [data-pot]').textContent === '₱14,500');
+  const latest = await sample(142);
+  check('rapid changes land on the latest frame and Rebuy works while scrolling', latest !== down[0]);
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.waitForFunction(() => window.scrollY === 142);
+  check('reloading at a restored scroll position selects the same frame', await sample(142) === latest);
+
+  await scroll(0);
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await page.waitForSelector(clip, { state: 'detached' });
+  check('the tablet switches back to the still', await page.$eval(poster, img => img.naturalWidth > 0));
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await sample(0);
+  check('resizing back mounts one video', await page.locator(clip).count() === 1);
+  await button.click();
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.waitForSelector(clip, { state: 'detached' });
+  check('switching to reduced motion settles the pot and clears the video and chip',
+    await pot.textContent() === '₱11,500' && !(await page.$('.rebuy-chip')));
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await sample(0);
+  await button.evaluate(el => {
+    el.click();
+    document.documentElement.dataset.motion = 'off';
+    el.click();
+  });
+  await page.waitForSelector(clip, { state: 'detached' });
+  check('Rebuy during a switch to motion off shows the latest pot', await pot.textContent() === '₱13,500' &&
+    await pot.getAttribute('data-value') === null && !(await page.$('.rebuy-chip')));
   await ctx.close();
+}
+
+{
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await page.route(videoAsset, route => route.abort());
+  const failed = page.waitForEvent('requestfailed', req => req.url().endsWith('/chip-stack.mp4'));
+  await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
+  await failed;
+  await page.waitForSelector(clip, { state: 'detached' });
+  await page.locator('.hero [data-rebuy]').click();
+  check('a blocked video leaves the still and Rebuy usable',
+    await page.$eval(poster, img => img.naturalWidth > 0) &&
+    !(await page.$(readyClip)) && await page.locator('.hero [data-pot]').getAttribute('data-value') === '₱11,500');
+  await page.close();
+}
+
+for (const [width, height] of [[1440, 900], [1024, 768], [1024, 640], [768, 1024], [390, 844]]) {
+  const page = await browser.newPage({ viewport: { width, height }, reducedMotion: 'reduce' });
+  await page.goto(`${BASE}/`);
+  const bounds = await page.evaluate(() => {
+    const hero = document.querySelector('.hero');
+    const background = document.querySelector('[data-hero-video]');
+    const controls = [...hero.querySelectorAll('.btn-row a, [data-rebuy]')];
+    const usable = controls.every(el => {
+      const r = el.getBoundingClientRect();
+      const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      return r.width > 0 && r.top >= 0 && r.bottom <= innerHeight &&
+        r.left >= 0 && r.right <= innerWidth && el.contains(top);
+    });
+    const proof = hero.querySelector('.hero__proof').getBoundingClientRect();
+    const demo = hero.querySelector('[data-live-set]').getBoundingClientRect();
+    return usable && proof.bottom <= demo.top &&
+      background.clientWidth === innerWidth && background.clientHeight === hero.offsetHeight &&
+      document.documentElement.scrollWidth === innerWidth && (innerWidth !== 1440 || hero.offsetHeight === innerHeight);
+  });
+  check(`${width}×${height}: the background reaches both edges and the hero actions fit`, bounds);
+  await page.close();
 }
 
 // The Count-up panels fit the entire recording and every row in each displayed mockup.

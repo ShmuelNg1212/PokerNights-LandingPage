@@ -36,14 +36,30 @@ function rollFigure(el: HTMLElement, from: string, to: string) {
   }, 800);
 }
 
-/** Motion for the live table. Under reduced motion nothing is hooked: the figures change at once. */
+/** Motion for the live table, with immediate updates in the still layout. */
 export function initRoll() {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const root = document.documentElement;
+  const still = () => reduced.matches || root.dataset.motion === 'off';
+  const settle = () => {
+    if (!still()) return;
+    for (const figure of document.querySelectorAll<HTMLElement>('[data-pot][data-value]')) {
+      figure.textContent = figure.dataset.value!;
+      delete figure.dataset.value;
+    }
+  };
   setLiveHooks({
-    onPot: rollFigure,
+    onPot: (figure, from, to) => {
+      if (still()) {
+        figure.textContent = to;
+        delete figure.dataset.value;
+      } else rollFigure(figure, from, to);
+    },
     onMark: (row) => {
       const tag = row.querySelector('[data-mark]');
-      if (tag) animate(tag, { opacity: [0, 1] }, { duration: 0.14, ease: [0.2, 0.8, 0.2, 1] });
+      if (tag && !still()) animate(tag, { opacity: [0, 1] }, { duration: 0.14, ease: [0.2, 0.8, 0.2, 1] });
     },
   });
+  reduced.addEventListener('change', settle);
+  new MutationObserver(settle).observe(root, { attributeFilter: ['data-motion'] });
 }
