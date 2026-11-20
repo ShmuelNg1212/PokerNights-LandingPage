@@ -31,7 +31,7 @@ const rack = [
 const short = (c: number) => (c >= 1_000_00 ? `${c / 1_000_00}K` : String(c / 100));
 const rackTotal = rack.reduce((a, r) => a + r.value * r.n, 0);
 ---
-<section class="section ground-inverse g2 g2m" id="features" style="--h: 2" aria-labelledby="features-h" data-sweep>
+<section class="section ground-inverse" id="features" aria-labelledby="features-h" data-sweep>
   <div class="wrap">
     <div class="group">
       <div class="section-head">
@@ -42,27 +42,23 @@ const rackTotal = rack.reduce((a, r) => a + r.value * r.n, 0);
           <h3>Counts the chips for you</h3>
           <p>Tap a chip colour to add one, hold to take one off. The total fills in the cash-out.</p>
           <div class="panel">
-            <div class="stage stage--fade-br">
-              <div class="at-corner rack-frag">
-                <div class="ui ui-pn pn-card rack" data-app data-ly-steps="600" aria-hidden="true">
-                  <div class="rack__head">
-                    <span class="chip k1" aria-hidden="true" data-initials="M"></span>
-                    <span><strong>Miguel</strong><small class="pn-muted">Count-up · Friday table</small></span>
-                    <span class="pn-badge is-quiet">Counting</span>
-                  </div>
-                  <ul class="rack__rows">
-                    {rack.map((r) => (
-                      <li data-step>
-                        <span class={`chip is-small ${r.k}`} aria-hidden="true" data-initials={short(r.value)}></span>
-                        <span class="rack__value">{peso(r.value)} chip</span>
-                        <span class="rack__n">× {r.n}</span>
-                        <span class="rack__line">{peso(r.value * r.n)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <p class="rack__total" data-step><span>Stack total</span><strong>{peso(rackTotal)}</strong></p>
-                </div>
+            <div class="ui ui-pn pn-card rack" data-app data-ly-steps="600" aria-hidden="true">
+              <div class="rack__head">
+                <span class="chip k1" aria-hidden="true" data-initials="M"></span>
+                <span><strong>Miguel</strong><small class="pn-muted">Count-up · Friday table</small></span>
+                <span class="pn-badge is-quiet">Counting</span>
               </div>
+              <ul class="rack__rows">
+                {rack.map((r) => (
+                  <li data-step>
+                    <span class={`chip is-small ${r.k}`} aria-hidden="true" data-initials={short(r.value)}></span>
+                    <span class="rack__value">{peso(r.value)} chip</span>
+                    <span class="rack__n">× {r.n}</span>
+                    <span class="rack__line">{peso(r.value * r.n)}</span>
+                  </li>
+                ))}
+              </ul>
+              <p class="rack__total" data-step><span>Stack total</span><strong>{peso(rackTotal)}</strong></p>
             </div>
           </div>
         </article>
@@ -80,17 +76,13 @@ const rackTotal = rack.reduce((a, r) => a + r.value * r.n, 0);
         <h3>Reverses a wrong entry</h3>
         <p>The host reverses it with a reason. The entry stays in the log, struck through.</p>
         <div class="panel">
-          <div class="stage stage--fade-b">
-            <div class="at-rise fit bento-frag">
-              <div class="ui ui-pn pn-card mini-log" data-app aria-hidden="true">
-                <h3>Session log</h3>
-                <ul class="pn-rows">
-                  <li class="is-reversed"><span class="chip is-small k4" aria-hidden="true" data-initials="P"></span><span><s>Paolo · Rebuy</s><small>Reversed: one zero too many</small></span><span class="amt"><s>₱10,000</s></span></li>
-                  <li><span class="chip is-small k4" aria-hidden="true" data-initials="P"></span><span>Paolo · Rebuy</span><span class="amt">₱1,000</span></li>
-                  <li><span class="chip is-small k3" aria-hidden="true" data-initials="T"></span><span>Trina · Buy-in</span><span class="amt">₱2,000</span></li>
-                </ul>
-              </div>
-            </div>
+          <div class="ui ui-pn pn-card mini-log" data-app aria-hidden="true">
+            <h3>Session log</h3>
+            <ul class="pn-rows">
+              <li class="is-reversed"><span class="chip is-small k4" aria-hidden="true" data-initials="P"></span><span><s>Paolo · Rebuy</s><small>Reversed: one zero too many</small></span><span class="amt"><s>₱10,000</s></span></li>
+              <li><span class="chip is-small k4" aria-hidden="true" data-initials="P"></span><span>Paolo · Rebuy</span><span class="amt">₱1,000</span></li>
+              <li><span class="chip is-small k3" aria-hidden="true" data-initials="T"></span><span>Trina · Buy-in</span><span class="amt">₱2,000</span></li>
+            </ul>
           </div>
         </div>
       </article>
@@ -98,19 +90,15 @@ const rackTotal = rack.reduce((a, r) => a + r.value * r.n, 0);
         <h3>Counts in pesos or chips</h3>
         <p>The host picks one for the game. The app never converts one into the other.</p>
         <div class="panel">
-          <div class="stage stage--fade-b">
-            <div class="at-rise fit bento-frag">
-              <div class="ui ui-pn pn-card units" data-app aria-hidden="true">
-                <h3>Game settings</h3>
-                <p class="pn-muted">Friday table counts in</p>
-                <span class="pn-segment"><span class="is-on">Pesos</span><span>Chips</span></span>
-                <dl class="units__facts">
-                  <div><dt>Blinds</dt><dd>₱10 / ₱20</dd></div>
-                  <div><dt>Usual buy-in</dt><dd>₱1,000</dd></div>
-                  <div><dt>Rake</dt><dd>₱50 per buy-in</dd></div>
-                </dl>
-              </div>
-            </div>
+          <div class="ui ui-pn pn-card units" data-app aria-hidden="true">
+            <h3>Game settings</h3>
+            <p class="pn-muted">Friday table counts in</p>
+            <span class="pn-segment"><span class="is-on">Pesos</span><span>Chips</span></span>
+            <dl class="units__facts">
+              <div><dt>Blinds</dt><dd>₱10 / ₱20</dd></div>
+              <div><dt>Usual buy-in</dt><dd>₱1,000</dd></div>
+              <div><dt>Rake</dt><dd>₱50 per buy-in</dd></div>
+            </dl>
           </div>
         </div>
       </article>
